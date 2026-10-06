@@ -1,0 +1,998 @@
+<div class="feed-page">
+
+  <!-- HEADER -->
+  <header class="feed-header">
+
+    <div class="header-copy">
+
+      <span class="eyebrow">
+        VANTA / FEED SIMULATOR
+      </span>
+
+      <h1>
+        FEED SIMULATOR
+      </h1>
+
+      <p>
+        See how your Instagram profile feels as one visual system.
+      </p>
+
+    </div>
+
+
+    <div class="header-actions">
+
+      <button
+        class="secondary-button"
+        type="button"
+        (click)="refreshFeed()"
+        [disabled]="refreshing() || loading()"
+      >
+        <span *ngIf="!refreshing()">
+          ↻ Refresh
+        </span>
+
+        <span *ngIf="refreshing()">
+          Refreshing...
+        </span>
+      </button>
+
+
+      <button
+        class="primary-button"
+        type="button"
+        routerLink="/create"
+      >
+        Improve feed
+        <span>→</span>
+      </button>
+
+    </div>
+
+  </header>
+
+
+  <!-- LOADING -->
+  <section
+    class="state-card"
+    *ngIf="loading()"
+  >
+
+    <div class="state-loader"></div>
+
+    <div>
+
+      <span class="state-eyebrow">
+        VANTA
+      </span>
+
+      <h2>
+        Reading your Instagram feed...
+      </h2>
+
+      <p>
+        Loading your Instagram content, Profile DNA and VANTA visuals.
+      </p>
+
+    </div>
+
+  </section>
+
+
+  <!-- ERROR -->
+  <section
+    class="state-card error-card"
+    *ngIf="!loading() && error()"
+  >
+
+    <div class="state-icon">
+      !
+    </div>
+
+    <div>
+
+      <span class="state-eyebrow">
+        CONNECTION
+      </span>
+
+      <h2>
+        Something went wrong.
+      </h2>
+
+      <p>
+        {{ error() }}
+      </p>
+
+      <div class="state-actions">
+
+        <button
+          class="secondary-button"
+          type="button"
+          (click)="refreshFeed()"
+          [disabled]="refreshing()"
+        >
+          Try again
+        </button>
+
+        <button
+          class="primary-button"
+          type="button"
+          routerLink="/profile"
+        >
+          Open profile
+        </button>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- MAIN -->
+  <main
+    class="feed-content"
+    *ngIf="!loading() && !error()"
+  >
+
+
+    <!-- TOOLBAR -->
+    <section class="feed-toolbar">
+
+      <div class="toolbar-left">
+
+        <span class="toolbar-label">
+          VISUAL VIEW
+        </span>
+
+        <div class="view-switch">
+
+          <button
+            type="button"
+            [class.active]="activeView() === 'grid'"
+            (click)="setView('grid')"
+          >
+            Grid
+          </button>
+
+          <button
+            type="button"
+            [class.active]="activeView() === 'preview'"
+            (click)="setView('preview')"
+          >
+            Preview
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <div class="toolbar-right">
+
+        <span class="live-dot"></span>
+
+        <span>
+          LIVE INSTAGRAM DATA
+        </span>
+
+      </div>
+
+    </section>
+
+
+    <!-- IMPACT -->
+    <section class="impact-card">
+
+      <div class="impact-copy">
+
+        <span class="section-eyebrow">
+          PROFILE IMPACT
+        </span>
+
+        <h2>
+          {{ getImpactScore() }}
+          <span>/100</span>
+        </h2>
+
+        <p>
+          Profile impact derived from your VANTA Profile DNA.
+        </p>
+
+      </div>
+
+
+      <div class="impact-ring">
+
+        <div class="impact-ring-inner">
+
+          <strong>
+            {{ getImpactScore() }}
+          </strong>
+
+          <span>
+            IMPACT
+          </span>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- CURRENT FEED -->
+    <section class="feed-section">
+
+      <div class="section-heading">
+
+        <div>
+
+          <span class="section-eyebrow">
+            CURRENT FEED
+          </span>
+
+          <h2>
+            @{{ getUsername() }}
+          </h2>
+
+        </div>
+
+
+        <span class="post-count">
+          {{ media().length }} posts
+        </span>
+
+      </div>
+
+
+      <!-- EMPTY -->
+      <div
+        class="empty-feed"
+        *ngIf="media().length === 0"
+      >
+
+        <div class="empty-icon">
+          +
+        </div>
+
+        <h3>
+          No Instagram posts found.
+        </h3>
+
+        <p>
+          Connect an Instagram profile with published content
+          to start building your visual feed.
+        </p>
+
+        <button
+          class="primary-button"
+          type="button"
+          routerLink="/profile"
+        >
+          Analyze profile
+          <span>→</span>
+        </button>
+
+      </div>
+
+
+      <!-- GRID -->
+      <div
+        class="instagram-grid"
+        *ngIf="
+          media().length > 0 &&
+          activeView() === 'grid'
+        "
+      >
+
+        <article
+          class="instagram-tile"
+          *ngFor="
+            let post of media();
+            trackBy: trackByMediaId
+          "
+        >
+
+          <a
+            class="tile-link"
+            [href]="post.permalink || '#'"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+
+            <img
+              *ngIf="getMediaImage(post)"
+              [src]="getMediaImage(post)"
+              alt="Instagram visual"
+              loading="lazy"
+            />
+
+
+            <div
+              class="tile-placeholder"
+              *ngIf="!getMediaImage(post)"
+            >
+              <span>
+                NO IMAGE
+              </span>
+            </div>
+
+
+            <div class="tile-overlay">
+
+              <span class="tile-type">
+                {{ getMediaType(post) }}
+              </span>
+
+              <span class="tile-arrow">
+                ↗
+              </span>
+
+            </div>
+
+          </a>
+
+        </article>
+
+      </div>
+
+
+      <!-- PREVIEW -->
+      <div
+        class="feed-preview"
+        *ngIf="
+          media().length > 0 &&
+          activeView() === 'preview'
+        "
+      >
+
+        <article
+          class="preview-card"
+          *ngFor="
+            let post of media();
+            trackBy: trackByMediaId
+          "
+        >
+
+          <div class="preview-image">
+
+            <img
+              *ngIf="getMediaImage(post)"
+              [src]="getMediaImage(post)"
+              alt="Instagram visual"
+              loading="lazy"
+            />
+
+          </div>
+
+
+          <div class="preview-meta">
+
+            <div class="preview-type">
+              {{ getMediaType(post) }}
+            </div>
+
+
+            <p
+              *ngIf="post.caption"
+              class="preview-caption"
+            >
+              {{ post.caption }}
+            </p>
+
+
+            <a
+              *ngIf="post.permalink"
+              [href]="post.permalink"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="preview-link"
+            >
+              Open on Instagram →
+            </a>
+
+          </div>
+
+        </article>
+
+      </div>
+
+    </section>
+
+
+    <!-- DNA -->
+    <section class="analysis-section">
+
+      <div class="section-heading">
+
+        <div>
+
+          <span class="section-eyebrow">
+            PROFILE DNA
+          </span>
+
+          <h2>
+            The visual language behind your feed.
+          </h2>
+
+        </div>
+
+        <span class="analysis-status">
+          VANTA DNA
+        </span>
+
+      </div>
+
+
+      <div class="dna-overview">
+
+        <div class="dna-item">
+
+          <span>
+            MOOD
+          </span>
+
+          <strong>
+            {{ getDNAValue(dna()?.mood) }}
+          </strong>
+
+        </div>
+
+
+        <div class="dna-item">
+
+          <span>
+            VISUAL STYLE
+          </span>
+
+          <strong>
+            {{ getDNAValue(dna()?.visualStyle) }}
+          </strong>
+
+        </div>
+
+
+        <div class="dna-item">
+
+          <span>
+            COMPOSITION
+          </span>
+
+          <strong>
+            {{ getDNAValue(dna()?.composition) }}
+          </strong>
+
+        </div>
+
+
+        <div class="dna-item">
+
+          <span>
+            TEXTURE
+          </span>
+
+          <strong>
+            {{ getDNAValue(dna()?.texture) }}
+          </strong>
+
+        </div>
+
+      </div>
+
+
+      <!-- METRICS -->
+      <div class="metrics-grid">
+
+        <div class="metric-card">
+
+          <div class="metric-top">
+
+            <span>
+              IMPACT
+            </span>
+
+            <strong>
+              {{ getImpactScore() }}
+            </strong>
+
+          </div>
+
+          <div class="metric-bar">
+            <span
+              [style.width.%]="getImpactScore()"
+            ></span>
+          </div>
+
+          <p>
+            Overall strength of the current profile identity.
+          </p>
+
+        </div>
+
+
+        <div class="metric-card">
+
+          <div class="metric-top">
+
+            <span>
+              CONSISTENCY
+            </span>
+
+            <strong>
+              {{ getVisualConsistency() }}
+            </strong>
+
+          </div>
+
+          <div class="metric-bar">
+            <span
+              [style.width.%]="getVisualConsistency()"
+            ></span>
+          </div>
+
+          <p>
+            Alignment between your saved VANTA visuals and Profile DNA.
+          </p>
+
+        </div>
+
+
+        <div class="metric-card">
+
+          <div class="metric-top">
+
+            <span>
+              VISUAL RHYTHM
+            </span>
+
+            <strong>
+              {{ getVisualRhythm() }}
+            </strong>
+
+          </div>
+
+          <div class="metric-bar">
+            <span
+              [style.width.%]="getVisualRhythm()"
+            ></span>
+          </div>
+
+          <p>
+            Balance between your image and video content.
+          </p>
+
+        </div>
+
+
+        <div class="metric-card">
+
+          <div class="metric-top">
+
+            <span>
+              COLOR IDENTITY
+            </span>
+
+            <strong>
+              {{ getColorIdentity() }}
+            </strong>
+
+          </div>
+
+          <div class="metric-bar">
+            <span
+              [style.width.%]="getColorIdentity()"
+            ></span>
+          </div>
+
+          <p>
+            Strength of the recurring palette detected by VANTA.
+          </p>
+
+        </div>
+
+
+        <div class="metric-card">
+
+          <div class="metric-top">
+
+            <span>
+              CONTENT VARIETY
+            </span>
+
+            <strong>
+              {{ getContentVariety() }}
+            </strong>
+
+          </div>
+
+          <div class="metric-bar">
+            <span
+              [style.width.%]="getContentVariety()"
+            ></span>
+          </div>
+
+          <p>
+            Diversity of the content currently available on Instagram.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <!-- SUMMARY -->
+      <div class="analysis-summary">
+
+        <div class="summary-mark">
+          V
+        </div>
+
+
+        <div class="summary-content">
+
+          <span class="summary-eyebrow">
+            VANTA READ
+          </span>
+
+          <h3>
+            {{ getSummaryTitle() }}
+          </h3>
+
+          <p>
+            {{ getSummaryText() }}
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <!-- RECOMMENDATION -->
+      <div class="recommendation-card">
+
+        <div class="recommendation-number">
+          01
+        </div>
+
+
+        <div class="recommendation-content">
+
+          <span class="recommendation-eyebrow">
+            NEXT MOVE
+          </span>
+
+          <h3>
+            {{ getRecommendationTitle() }}
+          </h3>
+
+          <p>
+            {{ getRecommendationText() }}
+          </p>
+
+        </div>
+
+
+        <button
+          class="primary-button"
+          type="button"
+          routerLink="/create"
+        >
+          Create visual
+          <span>→</span>
+        </button>
+
+      </div>
+
+    </section>
+
+
+    <!-- VANTA VISUALS -->
+    <section class="visuals-section">
+
+      <div class="section-heading">
+
+        <div>
+
+          <span class="section-eyebrow">
+            MY VISUALS
+          </span>
+
+          <h2>
+            Your VANTA generations.
+          </h2>
+
+        </div>
+
+        <span class="post-count">
+          {{ visuals().length }} saved
+        </span>
+
+      </div>
+
+
+      <!-- NO VISUALS -->
+      <div
+        class="empty-visuals"
+        *ngIf="visuals().length === 0"
+      >
+
+        <span>
+          VANTA
+        </span>
+
+        <p>
+          Your generated visuals will appear here after you save a creation.
+        </p>
+
+        <button
+          class="primary-button"
+          type="button"
+          routerLink="/create"
+        >
+          Create your first visual
+          <span>→</span>
+        </button>
+
+      </div>
+
+
+      <!-- VISUALS -->
+      <div
+        class="visuals-grid"
+        *ngIf="visuals().length > 0"
+      >
+
+        <article
+          class="vanta-visual"
+          *ngFor="
+            let visual of visuals().slice(0, 6);
+            trackBy: trackByVisualId
+          "
+        >
+
+          <div class="vanta-visual-image">
+
+            <img
+              [src]="visual.generated_image_url"
+              alt="VANTA generated visual"
+              loading="lazy"
+            />
+
+          </div>
+
+
+          <div class="vanta-visual-info">
+
+            <span>
+              {{ getVisualVerdict(visual) }}
+            </span>
+
+            <strong>
+              {{ getVisualScore(visual) }}/100
+            </strong>
+
+            <small>
+              {{ getVisualMood(visual) }}
+            </small>
+
+          </div>
+
+        </article>
+
+      </div>
+
+    </section>
+
+
+    <!-- CURRENT VS VANTA -->
+    <section class="evolution-section">
+
+      <div class="section-heading">
+
+        <div>
+
+          <span class="section-eyebrow">
+            PROFILE EVOLUTION
+          </span>
+
+          <h2>
+            Current vs. VANTA.
+          </h2>
+
+        </div>
+
+
+        <span
+          class="evolution-delta"
+          *ngIf="getLatestVisual()"
+        >
+          {{ getVantaImprovementLabel() }}
+        </span>
+
+      </div>
+
+
+      <div class="evolution-grid">
+
+
+        <!-- CURRENT -->
+        <div class="evolution-card">
+
+          <div class="evolution-header">
+
+            <div>
+
+              <span class="evolution-label">
+                CURRENT
+              </span>
+
+              <strong>
+                Instagram
+              </strong>
+
+            </div>
+
+
+            <span class="evolution-score">
+              {{ getCurrentScore() }}/100
+            </span>
+
+          </div>
+
+
+          <div class="evolution-feed">
+
+            <div
+              class="evolution-tile"
+              *ngFor="
+                let post of media().slice(0, 6);
+                trackBy: trackByMediaId
+              "
+            >
+
+              <img
+                *ngIf="getMediaImage(post)"
+                [src]="getMediaImage(post)"
+                alt="Current Instagram visual"
+                loading="lazy"
+              />
+
+            </div>
+
+
+            <div
+              class="evolution-empty"
+              *ngIf="media().length === 0"
+            >
+              <span>
+                NO CONTENT
+              </span>
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- VANTA -->
+        <div class="evolution-card vanta-card">
+
+          <div class="evolution-header">
+
+            <div>
+
+              <span class="evolution-label">
+                VANTA
+              </span>
+
+              <strong>
+                Optimized visual
+              </strong>
+
+            </div>
+
+
+            <span class="evolution-score">
+              {{
+                getLatestVisual()
+                  ? getVantaScore() + '/100'
+                  : '—'
+              }}
+            </span>
+
+          </div>
+
+
+          <div
+            class="vanta-evolution"
+            *ngIf="getLatestVisual() as visual"
+          >
+
+            <img
+              [src]="visual.generated_image_url"
+              alt="Latest VANTA generated visual"
+            />
+
+
+            <div class="vanta-evolution-overlay">
+
+              <span>
+                {{ getVisualVerdict(visual) }}
+              </span>
+
+              <strong>
+                {{ getVantaImprovementLabel() }}
+              </strong>
+
+            </div>
+
+          </div>
+
+
+          <div
+            class="vanta-evolution empty-vanta"
+            *ngIf="!getLatestVisual()"
+          >
+
+            <div class="vanta-logo">
+              VANTA
+            </div>
+
+            <span class="vanta-description">
+              Generate and save a visual to see the real VANTA evolution here.
+            </span>
+
+            <button
+              class="primary-button"
+              type="button"
+              routerLink="/create"
+            >
+              Open Create
+              <span>→</span>
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- CTA -->
+    <section class="feed-cta">
+
+      <div>
+
+        <span class="section-eyebrow">
+          VANTA CREATIVE ENGINE
+        </span>
+
+        <h2>
+          Your next visual starts here.
+        </h2>
+
+        <p>
+          Upload a source image and let VANTA transform the environment,
+          lighting and atmosphere while preserving your original subject.
+        </p>
+
+      </div>
+
+
+      <button
+        class="primary-button large"
+        type="button"
+        routerLink="/create"
+      >
+        Create with VANTA
+        <span>→</span>
+      </button>
+
+    </section>
+
+  </main>
+
+</div>

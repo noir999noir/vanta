@@ -1,0 +1,331 @@
+<div class="auth-page">
+
+  <div class="auth-glow"></div>
+
+  <main class="auth-card">
+
+    <!-- ========================================= -->
+    <!-- BRAND -->
+    <!-- ========================================= -->
+
+    <div class="brand">
+
+      <div class="brand-mark">
+        V
+      </div>
+
+      <div class="brand-copy">
+
+        <div class="brand-name">
+          VANTA
+        </div>
+
+        <div class="brand-subtitle">
+          AI CREATIVE DIRECTOR
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- ========================================= -->
+    <!-- HEADING -->
+    <!-- ========================================= -->
+
+    <div class="heading">
+
+      @if (mode() === 'login') {
+
+        <span class="eyebrow">
+          VANTA ACCESS
+        </span>
+
+        <h1>
+          Welcome back.
+        </h1>
+
+        <p>
+          Enter VANTA and create something
+          impossible to ignore.
+        </p>
+
+      } @else {
+
+        <span class="eyebrow">
+          JOIN VANTA
+        </span>
+
+        <h1>
+          Create your VANTA.
+        </h1>
+
+        <p>
+          Build your visual identity with AI.
+        </p>
+
+      }
+
+    </div>
+
+
+    <!-- ========================================= -->
+    <!-- MODE SWITCH -->
+    <!-- ========================================= -->
+
+    <div class="mode-switch">
+
+      <button
+        type="button"
+        [class.active]="mode() === 'login'"
+        [disabled]="loading()"
+        (click)="setMode('login')"
+      >
+        Login
+      </button>
+
+      <button
+        type="button"
+        [class.active]="mode() === 'register'"
+        [disabled]="loading()"
+        (click)="setMode('register')"
+      >
+        Create account
+      </button>
+
+    </div>
+
+
+    <!-- ========================================= -->
+    <!-- FORM -->
+    <!-- ========================================= -->
+
+    <form
+      (ngSubmit)="submit()"
+      novalidate
+    >
+
+      <!-- EMAIL -->
+
+      <div class="field">
+
+        <label for="email">
+          Email
+        </label>
+
+        <div class="input-wrap">
+
+          <input
+            id="email"
+            type="email"
+            name="email"
+            [(ngModel)]="email"
+            placeholder="you@email.com"
+            autocomplete="email"
+            autocapitalize="none"
+            spellcheck="false"
+            [disabled]="loading()"
+          />
+
+        </div>
+
+      </div>
+
+
+      <!-- PASSWORD -->
+
+      <div class="field">
+
+        <div class="field-header">
+
+          <label for="password">
+            Password
+          </label>
+
+          @if (mode() === 'login') {
+
+            <span class="field-hint">
+              Minimum 6 characters
+            </span>
+
+          }
+
+        </div>
+
+        <div class="input-wrap">
+
+          <input
+            id="password"
+            type="password"
+            name="password"
+            [(ngModel)]="password"
+            placeholder="••••••••"
+            [autocomplete]="
+              mode() === 'login'
+                ? 'current-password'
+                : 'new-password'
+            "
+            [disabled]="loading()"
+          />
+
+        </div>
+
+      </div>
+
+
+      <!-- ERROR -->
+
+      @if (error()) {
+
+        <div
+          class="message error"
+          role="alert"
+        >
+
+          <span class="message-icon">
+            !
+          </span>
+
+          <span>
+            {{ error() }}
+          </span>
+
+        </div>
+
+      }
+
+
+      <!-- SUCCESS -->
+
+      @if (success()) {
+
+        <div
+          class="message success"
+          role="status"
+        >
+
+          <span class="message-icon">
+            ✓
+          </span>
+
+          <span>
+            {{ success() }}
+          </span>
+
+        </div>
+
+      }
+
+
+      <!-- SUBMIT -->
+
+      <button
+        class="submit-button"
+        type="submit"
+        [disabled]="loading()"
+      >
+
+        @if (loading()) {
+
+          <span class="button-loading">
+
+            <span class="spinner"></span>
+
+            <span>
+              {{ mode() === 'login'
+                ? 'Entering VANTA...'
+                : 'Creating your VANTA...'
+              }}
+            </span>
+
+          </span>
+
+        } @else if (mode() === 'login') {
+
+          <span>
+            Enter VANTA
+          </span>
+
+          <span class="button-arrow">
+            →
+          </span>
+
+        } @else {
+
+          <span>
+            Create account
+          </span>
+
+          <span class="button-arrow">
+            →
+          </span>
+
+        }
+
+      </button>
+
+    </form>
+
+
+    <!-- ========================================= -->
+    <!-- SWITCH FOOTER -->
+    <!-- ========================================= -->
+
+    <div class="auth-switch-copy">
+
+      @if (mode() === 'login') {
+
+        <span>
+          Don't have a VANTA account?
+        </span>
+
+        <button
+          type="button"
+          [disabled]="loading()"
+          (click)="setMode('register')"
+        >
+          Create one
+        </button>
+
+      } @else {
+
+        <span>
+          Already have a VANTA account?
+        </span>
+
+        <button
+          type="button"
+          [disabled]="loading()"
+          (click)="setMode('login')"
+        >
+          Login
+        </button>
+
+      }
+
+    </div>
+
+
+    <!-- ========================================= -->
+    <!-- FOOTER -->
+    <!-- ========================================= -->
+
+    <div class="footer">
+
+      <span>
+        VANTA
+      </span>
+
+      <span>
+        •
+      </span>
+
+      <span>
+        CREATE WITHOUT LIMITS
+      </span>
+
+    </div>
+
+  </main>
+
+</div>

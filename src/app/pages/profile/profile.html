@@ -1,0 +1,735 @@
+<div class="page">
+
+  <!-- =====================================================
+       PAGE HEADER
+  ====================================================== -->
+
+  <header class="page-header">
+
+    <div>
+
+      <p class="eyebrow">
+        PROFILE ANALYSIS
+      </p>
+
+      <h1>
+        Your Profile DNA.
+      </h1>
+
+      <p class="page-description">
+        Understand what makes your visual identity recognizable.
+      </p>
+
+    </div>
+
+
+    <button
+      class="primary-button"
+      type="button"
+      (click)="analyzeProfile()"
+      [disabled]="analyzing()">
+
+      @if (analyzing()) {
+
+        <span class="button-loader"></span>
+
+        ANALYZING...
+
+      } @else {
+
+        ANALYZE PROFILE
+
+      }
+
+    </button>
+
+  </header>
+
+
+
+  <!-- =====================================================
+       ERROR
+  ====================================================== -->
+
+  @if (error()) {
+
+    <div class="error-message">
+
+      <span>!</span>
+
+      {{ error() }}
+
+    </div>
+
+  }
+
+
+
+  <!-- =====================================================
+       LOADING
+  ====================================================== -->
+
+  @if (loading()) {
+
+    <section class="loading-state">
+
+      <div class="loading-spinner"></div>
+
+      <p>
+        Loading Instagram profile...
+      </p>
+
+    </section>
+
+  }
+
+
+
+  <!-- =====================================================
+       PROFILE OVERVIEW
+  ====================================================== -->
+
+  @if (!loading() && profile()) {
+
+    <section class="profile-overview">
+
+      <div class="profile-main">
+
+        <div class="profile-avatar">
+
+          @if (profile()?.profile_picture_url) {
+
+            <img
+              [src]="profile()?.profile_picture_url"
+              [alt]="profile()?.username || 'Instagram profile'"
+            />
+
+          } @else {
+
+            <span>
+              {{ (profile()?.username || 'U').charAt(0).toUpperCase() }}
+            </span>
+
+          }
+
+        </div>
+
+
+        <div class="profile-info">
+
+          <div class="profile-status">
+            INSTAGRAM CONNECTED
+          </div>
+
+          <h2>
+            {{ '@' + (profile()?.username || '') }}
+          </h2>
+
+          <p>
+            {{ profile()?.name || 'Instagram Creator' }}
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="impact-card">
+
+        <div class="impact-header">
+
+          <span>
+            PROFILE IMPACT
+          </span>
+
+          <strong>
+            {{ dna()?.impactScore ?? 0 }}/100
+          </strong>
+
+        </div>
+
+
+        <div class="impact-bar">
+
+          <div
+            class="impact-fill"
+            [style.width.%]="dna()?.impactScore ?? 0">
+          </div>
+
+        </div>
+
+
+        <p>
+          Visual identity strength
+        </p>
+
+      </div>
+
+    </section>
+
+  }
+
+
+
+  <!-- =====================================================
+       PROFILE DNA
+  ====================================================== -->
+
+  @if (dna()) {
+
+    <section class="section">
+
+      <div class="section-title">
+
+        <p class="eyebrow">
+          PROFILE DNA
+        </p>
+
+        <h2>
+          What defines your identity.
+        </h2>
+
+        <p class="section-description">
+          VANTA analyzed your Instagram content and extracted
+          the visual patterns that define your profile.
+        </p>
+
+      </div>
+
+
+
+      <div class="dna-grid">
+
+
+        <!-- MOOD -->
+
+        <div class="dna-card">
+
+          <div class="dna-card-header">
+
+            <span class="dna-label">
+              MOOD
+            </span>
+
+            <span class="dna-number">
+              01
+            </span>
+
+          </div>
+
+
+          <div class="tag-list">
+
+            @for (
+              item of dna()?.mood ?? [];
+              track item
+            ) {
+
+              <span class="dna-tag">
+                {{ item }}
+              </span>
+
+            }
+
+          </div>
+
+        </div>
+
+
+
+        <!-- VISUAL STYLE -->
+
+        <div class="dna-card">
+
+          <div class="dna-card-header">
+
+            <span class="dna-label">
+              VISUAL STYLE
+            </span>
+
+            <span class="dna-number">
+              02
+            </span>
+
+          </div>
+
+
+          <div class="tag-list">
+
+            @for (
+              item of dna()?.visualStyle ?? [];
+              track item
+            ) {
+
+              <span class="dna-tag">
+                {{ item }}
+              </span>
+
+            }
+
+          </div>
+
+        </div>
+
+
+
+        <!-- TYPOGRAPHY -->
+
+        <div class="dna-card">
+
+          <div class="dna-card-header">
+
+            <span class="dna-label">
+              TYPOGRAPHY
+            </span>
+
+            <span class="dna-number">
+              03
+            </span>
+
+          </div>
+
+
+          <div class="tag-list">
+
+            @for (
+              item of dna()?.typography ?? [];
+              track item
+            ) {
+
+              <span class="dna-tag">
+                {{ item }}
+              </span>
+
+            }
+
+          </div>
+
+        </div>
+
+
+
+        <!-- COMPOSITION -->
+
+        <div class="dna-card">
+
+          <div class="dna-card-header">
+
+            <span class="dna-label">
+              COMPOSITION
+            </span>
+
+            <span class="dna-number">
+              04
+            </span>
+
+          </div>
+
+
+          <div class="tag-list">
+
+            @for (
+              item of dna()?.composition ?? [];
+              track item
+            ) {
+
+              <span class="dna-tag">
+                {{ item }}
+              </span>
+
+            }
+
+          </div>
+
+        </div>
+
+
+
+        <!-- TEXTURE -->
+
+        <div class="dna-card">
+
+          <div class="dna-card-header">
+
+            <span class="dna-label">
+              TEXTURE
+            </span>
+
+            <span class="dna-number">
+              05
+            </span>
+
+          </div>
+
+
+          <div class="tag-list">
+
+            @for (
+              item of dna()?.texture ?? [];
+              track item
+            ) {
+
+              <span class="dna-tag">
+                {{ item }}
+              </span>
+
+            }
+
+          </div>
+
+        </div>
+
+
+
+        <!-- IDENTITY -->
+
+        <div class="dna-card">
+
+          <div class="dna-card-header">
+
+            <span class="dna-label">
+              IDENTITY
+            </span>
+
+            <span class="dna-number">
+              06
+            </span>
+
+          </div>
+
+
+          <div class="tag-list">
+
+            @for (
+              item of dna()?.identity ?? [];
+              track item
+            ) {
+
+              <span class="dna-tag">
+                {{ item }}
+              </span>
+
+            }
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  }
+
+
+
+  <!-- =====================================================
+       VISUAL EVIDENCE
+  ====================================================== -->
+
+  <section class="section">
+
+    <div class="section-title">
+
+      <p class="eyebrow">
+        VISUAL EVIDENCE
+      </p>
+
+      <h2>
+        Content VANTA analyzed.
+      </h2>
+
+      <p class="section-description">
+        The Instagram content used to build your visual identity.
+      </p>
+
+    </div>
+
+
+
+    @if (media().length > 0) {
+
+      <div class="evidence-grid">
+
+        @for (
+          item of media();
+          track item.id
+        ) {
+
+          <a
+            class="evidence-card"
+            [href]="item.permalink || '#'"
+            target="_blank"
+            rel="noopener noreferrer">
+
+
+            <div class="evidence-image">
+
+              @if (
+                item.thumbnail_url ||
+                item.media_url
+              ) {
+
+                <img
+                  [src]="item.thumbnail_url || item.media_url"
+                  [alt]="item.caption || 'Instagram content'"
+                  loading="lazy"
+                />
+
+              } @else {
+
+                <div class="evidence-placeholder">
+                  NO PREVIEW
+                </div>
+
+              }
+
+
+              <div class="evidence-overlay">
+
+                <span>
+                  {{ item.media_type || 'CONTENT' }}
+                </span>
+
+              </div>
+
+            </div>
+
+
+
+            <div class="evidence-info">
+
+              <span class="evidence-type">
+                {{ item.media_type || 'CONTENT' }}
+              </span>
+
+
+              @if (item.caption) {
+
+                <p>
+                  {{ item.caption }}
+                </p>
+
+              } @else {
+
+                <p>
+                  No caption
+                </p>
+
+              }
+
+            </div>
+
+          </a>
+
+        }
+
+      </div>
+
+    } @else {
+
+      <div class="palette-empty">
+
+        <span>
+          ✦
+        </span>
+
+        <p>
+          Analyze your profile to see the content VANTA used.
+        </p>
+
+      </div>
+
+    }
+
+  </section>
+
+
+
+  <!-- =====================================================
+       COLOR SYSTEM
+  ====================================================== -->
+
+  @if (dna()) {
+
+    <section class="section">
+
+      <div class="section-title">
+
+        <p class="eyebrow">
+          COLOR SYSTEM
+        </p>
+
+        <h2>
+          Your signature palette.
+        </h2>
+
+        <p class="section-description">
+          The colors VANTA detected across your content.
+        </p>
+
+      </div>
+
+
+
+      @if (
+        (dna()?.palette?.length ?? 0) > 0
+      ) {
+
+        <div class="palette-grid">
+
+          @for (
+            color of dna()?.palette ?? [];
+            track color
+          ) {
+
+            <div class="palette-card">
+
+              <div
+                class="palette-color"
+                [style.background]="color">
+              </div>
+
+              <div class="palette-value">
+                {{ color }}
+              </div>
+
+            </div>
+
+          }
+
+        </div>
+
+      } @else {
+
+        <div class="palette-empty">
+
+          <span>
+            ✦
+          </span>
+
+          <p>
+            No color data available yet.
+          </p>
+
+        </div>
+
+      }
+
+    </section>
+
+  }
+
+
+
+  <!-- =====================================================
+       VANTA RECOMMENDATIONS
+  ====================================================== -->
+
+  @if (dna()) {
+
+    <section class="section recommendations-section">
+
+      <div class="section-title">
+
+        <p class="eyebrow">
+          VANTA RECOMMENDATIONS
+        </p>
+
+        <h2>
+          How to strengthen your identity.
+        </h2>
+
+        <p class="section-description">
+          Strategic recommendations based on your current content.
+        </p>
+
+      </div>
+
+
+
+      <div class="recommendations-grid">
+
+        @for (
+          recommendation of dna()?.recommendations ?? [];
+          track recommendation;
+          let i = $index
+        ) {
+
+          <div class="recommendation-card">
+
+            <div class="recommendation-number">
+              {{ '0' + (i + 1) }}
+            </div>
+
+            <div class="recommendation-content">
+
+              <span>
+                VANTA INSIGHT
+              </span>
+
+              <p>
+                {{ recommendation }}
+              </p>
+
+            </div>
+
+          </div>
+
+        }
+
+      </div>
+
+    </section>
+
+  }
+
+
+
+  <!-- =====================================================
+       ANALYSIS RESULT
+  ====================================================== -->
+
+  @if (dna()) {
+
+    <section class="analysis-result">
+
+      <div>
+
+        <p class="eyebrow">
+          ANALYSIS COMPLETE
+        </p>
+
+        <h2>
+          Your visual identity is ready.
+        </h2>
+
+        <p>
+          VANTA now has enough information to create new content
+          aligned with your profile.
+        </p>
+
+      </div>
+
+
+      <div class="analysis-score">
+
+        <span>
+          IMPACT
+        </span>
+
+        <strong>
+          {{ dna()?.impactScore ?? 0 }}
+        </strong>
+
+        <small>
+          /100
+        </small>
+
+      </div>
+
+    </section>
+
+  }
+
+</div>

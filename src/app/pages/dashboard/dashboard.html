@@ -1,0 +1,852 @@
+<div class="app-shell">
+
+  <!-- ================================================= -->
+  <!-- SIDEBAR -->
+  <!-- ================================================= -->
+
+  <aside class="sidebar">
+
+    <!-- BRAND -->
+
+    <div class="brand">
+
+      <div class="brand-mark">
+        V
+      </div>
+
+      <span>
+        VANTA
+      </span>
+
+    </div>
+
+
+    <!-- NAVIGATION -->
+
+    <nav class="navigation">
+
+      <!-- DASHBOARD -->
+
+      <a
+        routerLink="/dashboard"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="nav-item"
+      >
+
+        <span class="nav-icon">
+          ⌂
+        </span>
+
+        <span>
+          Dashboard
+        </span>
+
+      </a>
+
+
+      <!-- PROFILE -->
+
+      <a
+        routerLink="/profile"
+        routerLinkActive="active"
+        class="nav-item"
+      >
+
+        <span class="nav-icon">
+          ◎
+        </span>
+
+        <span>
+          Profile
+        </span>
+
+      </a>
+
+
+      <!-- CREATE -->
+
+      <a
+        routerLink="/create"
+        routerLinkActive="active"
+        class="nav-item"
+      >
+
+        <span class="nav-icon">
+          ✦
+        </span>
+
+        <span>
+          Create
+        </span>
+
+      </a>
+
+
+      <!-- FEED -->
+
+      <a
+        routerLink="/feed"
+        routerLinkActive="active"
+        class="nav-item"
+      >
+
+        <span class="nav-icon">
+          ▦
+        </span>
+
+        <span>
+          Feed
+        </span>
+
+      </a>
+
+    </nav>
+
+
+    <!-- SIDEBAR BOTTOM -->
+
+    <div class="sidebar-bottom">
+
+      <!-- SETTINGS -->
+
+      <a
+        routerLink="/settings"
+        routerLinkActive="active"
+        class="nav-item"
+      >
+
+        <span class="nav-icon">
+          ⚙
+        </span>
+
+        <span>
+          Settings
+        </span>
+
+      </a>
+
+
+      <!-- CONNECTED USER -->
+
+      <div
+        class="user-card"
+        *ngIf="connected() && profile()"
+      >
+
+        <div class="avatar">
+
+          <img
+            *ngIf="getProfileImage()"
+            [src]="getProfileImage()"
+            [alt]="getProfileName()"
+          />
+
+          <span
+            *ngIf="!getProfileImage()"
+          >
+            {{ getProfileName().charAt(0).toUpperCase() }}
+          </span>
+
+        </div>
+
+
+        <div class="user-info">
+
+          <strong>
+            {{ getProfileName() }}
+          </strong>
+
+          <span>
+            @{{ getUsername() }}
+          </span>
+
+        </div>
+
+
+        <!-- LOGOUT -->
+
+        <button
+          type="button"
+          class="logout-button"
+          (click)="logout()"
+          [disabled]="loggingOut()"
+          title="Logout"
+        >
+
+          @if (loggingOut()) {
+
+            <span class="logout-spinner"></span>
+
+          } @else {
+
+            <span>
+              ↪
+            </span>
+
+          }
+
+        </button>
+
+      </div>
+
+
+      <!-- DISCONNECTED -->
+
+      <div
+        class="user-card disconnected"
+        *ngIf="!connected() && !loading()"
+      >
+
+        <div class="avatar">
+          V
+        </div>
+
+        <div class="user-info">
+
+          <strong>
+            VANTA
+          </strong>
+
+          <span>
+            Connect Instagram
+          </span>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </aside>
+
+
+  <!-- ================================================= -->
+  <!-- MAIN -->
+  <!-- ================================================= -->
+
+  <main class="main">
+
+
+    <!-- ================================================= -->
+    <!-- TOPBAR -->
+    <!-- ================================================= -->
+
+    <header class="topbar">
+
+      <div>
+
+        <p class="eyebrow">
+          {{ connected()
+            ? 'WELCOME BACK'
+            : 'WELCOME TO VANTA'
+          }}
+        </p>
+
+        <h1>
+          {{ connected()
+            ? 'Your creative space.'
+            : 'Build your visual identity.'
+          }}
+        </h1>
+
+      </div>
+
+
+      <!-- DESKTOP CREATE -->
+
+      <button
+        *ngIf="connected()"
+        routerLink="/create"
+        class="create-button"
+      >
+
+        <span>
+          ＋
+        </span>
+
+        Create
+
+      </button>
+
+    </header>
+
+
+    <!-- ================================================= -->
+    <!-- ERROR -->
+    <!-- ================================================= -->
+
+    <div
+      class="error-message"
+      *ngIf="error()"
+    >
+
+      <span>
+        !
+      </span>
+
+      {{ error() }}
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- LOADING -->
+    <!-- ================================================= -->
+
+    <section
+      class="loading-state"
+      *ngIf="loading()"
+    >
+
+      <div class="loading-orb"></div>
+
+      <p>
+        Reading your VANTA profile...
+      </p>
+
+    </section>
+
+
+    <!-- ================================================= -->
+    <!-- NOT CONNECTED -->
+    <!-- ================================================= -->
+
+    <section
+      class="connect-state"
+      *ngIf="!loading() && !connected()"
+    >
+
+      <div class="connect-glow"></div>
+
+
+      <div class="connect-content">
+
+        <div class="connect-badge">
+          INSTAGRAM
+        </div>
+
+
+        <div class="connect-icon">
+          ◎
+        </div>
+
+
+        <h2>
+
+          Let VANTA
+
+          <span>
+            see your world.
+          </span>
+
+        </h2>
+
+
+        <p>
+
+          Connect your Instagram profile and let VANTA
+          understand your visual identity, analyze your
+          content and build your Profile DNA.
+
+        </p>
+
+
+        <button
+          class="instagram-button"
+          (click)="connectInstagram()"
+          [disabled]="connecting()"
+        >
+
+          <span
+            *ngIf="!connecting()"
+          >
+            Connect Instagram
+          </span>
+
+
+          <span
+            *ngIf="connecting()"
+          >
+            Connecting...
+          </span>
+
+
+          <span
+            *ngIf="!connecting()"
+            class="button-arrow"
+          >
+            →
+          </span>
+
+        </button>
+
+
+        <small>
+          You can disconnect your account at any time.
+        </small>
+
+      </div>
+
+    </section>
+
+
+    <!-- ================================================= -->
+    <!-- CONNECTED DASHBOARD -->
+    <!-- ================================================= -->
+
+    <ng-container
+      *ngIf="!loading() && connected()"
+    >
+
+
+      <!-- ================================================= -->
+      <!-- HERO -->
+      <!-- ================================================= -->
+
+      <section class="hero">
+
+        <div class="hero-content">
+
+          <div class="badge">
+            AI CREATIVE DIRECTOR
+          </div>
+
+
+          <h2>
+
+            Make your profile
+
+            <span>
+              impossible to ignore.
+            </span>
+
+          </h2>
+
+
+          <p>
+
+            VANTA understands your visual identity
+            and turns it into stronger, more coherent
+            Reel visuals.
+
+          </p>
+
+
+          <button
+            routerLink="/create"
+            class="hero-button"
+          >
+
+            Start creating
+
+            <span>
+              →
+            </span>
+
+          </button>
+
+        </div>
+
+
+        <div class="hero-visual">
+
+          <div class="orb"></div>
+
+          <div class="orb-ring ring-one"></div>
+
+          <div class="orb-ring ring-two"></div>
+
+        </div>
+
+      </section>
+
+
+      <!-- ================================================= -->
+      <!-- INSTAGRAM PROFILE -->
+      <!-- ================================================= -->
+
+      <section class="section">
+
+        <div class="section-header">
+
+          <div>
+
+            <p class="eyebrow">
+              CONNECTED PROFILE
+            </p>
+
+            <h3>
+              Instagram
+            </h3>
+
+          </div>
+
+
+          <span class="connected-badge">
+
+            <i></i>
+
+            Connected
+
+          </span>
+
+        </div>
+
+
+        <div class="instagram-profile-card">
+
+          <!-- PROFILE IMAGE -->
+
+          <div class="profile-avatar">
+
+            <img
+              *ngIf="getProfileImage()"
+              [src]="getProfileImage()"
+              [alt]="getProfileName()"
+            />
+
+            <span
+              *ngIf="!getProfileImage()"
+            >
+              {{ getProfileName().charAt(0).toUpperCase() }}
+            </span>
+
+          </div>
+
+
+          <!-- PROFILE INFO -->
+
+          <div class="profile-main">
+
+            <span class="profile-handle">
+              @{{ getUsername() }}
+            </span>
+
+            <h4>
+              {{ getProfileName() }}
+            </h4>
+
+            <p>
+              Your visual identity is connected to VANTA.
+            </p>
+
+          </div>
+
+
+          <!-- PROFILE STATS -->
+
+          <div class="profile-stats">
+
+            <div>
+
+              <strong>
+                {{ profile()?.followers_count || '—' }}
+              </strong>
+
+              <span>
+                Followers
+              </span>
+
+            </div>
+
+
+            <div>
+
+              <strong>
+                {{ profile()?.media_count || '—' }}
+              </strong>
+
+              <span>
+                Posts
+              </span>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- ================================================= -->
+      <!-- PROFILE DNA -->
+      <!-- ================================================= -->
+
+      <section class="section">
+
+        <div class="section-header">
+
+          <div>
+
+            <p class="eyebrow">
+              YOUR PROFILE
+            </p>
+
+            <h3>
+              Profile DNA
+            </h3>
+
+          </div>
+
+
+          <a
+            routerLink="/profile"
+          >
+            View profile →
+          </a>
+
+        </div>
+
+
+        <div class="dna-grid">
+
+
+          <!-- MOOD -->
+
+          <div class="dna-card">
+
+            <span class="dna-label">
+              MOOD
+            </span>
+
+            <strong>
+              {{ getMood() }}
+            </strong>
+
+          </div>
+
+
+          <!-- STYLE -->
+
+          <div class="dna-card">
+
+            <span class="dna-label">
+              STYLE
+            </span>
+
+            <strong>
+              {{ getStyle() }}
+            </strong>
+
+          </div>
+
+
+          <!-- PALETTE -->
+
+          <div class="dna-card">
+
+            <span class="dna-label">
+              PALETTE
+            </span>
+
+
+            <div class="palette">
+
+              <span
+                *ngFor="let color of getPalette()"
+                [style.background]="color"
+                [title]="color"
+              ></span>
+
+            </div>
+
+          </div>
+
+
+          <!-- IMPACT -->
+
+          <div class="dna-card score-card">
+
+            <span class="dna-label">
+              PROFILE IMPACT
+            </span>
+
+            <strong>
+
+              {{ getImpactScore() }}
+
+              <span>
+                /100
+              </span>
+
+            </strong>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- ================================================= -->
+      <!-- RECENT CONTENT -->
+      <!-- ================================================= -->
+
+      <section class="section">
+
+        <div class="section-header">
+
+          <div>
+
+            <p class="eyebrow">
+              RECENT CONTENT
+            </p>
+
+            <h3>
+              Your latest creations
+            </h3>
+
+          </div>
+
+
+          <a
+            routerLink="/feed"
+          >
+            View all →
+          </a>
+
+        </div>
+
+
+        <div class="empty-state">
+
+          <div class="empty-icon">
+            ✦
+          </div>
+
+
+          <h4>
+            Your canvas is empty.
+          </h4>
+
+
+          <p>
+
+            Transform your first Reel frame and let
+            VANTA build a visual that belongs to your profile.
+
+          </p>
+
+
+          <button
+            routerLink="/create"
+          >
+            Create your first Reel
+          </button>
+
+        </div>
+
+      </section>
+
+    </ng-container>
+
+
+  </main>
+
+
+  <!-- ================================================= -->
+  <!-- MOBILE NAVIGATION -->
+  <!-- ================================================= -->
+
+  <nav class="mobile-navigation">
+
+
+    <!-- DASHBOARD -->
+
+    <a
+      routerLink="/dashboard"
+      routerLinkActive="active"
+      class="mobile-nav-item"
+    >
+
+      <span class="nav-icon">
+        ⌂
+      </span>
+
+      <span class="nav-label">
+        Dashboard
+      </span>
+
+    </a>
+
+
+    <!-- PROFILE -->
+
+    <a
+      routerLink="/profile"
+      routerLinkActive="active"
+      class="mobile-nav-item"
+    >
+
+      <span class="nav-icon">
+        ◎
+      </span>
+
+      <span class="nav-label">
+        Profile
+      </span>
+
+    </a>
+
+
+    <!-- CREATE -->
+
+    <a
+      routerLink="/create"
+      routerLinkActive="active"
+      class="mobile-nav-item"
+    >
+
+      <span class="nav-icon">
+        ✦
+      </span>
+
+      <span class="nav-label">
+        Create
+      </span>
+
+    </a>
+
+
+    <!-- FEED -->
+
+    <a
+      routerLink="/feed"
+      routerLinkActive="active"
+      class="mobile-nav-item"
+    >
+
+      <span class="nav-icon">
+        ▦
+      </span>
+
+      <span class="nav-label">
+        Feed
+      </span>
+
+    </a>
+
+
+    <!-- SETTINGS -->
+
+    <a
+      routerLink="/settings"
+      routerLinkActive="active"
+      class="mobile-nav-item"
+    >
+
+      <span class="nav-icon">
+        ⚙
+      </span>
+
+      <span class="nav-label">
+        Settings
+      </span>
+
+    </a>
+
+  </nav>
+
+</div>

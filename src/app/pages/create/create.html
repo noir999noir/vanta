@@ -1,0 +1,1391 @@
+<div class="page">
+
+  <!-- ================================================= -->
+  <!-- HEADER -->
+  <!-- ================================================= -->
+
+  <header class="page-header">
+
+    <div class="header-copy">
+
+      <span class="eyebrow">
+        AI CREATIVE STUDIO
+      </span>
+
+      <h1>
+        Your next visual starts here.
+      </h1>
+
+      <p>
+        Upload a frame. VANTA transforms it around your visual identity.
+      </p>
+
+    </div>
+
+
+    @if (
+      stage() !== 'idle' &&
+      stage() !== 'complete' &&
+      stage() !== 'error'
+    ) {
+
+      <div class="header-progress">
+
+        <div class="progress-meta">
+
+          <span>
+            VANTA IS WORKING
+          </span>
+
+          <strong>
+            {{ stageProgress() }}%
+          </strong>
+
+        </div>
+
+
+        <div class="progress-track">
+
+          <div
+            class="progress-fill"
+            [style.width.%]="stageProgress()">
+          </div>
+
+        </div>
+
+      </div>
+
+    }
+
+  </header>
+
+
+  <!-- ================================================= -->
+  <!-- ERROR -->
+  <!-- ================================================= -->
+
+  @if (error()) {
+
+    <div class="error-banner">
+
+      <span class="error-icon">
+        !
+      </span>
+
+      <span>
+        {{ error() }}
+      </span>
+
+    </div>
+
+  }
+
+
+  <!-- ================================================= -->
+  <!-- MAIN CREATE LAYOUT -->
+  <!-- ================================================= -->
+
+  <section class="create-layout">
+
+
+    <!-- =============================================== -->
+    <!-- LEFT CONTROL PANEL -->
+    <!-- =============================================== -->
+
+    <aside class="control-panel">
+
+
+      <!-- ============================================= -->
+      <!-- SOURCE IMAGE -->
+      <!-- ============================================= -->
+
+      <div class="control-section">
+
+        <div class="section-heading">
+
+          <div>
+
+            <span class="section-index">
+              01
+            </span>
+
+            <h2>
+              Upload your frame
+            </h2>
+
+          </div>
+
+          <span class="section-label">
+            SOURCE
+          </span>
+
+        </div>
+
+
+        @if (!selectedImage()) {
+
+          <label
+            class="upload-zone"
+            for="source-image">
+
+            <div class="upload-pulse">
+
+              <div class="upload-icon">
+                +
+              </div>
+
+            </div>
+
+
+            <div class="upload-copy">
+
+              <strong>
+                Drop your frame here
+              </strong>
+
+              <span>
+                or click to browse
+              </span>
+
+            </div>
+
+
+            <div class="upload-meta">
+
+              <span>
+                JPG
+              </span>
+
+              <span>
+                PNG
+              </span>
+
+              <span>
+                WEBP
+              </span>
+
+              <span>
+                MAX 20MB
+              </span>
+
+            </div>
+
+          </label>
+
+
+          <input
+            id="source-image"
+            type="file"
+            accept="image/*"
+            hidden
+            (change)="onImageSelected($event)"
+          />
+
+        } @else {
+
+          <div class="source-file-card">
+
+
+            <div class="source-file-preview">
+
+              <img
+                [src]="selectedImage()!"
+                [alt]="selectedImageName()"
+              />
+
+            </div>
+
+
+            <div class="source-file-info">
+
+              <span class="source-file-label">
+                SOURCE FRAME
+              </span>
+
+              <strong>
+                {{ selectedImageName() }}
+              </strong>
+
+              <span>
+                {{ selectedImageType() }}
+              </span>
+
+            </div>
+
+
+            <button
+              type="button"
+              class="remove-source"
+              (click)="removeImage()">
+
+              ×
+
+            </button>
+
+          </div>
+
+        }
+
+      </div>
+
+
+      <!-- ============================================= -->
+      <!-- PROFILE DNA -->
+      <!-- ============================================= -->
+
+      <div class="control-section">
+
+        <div class="section-heading">
+
+          <div>
+
+            <span class="section-index">
+              02
+            </span>
+
+            <h2>
+              Profile DNA
+            </h2>
+
+          </div>
+
+          <span class="section-label">
+            AI CONTEXT
+          </span>
+
+        </div>
+
+
+        @if (loadingDNA()) {
+
+          <div class="dna-loading">
+
+            <div class="loading-dot"></div>
+
+            <span>
+              Reading your Profile DNA...
+            </span>
+
+          </div>
+
+        } @else if (dna()) {
+
+          <div class="dna-status">
+
+            <div class="dna-status-indicator"></div>
+
+            <div>
+
+              <strong>
+                Profile DNA connected
+              </strong>
+
+              <span>
+                VANTA will use your visual identity.
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <div class="dna-mini-grid">
+
+
+            <div class="dna-mini-card">
+
+              <span>
+                MOOD
+              </span>
+
+              <strong>
+                {{ dna()!.mood.slice(0, 2).join(' / ') || '—' }}
+              </strong>
+
+            </div>
+
+
+            <div class="dna-mini-card">
+
+              <span>
+                STYLE
+              </span>
+
+              <strong>
+                {{ dna()!.visualStyle.slice(0, 2).join(' / ') || '—' }}
+              </strong>
+
+            </div>
+
+
+            <div class="dna-mini-card palette-card">
+
+              <span>
+                PALETTE
+              </span>
+
+              <div class="palette-row">
+
+                @for (
+                  color of dna()!.palette.slice(0, 4);
+                  track color
+                ) {
+
+                  <span>
+                    {{ color }}
+                  </span>
+
+                }
+
+              </div>
+
+            </div>
+
+
+            <div class="dna-mini-card">
+
+              <span>
+                IMPACT
+              </span>
+
+              <strong>
+                {{ dna()!.impactScore }}
+              </strong>
+
+            </div>
+
+          </div>
+
+        } @else {
+
+          <div class="dna-empty">
+
+            <span>
+              Profile DNA unavailable.
+            </span>
+
+            <small>
+              Connect Instagram to activate VANTA.
+            </small>
+
+          </div>
+
+        }
+
+      </div>
+
+
+      <!-- ============================================= -->
+      <!-- IDEA -->
+      <!-- ============================================= -->
+
+      <div class="control-section">
+
+        <div class="section-heading">
+
+          <div>
+
+            <span class="section-index">
+              03
+            </span>
+
+            <h2>
+              Your idea
+            </h2>
+
+          </div>
+
+          <span class="section-label">
+            OPTIONAL
+          </span>
+
+        </div>
+
+
+        <div class="prompt-wrap">
+
+          <textarea
+            [value]="prompt()"
+            (input)="updatePrompt($event)"
+            placeholder="Tell VANTA what you want to feel, change or emphasize..."
+            rows="6">
+          </textarea>
+
+
+          <div class="prompt-footer">
+
+            <span>
+              VANTA will interpret your idea through your Profile DNA.
+            </span>
+
+            <span>
+              {{ prompt().length }}
+            </span>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- ============================================= -->
+      <!-- CREATE BUTTON -->
+      <!-- ============================================= -->
+
+      <div class="create-action">
+
+        <button
+          type="button"
+          class="generate-button"
+          [disabled]="
+            generating() ||
+            !selectedImage() ||
+            !dna()
+          "
+          (click)="generateVisual()">
+
+
+          @if (generating()) {
+
+            <span class="button-spinner"></span>
+
+            <span>
+              VANTA IS CREATING...
+            </span>
+
+          } @else {
+
+            <span>
+              CREATE REEL VISUAL
+            </span>
+
+            <span class="button-arrow">
+              →
+            </span>
+
+          }
+
+        </button>
+
+
+        <span class="action-hint">
+          Vertical 9:16 · Instagram Reel
+        </span>
+
+      </div>
+
+    </aside>
+
+
+    <!-- =============================================== -->
+    <!-- RIGHT PREVIEW -->
+    <!-- =============================================== -->
+
+    <main class="preview-panel">
+
+
+      <!-- ============================================= -->
+      <!-- THINKING STATE -->
+      <!-- ============================================= -->
+
+      @if (
+        stage() === 'analyzing' ||
+        stage() === 'directing' ||
+        stage() === 'generating' ||
+        stage() === 'evaluating'
+      ) {
+
+        <div class="thinking-card">
+
+          <div class="thinking-orb">
+
+            <div class="orb-ring ring-one"></div>
+            <div class="orb-ring ring-two"></div>
+            <div class="orb-core"></div>
+
+          </div>
+
+
+          <div class="thinking-copy">
+
+            <span class="thinking-eyebrow">
+              VANTA IS THINKING
+            </span>
+
+            <h2>
+              {{ stageMessage() }}
+            </h2>
+
+            <p>
+              Your frame, Profile DNA and creative direction are being combined into one visual system.
+            </p>
+
+          </div>
+
+
+          <div class="process-steps">
+
+
+            <div
+              class="process-step"
+              [class.active]="stage() === 'analyzing'"
+              [class.done]="sourceAnalyzed()">
+
+              <span class="step-number">
+                01
+              </span>
+
+              <div>
+
+                <strong>
+                  Analyzing your frame
+                </strong>
+
+                <small>
+                  Source image understanding
+                </small>
+
+              </div>
+
+              @if (sourceAnalyzed()) {
+
+                <span class="step-check">
+                  ✓
+                </span>
+
+              }
+
+            </div>
+
+
+            <div
+              class="process-step"
+              [class.active]="stage() === 'directing'"
+              [class.done]="directionReady()">
+
+              <span class="step-number">
+                02
+              </span>
+
+              <div>
+
+                <strong>
+                  Reading your Profile DNA
+                </strong>
+
+                <small>
+                  Visual identity alignment
+                </small>
+
+              </div>
+
+              @if (directionReady()) {
+
+                <span class="step-check">
+                  ✓
+                </span>
+
+              }
+
+            </div>
+
+
+            <div
+              class="process-step"
+              [class.active]="stage() === 'generating'"
+              [class.done]="imageReady()">
+
+              <span class="step-number">
+                03
+              </span>
+
+              <div>
+
+                <strong>
+                  Creating your Reel visual
+                </strong>
+
+                <small>
+                  Image generation
+                </small>
+
+              </div>
+
+              @if (imageReady()) {
+
+                <span class="step-check">
+                  ✓
+                </span>
+
+              }
+
+            </div>
+
+
+            <div
+              class="process-step"
+              [class.active]="stage() === 'evaluating'"
+              [class.done]="impactReady()">
+
+              <span class="step-number">
+                04
+              </span>
+
+              <div>
+
+                <strong>
+                  Evaluating visual impact
+                </strong>
+
+                <small>
+                  Profile DNA comparison
+                </small>
+
+              </div>
+
+              @if (impactReady()) {
+
+                <span class="step-check">
+                  ✓
+                </span>
+
+              }
+
+            </div>
+
+          </div>
+
+        </div>
+
+      }
+
+
+      <!-- ============================================= -->
+      <!-- EMPTY PREVIEW -->
+      <!-- ============================================= -->
+
+      @if (
+        !generatedImage() &&
+        stage() === 'idle'
+      ) {
+
+        <div class="empty-preview">
+
+          <div class="empty-frame">
+
+            <div class="empty-frame-grid"></div>
+
+            <div class="empty-center">
+
+              <span>
+                VANTA
+              </span>
+
+              <small>
+                YOUR NEXT VISUAL
+              </small>
+
+            </div>
+
+          </div>
+
+
+          <div class="empty-copy">
+
+            <span class="empty-eyebrow">
+              READY
+            </span>
+
+            <h2>
+              Your visual will appear here.
+            </h2>
+
+            <p>
+              Upload a frame and let VANTA build the visual direction around your Profile DNA.
+            </p>
+
+          </div>
+
+        </div>
+
+      }
+
+
+      <!-- ============================================= -->
+      <!-- GENERATED RESULT -->
+      <!-- ============================================= -->
+
+      @if (generatedImage()) {
+
+        <div class="result-view">
+
+
+          <!-- =========================================== -->
+          <!-- RESULT HEADER -->
+          <!-- =========================================== -->
+
+          <div class="result-header">
+
+            <div>
+
+              <span class="eyebrow">
+                VANTA RESULT
+              </span>
+
+              <h2>
+                Your visual is ready.
+              </h2>
+
+            </div>
+
+
+            @if (impactEvaluation()) {
+
+              <div
+                class="result-verdict"
+                [class.better]="
+                  impactEvaluation()!.verdict === 'better'
+                "
+                [class.same]="
+                  impactEvaluation()!.verdict === 'same'
+                "
+                [class.worse]="
+                  impactEvaluation()!.verdict === 'worse'
+                ">
+
+                @if (
+                  impactEvaluation()!.verdict === 'better'
+                ) {
+
+                  <span>
+                    ↑
+                  </span>
+
+                  Better
+
+                } @else if (
+                  impactEvaluation()!.verdict === 'worse'
+                ) {
+
+                  <span>
+                    ↓
+                  </span>
+
+                  Worse
+
+                } @else {
+
+                  <span>
+                    =
+                  </span>
+
+                  Same
+
+                }
+
+              </div>
+
+            }
+
+          </div>
+
+
+          <!-- =========================================== -->
+          <!-- GENERATED IMAGE -->
+          <!-- =========================================== -->
+
+          <div class="generated-visual">
+
+            <div class="visual-frame">
+
+              <img
+                [src]="generatedImage()!"
+                alt="VANTA generated Reel visual"
+              />
+
+
+              <div class="visual-overlay">
+
+                <span>
+                  VANTA
+                </span>
+
+                <span>
+                  9:16
+                </span>
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <!-- =========================================== -->
+          <!-- SAVE ACTION -->
+          <!-- =========================================== -->
+
+          <div class="save-creation-card">
+
+
+            @if (!creationSaved()) {
+
+              <div class="save-copy">
+
+                <div class="save-icon">
+                  +
+                </div>
+
+                <div>
+
+                  <strong>
+                    Keep this visual
+                  </strong>
+
+                  <span>
+                    Save it to your VANTA Visuals library.
+                  </span>
+
+                </div>
+
+              </div>
+
+
+              <button
+                type="button"
+                class="save-button"
+                [disabled]="savingCreation()"
+                (click)="saveCreation()">
+
+
+                @if (savingCreation()) {
+
+                  <span class="button-spinner"></span>
+
+                  SAVING...
+
+                } @else {
+
+                  SAVE TO MY VISUALS
+
+                  <span>
+                    →
+                  </span>
+
+                }
+
+              </button>
+
+            } @else {
+
+              <div class="saved-success">
+
+                <div class="saved-check">
+                  ✓
+                </div>
+
+                <div>
+
+                  <strong>
+                    Saved to My Visuals
+                  </strong>
+
+                  <span>
+                    This creation is now part of your VANTA library.
+                  </span>
+
+                </div>
+
+              </div>
+
+            }
+
+
+            @if (saveError()) {
+
+              <div class="save-error">
+                {{ saveError() }}
+              </div>
+
+            }
+
+          </div>
+
+
+          <!-- =========================================== -->
+          <!-- IMPACT RESULT -->
+          <!-- =========================================== -->
+
+          @if (impactEvaluation()) {
+
+            <section class="impact-section">
+
+
+              <div class="section-heading">
+
+                <div>
+
+                  <span class="section-index">
+                    IMPACT
+                  </span>
+
+                  <h2>
+                    Visual impact
+                  </h2>
+
+                </div>
+
+                <span class="section-label">
+                  VANTA ANALYSIS
+                </span>
+
+              </div>
+
+
+              <div class="impact-card">
+
+
+                <div class="impact-score-block">
+
+                  <span>
+                    GENERATED
+                  </span>
+
+                  <strong>
+                    {{ impactEvaluation()!.generatedScore }}
+                  </strong>
+
+                </div>
+
+
+                <div class="impact-arrow">
+                  →
+                </div>
+
+
+                <div class="impact-score-block source">
+
+                  <span>
+                    SOURCE
+                  </span>
+
+                  <strong>
+                    {{ impactEvaluation()!.sourceScore }}
+                  </strong>
+
+                </div>
+
+
+                <div class="impact-improvement"
+                  [class.positive]="
+                    impactEvaluation()!.improvement > 0
+                  "
+                  [class.negative]="
+                    impactEvaluation()!.improvement < 0
+                  ">
+
+                  @if (
+                    impactEvaluation()!.improvement > 0
+                  ) {
+
+                    +
+
+                  }
+
+                  {{ impactEvaluation()!.improvement }}
+
+                </div>
+
+              </div>
+
+
+              <div class="impact-meta-grid">
+
+
+                <div class="impact-meta-card">
+
+                  <span>
+                    VERDICT
+                  </span>
+
+                  <strong>
+                    {{ impactEvaluation()!.verdict }}
+                  </strong>
+
+                </div>
+
+
+                <div class="impact-meta-card">
+
+                  <span>
+                    CONFIDENCE
+                  </span>
+
+                  <strong>
+                    {{ impactEvaluation()!.confidence }}%
+                  </strong>
+
+                </div>
+
+
+                <div class="impact-meta-card">
+
+                  <span>
+                    MOOD
+                  </span>
+
+                  <strong>
+                    {{ impactEvaluation()!.profileAlignment.mood }}
+                  </strong>
+
+                </div>
+
+
+                <div class="impact-meta-card">
+
+                  <span>
+                    STYLE
+                  </span>
+
+                  <strong>
+                    {{ impactEvaluation()!.profileAlignment.visualStyle }}
+                  </strong>
+
+                </div>
+
+
+                <div class="impact-meta-card">
+
+                  <span>
+                    PALETTE
+                  </span>
+
+                  <strong>
+                    {{ impactEvaluation()!.profileAlignment.palette }}
+                  </strong>
+
+                </div>
+
+
+                <div class="impact-meta-card">
+
+                  <span>
+                    IDENTITY
+                  </span>
+
+                  <strong>
+                    {{ impactEvaluation()!.profileAlignment.identity }}
+                  </strong>
+
+                </div>
+
+              </div>
+
+
+              @if (
+                impactEvaluation()!.strengths?.length
+              ) {
+
+                <div class="impact-list">
+
+                  <span>
+                    STRENGTHS
+                  </span>
+
+                  @for (
+                    strength of impactEvaluation()!.strengths;
+                    track strength
+                  ) {
+
+                    <div>
+                      <span>+</span>
+                      {{ strength }}
+                    </div>
+
+                  }
+
+                </div>
+
+              }
+
+
+              @if (
+                impactEvaluation()!.weaknesses?.length
+              ) {
+
+                <div class="impact-list weaknesses">
+
+                  <span>
+                    AREAS TO IMPROVE
+                  </span>
+
+                  @for (
+                    weakness of impactEvaluation()!.weaknesses;
+                    track weakness
+                  ) {
+
+                    <div>
+                      <span>−</span>
+                      {{ weakness }}
+                    </div>
+
+                  }
+
+                </div>
+
+              }
+
+            </section>
+
+          }
+
+
+          <!-- =========================================== -->
+          <!-- CREATIVE DIRECTION -->
+          <!-- =========================================== -->
+
+          @if (creativeDirection()) {
+
+            <section class="creative-section">
+
+
+              <div class="section-heading">
+
+                <div>
+
+                  <span class="section-index">
+                    DIRECTION
+                  </span>
+
+                  <h2>
+                    Creative direction
+                  </h2>
+
+                </div>
+
+                <span class="section-label">
+                  AI CREATIVE DIRECTOR
+                </span>
+
+              </div>
+
+
+              <div class="direction-card">
+
+
+                <div class="direction-main">
+
+                  <span class="direction-kicker">
+                    {{ creativeDirection()!.theme }}
+                  </span>
+
+                  <h3>
+                    {{ creativeDirection()!.title }}
+                  </h3>
+
+                  <p>
+                    {{ creativeDirection()!.concept }}
+                  </p>
+
+                </div>
+
+
+                <div class="direction-tags">
+
+
+                  @for (
+                    mood of creativeDirection()!.mood;
+                    track mood
+                  ) {
+
+                    <span>
+                      {{ mood }}
+                    </span>
+
+                  }
+
+
+                  @for (
+                    style of creativeDirection()!.visualStyle;
+                    track style
+                  ) {
+
+                    <span>
+                      {{ style }}
+                    </span>
+
+                  }
+
+
+                  @for (
+                    palette of creativeDirection()!.palette;
+                    track palette
+                  ) {
+
+                    <span>
+                      {{ palette }}
+                    </span>
+
+                  }
+
+                </div>
+
+
+                <div class="direction-grid">
+
+
+                  <div>
+
+                    <span>
+                      COMPOSITION
+                    </span>
+
+                    <p>
+                      {{
+                        creativeDirection()!.composition.join(' · ')
+                      }}
+                    </p>
+
+                  </div>
+
+
+                  <div>
+
+                    <span>
+                      TEXTURE
+                    </span>
+
+                    <p>
+                      {{
+                        creativeDirection()!.texture.join(' · ')
+                      }}
+                    </p>
+
+                  </div>
+
+
+                  <div>
+
+                    <span>
+                      TYPOGRAPHY
+                    </span>
+
+                    <p>
+                      {{
+                        creativeDirection()!.typography.join(' · ')
+                      }}
+                    </p>
+
+                  </div>
+
+
+                  <div>
+
+                    <span>
+                      PRESERVE SUBJECT
+                    </span>
+
+                    <p>
+
+                      @if (
+                        creativeDirection()!.preserveSubject
+                      ) {
+
+                        Yes
+
+                      } @else {
+
+                        No
+
+                      }
+
+                    </p>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+            </section>
+
+          }
+
+
+          <!-- =========================================== -->
+          <!-- SOURCE / RESULT COMPARISON -->
+          <!-- =========================================== -->
+
+          @if (selectedImage()) {
+
+            <section class="comparison-section">
+
+
+              <div class="section-heading">
+
+                <div>
+
+                  <span class="section-index">
+                    SOURCE
+                  </span>
+
+                  <h2>
+                    Original frame
+                  </h2>
+
+                </div>
+
+                <span class="section-label">
+                  BEFORE
+                </span>
+
+              </div>
+
+
+              <div class="source-large-preview">
+
+                <img
+                  [src]="selectedImage()!"
+                  [alt]="selectedImageName()"
+                />
+
+              </div>
+
+            </section>
+
+          }
+
+
+          <!-- =========================================== -->
+          <!-- RESULT ACTIONS -->
+          <!-- =========================================== -->
+
+          <div class="result-actions">
+
+            <button
+              type="button"
+              class="secondary-button"
+              [disabled]="generating()"
+              (click)="regenerate()">
+
+              <span>
+                ↻
+              </span>
+
+              CREATE ANOTHER
+
+            </button>
+
+          </div>
+
+
+        </div>
+
+      }
+
+    </main>
+
+  </section>
+
+</div>

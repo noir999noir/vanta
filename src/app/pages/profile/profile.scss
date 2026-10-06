@@ -1,0 +1,2829 @@
+/* =========================================================
+   VANTA — PROFILE / ULTRA PREMIUM
+   GLOBAL THEME TOKENS
+   ========================================================= */
+
+:host {
+  --vanta-bg: #080808;
+  --vanta-surface: #0d0d0d;
+  --vanta-surface-2: #111111;
+  --vanta-surface-3: #151515;
+
+  --vanta-text: #f5f5f5;
+  --vanta-text-soft: #aaaaaa;
+  --vanta-text-muted: #666666;
+  --vanta-text-faint: #444444;
+
+  --vanta-border: rgba(255, 255, 255, 0.09);
+  --vanta-border-soft: rgba(255, 255, 255, 0.055);
+  --vanta-border-strong: rgba(255, 255, 255, 0.16);
+
+  --vanta-accent: #ff1717;
+  --vanta-accent-soft: rgba(255, 23, 23, 0.10);
+  --vanta-accent-border: rgba(255, 23, 23, 0.28);
+
+  --vanta-rgb: 255, 255, 255;
+  --vanta-black-rgb: 0, 0, 0;
+  --vanta-shadow: rgba(0, 0, 0, 0.30);
+
+  display: block;
+  width: 100%;
+  min-height: 100%;
+  color: var(--vanta-text);
+}
+
+:host-context([data-vanta-theme='light']) {
+  --vanta-bg: #f5f5f6;
+  --vanta-surface: #ffffff;
+  --vanta-surface-2: #ffffff;
+  --vanta-surface-3: #f8f8f9;
+
+  --vanta-text: #090909;
+  --vanta-text-soft: #555555;
+  --vanta-text-muted: #777777;
+  --vanta-text-faint: #999999;
+
+  --vanta-border: rgba(0, 0, 0, 0.10);
+  --vanta-border-soft: rgba(0, 0, 0, 0.055);
+  --vanta-border-strong: rgba(0, 0, 0, 0.17);
+
+  --vanta-accent: #e41414;
+  --vanta-accent-soft: rgba(228, 20, 20, 0.075);
+  --vanta-accent-border: rgba(228, 20, 20, 0.25);
+
+  --vanta-rgb: 0, 0, 0;
+  --vanta-black-rgb: 0, 0, 0;
+  --vanta-shadow: rgba(0, 0, 0, 0.08);
+}
+
+
+:host {
+
+  display: block;
+
+  width: 100%;
+
+}
+
+
+
+* {
+
+  box-sizing: border-box;
+
+}
+
+
+
+.page {
+
+  min-height: 100vh;
+
+  width: 100%;
+
+
+
+  padding: 42px 52px 100px;
+
+
+
+  background:
+
+    radial-gradient(
+
+      circle at 85% 5%,
+
+      rgba(var(--vanta-rgb), 0.035),
+
+      transparent 30%
+
+    ),
+
+    var(--vanta-bg);
+
+
+
+  color: var(--vanta-text);
+
+
+
+  overflow-x: hidden;
+
+}
+
+
+/* =====================================================
+
+   HEADER
+
+\===================================================== */
+
+
+
+.page-header {
+
+  display: flex;
+
+  align-items: flex-end;
+
+  justify-content: space-between;
+
+
+
+  gap: 30px;
+
+
+
+  margin-bottom: 45px;
+
+}
+
+
+
+.eyebrow {
+
+  margin: 0 0 8px;
+
+
+
+  color: var(--vanta-text-muted);
+
+
+
+  font-size: 9px;
+
+  font-weight: 700;
+
+
+
+  letter-spacing: 2.5px;
+
+  text-transform: uppercase;
+
+}
+
+
+
+h1 {
+
+  margin: 0;
+
+
+
+  font-size: 42px;
+
+  font-weight: 500;
+
+
+
+  letter-spacing: -2px;
+
+  line-height: 1.05;
+
+}
+
+
+
+.page-description {
+
+  margin: 12px 0 0;
+
+
+
+  color: var(--vanta-text-muted);
+
+
+
+  font-size: 13px;
+
+  line-height: 1.5;
+
+}
+
+
+/* =====================================================
+
+   PRIMARY BUTTON
+
+\===================================================== */
+
+
+
+.primary-button {
+
+  min-width: 150px;
+
+
+
+  padding: 12px 18px;
+
+
+
+  border: 1px solid var(--vanta-text);
+
+  border-radius: 6px;
+
+
+
+  background: var(--vanta-text);
+
+  color: var(--vanta-bg);
+
+
+
+  font-size: 10px;
+
+  font-weight: 700;
+
+
+
+  letter-spacing: 0.8px;
+
+
+
+  white-space: nowrap;
+
+
+
+  cursor: pointer;
+
+
+
+  transition:
+
+    transform 0.2s ease,
+
+    background 0.2s ease,
+
+    color 0.2s ease,
+
+    opacity 0.2s ease;
+
+}
+
+
+
+.primary-button:hover {
+
+  transform: translateY(-1px);
+
+
+
+  background: #e8e8e8;
+
+}
+
+
+
+.primary-button:active {
+
+  transform: translateY(0);
+
+}
+
+
+
+.primary-button:disabled {
+
+  opacity: 0.55;
+
+
+
+  cursor: wait;
+
+}
+
+
+/* =====================================================
+
+   BUTTON LOADER
+
+\===================================================== */
+
+
+
+.button-loader {
+
+  display: inline-block;
+
+
+
+  width: 9px;
+
+  height: 9px;
+
+
+
+  margin-right: 7px;
+
+
+
+  border: 1px solid var(--vanta-text-soft);
+
+  border-top-color: var(--vanta-bg);
+
+
+
+  border-radius: 50%;
+
+
+
+  animation: spin 0.7s linear infinite;
+
+}
+
+
+
+@keyframes spin {
+
+  to {
+
+    transform: rotate(360deg);
+
+  }
+
+}
+
+
+/* =====================================================
+
+   ERROR
+
+\===================================================== */
+
+
+
+.error-message {
+
+  display: flex;
+
+  align-items: center;
+
+
+
+  gap: 12px;
+
+
+
+  width: 100%;
+
+
+
+  margin-bottom: 20px;
+
+  padding: 14px 18px;
+
+
+
+  border: 1px solid var(--vanta-border);
+
+  border-radius: 8px;
+
+
+
+  background: var(--vanta-surface-3);
+
+
+
+  color: var(--vanta-text-soft);
+
+
+
+  font-size: 11px;
+
+}
+
+
+
+.error-message span {
+
+  width: 20px;
+
+  height: 20px;
+
+
+
+  display: grid;
+
+  place-items: center;
+
+
+
+  flex-shrink: 0;
+
+
+
+  border: 1px solid var(--vanta-text-faint);
+
+  border-radius: 50%;
+
+
+
+  color: var(--vanta-text);
+
+
+
+  font-size: 9px;
+
+  font-weight: 700;
+
+}
+
+
+/* =====================================================
+
+   LOADING
+
+\===================================================== */
+
+
+
+.loading-state {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+
+
+  gap: 12px;
+
+
+
+  min-height: 220px;
+
+
+
+  border: 1px solid var(--vanta-border);
+
+  border-radius: 12px;
+
+
+
+  background: var(--vanta-surface);
+
+
+
+  color: var(--vanta-text-muted);
+
+
+
+  font-size: 11px;
+
+}
+
+
+
+.loading-spinner {
+
+  width: 15px;
+
+  height: 15px;
+
+
+
+  border: 1px solid var(--vanta-border-strong);
+
+  border-top-color: var(--vanta-text);
+
+
+
+  border-radius: 50%;
+
+
+
+  animation: spin 0.8s linear infinite;
+
+}
+
+
+/* =====================================================
+
+   PROFILE OVERVIEW
+
+\===================================================== */
+
+
+
+.profile-overview {
+
+  display: grid;
+
+
+
+  grid-template-columns:
+
+    minmax(0, 1fr) 280px;
+
+
+
+  gap: 12px;
+
+
+
+  width: 100%;
+
+}
+
+
+/* =====================================================
+
+   PROFILE MAIN
+
+\===================================================== */
+
+
+
+.profile-main {
+
+  display: flex;
+
+  align-items: center;
+
+
+
+  gap: 22px;
+
+
+
+  min-width: 0;
+
+  min-height: 145px;
+
+
+
+  padding: 25px;
+
+
+
+  border: 1px solid var(--vanta-border);
+
+  border-radius: 12px;
+
+
+
+  background: var(--vanta-surface);
+
+
+
+  transition:
+
+    border-color 0.2s ease,
+
+    background 0.2s ease;
+
+}
+
+
+
+.profile-main:hover {
+
+  border-color: var(--vanta-border-strong);
+
+
+
+  background: var(--vanta-surface-2);
+
+}
+
+
+/* =====================================================
+
+   AVATAR
+
+\===================================================== */
+
+
+
+.profile-avatar {
+
+  width: 78px;
+
+  height: 78px;
+
+
+
+  min-width: 78px;
+
+  min-height: 78px;
+
+
+
+  display: grid;
+
+  place-items: center;
+
+
+
+  overflow: hidden;
+
+
+
+  border: 1px solid var(--vanta-border);
+
+  border-radius: 50%;
+
+
+
+  background: var(--vanta-surface-3);
+
+
+
+  color: var(--vanta-text);
+
+
+
+  font-size: 25px;
+
+  font-weight: 500;
+
+}
+
+
+
+.profile-avatar img {
+
+  display: block;
+
+
+
+  width: 100%;
+
+  height: 100%;
+
+
+
+  object-fit: cover;
+
+  object-position: center;
+
+
+
+  border-radius: inherit;
+
+}
+
+
+/* =====================================================
+
+   PROFILE INFO
+
+\===================================================== */
+
+
+
+.profile-info {
+
+  min-width: 0;
+
+}
+
+
+
+.profile-status {
+
+  color: var(--vanta-text-muted);
+
+
+
+  font-size: 8px;
+
+  font-weight: 700;
+
+
+
+  letter-spacing: 2px;
+
+
+
+  white-space: nowrap;
+
+}
+
+
+
+.profile-info h2 {
+
+  margin: 10px 0 5px;
+
+
+
+  max-width: 100%;
+
+
+
+  color: var(--vanta-text);
+
+
+
+  font-size: 20px;
+
+  font-weight: 500;
+
+
+
+  line-height: 1.2;
+
+
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+
+}
+
+
+
+.profile-info p {
+
+  margin: 0;
+
+
+
+  color: var(--vanta-text-muted);
+
+
+
+  font-size: 11px;
+
+  line-height: 1.5;
+
+
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+}
+
+
+/* =====================================================
+
+   IMPACT CARD
+
+\===================================================== */
+
+
+
+.impact-card {
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: center;
+
+
+
+  min-width: 0;
+
+  min-height: 145px;
+
+
+
+  padding: 25px;
+
+
+
+  border: 1px solid var(--vanta-border);
+
+  border-radius: 12px;
+
+
+
+  background: var(--vanta-surface);
+
+
+
+  transition:
+
+    border-color 0.2s ease,
+
+    background 0.2s ease;
+
+}
+
+
+
+.impact-card:hover {
+
+  border-color: var(--vanta-border-strong);
+
+
+
+  background: var(--vanta-surface-2);
+
+}
+
+
+
+.impact-header {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+
+
+  gap: 15px;
+
+}
+
+
+
+.impact-header span {
+
+  color: var(--vanta-text-muted);
+
+
+
+  font-size: 8px;
+
+  font-weight: 700;
+
+
+
+  letter-spacing: 2px;
+
+}
+
+
+
+.impact-header strong {
+
+  color: var(--vanta-text);
+
+
+
+  font-size: 20px;
+
+  font-weight: 500;
+
+}
+
+
+
+.impact-bar {
+
+  width: 100%;
+
+  height: 3px;
+
+
+
+  margin-top: 18px;
+
+
+
+  overflow: hidden;
+
+
+
+  background: var(--vanta-border);
+
+}
+
+
+
+.impact-fill {
+
+  height: 100%;
+
+
+
+  background: var(--vanta-text);
+
+
+
+  transition:
+
+    width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+
+}
+
+
+
+.impact-card p {
+
+  margin: 10px 0 0;
+
+
+
+  color: var(--vanta-text-faint);
+
+
+
+  font-size: 9px;
+
+}
+
+
+/* =====================================================
+
+   SECTIONS
+
+\===================================================== */
+
+
+
+.section {
+
+  width: 100%;
+
+
+
+  margin-top: 55px;
+
+}
+
+
+
+.section-title {
+
+  margin-bottom: 20px;
+
+}
+
+
+
+.section-title h2 {
+
+  margin: 0;
+
+
+
+  color: var(--vanta-text);
+
+
+
+  font-size: 20px;
+
+  font-weight: 500;
+
+
+
+  line-height: 1.2;
+
+}
+
+
+
+.section-description {
+
+  max-width: 700px;
+
+
+
+  margin: 8px 0 0;
+
+
+
+  color: var(--vanta-text-muted);
+
+
+
+  font-size: 11px;
+
+  line-height: 1.5;
+
+}
+
+
+/* =====================================================
+
+   DNA GRID
+
+\===================================================== */
+
+
+
+.dna-grid {
+
+  display: grid;
+
+
+
+  grid-template-columns:
+
+    repeat(3, minmax(0, 1fr));
+
+
+
+  gap: 10px;
+
+
+
+  width: 100%;
+
+}
+
+
+
+.dna-card {
+
+  position: relative;
+
+
+
+  min-width: 0;
+
+  min-height: 145px;
+
+
+
+  padding: 22px;
+
+
+
+  border: 1px solid var(--vanta-border);
+
+  border-radius: 10px;
+
+
+
+  background: var(--vanta-surface);
+
+
+
+  overflow: hidden;
+
+
+
+  transition:
+
+    transform 0.2s ease,
+
+    border-color 0.2s ease,
+
+    background 0.2s ease;
+
+}
+
+
+
+.dna-card::before {
+
+  content: '';
+
+
+
+  position: absolute;
+
+
+
+  top: 0;
+
+  left: 0;
+
+
+
+  width: 100%;
+
+  height: 1px;
+
+
+
+  background:
+
+    linear-gradient(
+
+      90deg,
+
+      transparent,
+
+      var(--vanta-border-strong),
+
+      transparent
+
+    );
+
+
+
+  opacity: 0.6;
+
+}
+
+
+
+.dna-card:hover {
+
+  transform: translateY(-2px);
+
+
+
+  border-color: var(--vanta-border-strong);
+
+
+
+  background: var(--vanta-surface-2);
+
+}
+
+
+
+.dna-card-header {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+
+
+  gap: 15px;
+
+}
+
+
+
+.dna-label {
+
+  color: var(--vanta-text-muted);
+
+
+
+  font-size: 8px;
+
+  font-weight: 700;
+
+
+
+  letter-spacing: 2px;
+
+}
+
+
+
+.dna-number {
+
+  color: var(--vanta-border-strong);
+
+
+
+  font-size: 8px;
+
+  font-weight: 700;
+
+
+
+  letter-spacing: 1px;
+
+}
+
+
+/* =====================================================
+
+   DNA TAGS
+
+\===================================================== */
+
+
+
+.tag-list {
+
+  display: flex;
+
+
+
+  flex-wrap: wrap;
+
+
+
+  gap: 6px;
+
+
+
+  margin-top: 20px;
+
+}
+
+
+
+.dna-tag {
+
+  display: inline-flex;
+
+  align-items: center;
+
+
+
+  min-height: 25px;
+
+
+
+  padding: 6px 9px;
+
+
+
+  border: 1px solid var(--vanta-border);
+
+  border-radius: 4px;
+
+
+
+  background: var(--vanta-surface-3);
+
+
+
+  color: var(--vanta-text-soft);
+
+
+
+  font-size: 9px;
+
+  font-weight: 600;
+
+
+
+  letter-spacing: 0.4px;
+
+
+
+  white-space: nowrap;
+
+}
+
+
+
+.dna-tag::before {
+
+  content: '•';
+
+
+
+  margin-right: 5px;
+
+
+
+  color: var(--vanta-text-muted);
+
+}
+
+
+/* =====================================================
+
+   VISUAL EVIDENCE
+
+\===================================================== */
+
+
+
+.evidence-grid {
+
+  display: grid;
+
+
+
+  grid-template-columns:
+
+    repeat(5, minmax(0, 1fr));
+
+
+
+  gap: 10px;
+
+
+
+  width: 100%;
+
+}
+
+
+
+.evidence-card {
+
+  display: block;
+
+
+
+  min-width: 0;
+
+
+
+  border: 1px solid var(--vanta-border);
+
+  border-radius: 10px;
+
+
+
+  background: var(--vanta-surface);
+
+
+
+  overflow: hidden;
+
+
+
+  text-decoration: none;
+
+
+
+  transition:
+
+    transform 0.2s ease,
+
+    border-color 0.2s ease,
+
+    background 0.2s ease;
+
+}
+
+
+
+.evidence-card:hover {
+
+  transform: translateY(-3px);
+
+
+
+  border-color: var(--vanta-border-strong);
+
+
+
+  background: var(--vanta-surface-3);
+
+}
+
+
+
+.evidence-image {
+
+  position: relative;
+
+
+
+  width: 100%;
+
+
+
+  aspect-ratio: 1 / 1;
+
+
+
+  overflow: hidden;
+
+
+
+  background: var(--vanta-surface-3);
+
+}
+
+
+
+.evidence-image img {
+
+  display: block;
+
+
+
+  width: 100%;
+
+  height: 100%;
+
+
+
+  object-fit: cover;
+
+
+
+  transition:
+
+    transform 0.4s ease,
+
+    filter 0.3s ease;
+
+}
+
+
+
+.evidence-card:hover .evidence-image img {
+
+  transform: scale(1.04);
+
+
+
+  filter: brightness(0.72);
+
+}
+
+
+
+.evidence-overlay {
+
+  position: absolute;
+
+
+
+  right: 8px;
+
+  bottom: 8px;
+
+  left: 8px;
+
+
+
+  display: flex;
+
+  justify-content: flex-end;
+
+
+
+  pointer-events: none;
+
+}
+
+
+
+.evidence-overlay span {
+
+  padding: 5px 7px;
+
+
+
+  border: 1px solid rgba(var(--vanta-rgb), 0.15);
+
+  border-radius: 4px;
+
+
+
+  background: rgba(0, 0, 0, 0.65);
+
+
+
+  color: var(--vanta-text-soft);
+
+
+
+  font-size: 7px;
+
+  font-weight: 700;
+
+
+
+  letter-spacing: 1px;
+
+}
+
+
+
+.evidence-placeholder {
+
+  width: 100%;
+
+  height: 100%;
+
+
+
+  display: grid;
+
+  place-items: center;
+
+
+
+  color: var(--vanta-text-faint);
+
+
+
+  font-size: 8px;
+
+  letter-spacing: 1px;
+
+}
+
+
+
+.evidence-info {
+
+  padding: 12px;
+
+}
+
+
+
+.evidence-type {
+
+  display: block;
+
+
+
+  margin-bottom: 7px;
+
+
+
+  color: var(--vanta-text-muted);
+
+
+
+  font-size: 7px;
+
+  font-weight: 700;
+
+
+
+  letter-spacing: 1.5px;
+
+}
+
+
+
+.evidence-info p {
+
+  display: -webkit-box;
+
+
+
+  margin: 0;
+
+
+
+  color: var(--vanta-text-muted);
+
+
+
+  font-size: 9px;
+
+  line-height: 1.45;
+
+
+
+  overflow: hidden;
+
+
+
+  -webkit-line-clamp: 2;
+
+  -webkit-box-orient: vertical;
+
+}
+
+
+/* =====================================================
+
+   COLOR SYSTEM
+
+\===================================================== */
+
+
+
+.palette-grid {
+
+  display: grid;
+
+
+
+  grid-template-columns:
+
+    repeat(4, minmax(0, 1fr));
+
+
+
+  gap: 10px;
+
+
+
+  width: 100%;
+
+}
+
+
+
+.palette-card {
+
+  min-width: 0;
+
+
+
+  padding: 12px;
+
+
+
+  border: 1px solid var(--vanta-border);
+
+  border-radius: 10px;
+
+
+
+  background: var(--vanta-surface);
+
+
+
+  overflow: hidden;
+
+
+
+  transition:
+
+    transform 0.2s ease,
+
+    border-color 0.2s ease;
+
+}
+
+
+
+.palette-card:hover {
+
+  transform: translateY(-2px);
+
+
+
+  border-color: var(--vanta-border-strong);
+
+}
+
+
+
+.palette-color {
+
+  width: 100%;
+
+  height: 110px;
+
+
+
+  margin-bottom: 14px;
+
+
+
+  border: 1px solid rgba(var(--vanta-rgb), 0.06);
+
+  border-radius: 6px;
+
+
+
+  box-shadow:
+
+    inset 0 0 30px rgba(0, 0, 0, 0.25);
+
+}
+
+
+
+.palette-value {
+
+  color: var(--vanta-text-soft);
+
+
+
+  font-size: 11px;
+
+  font-weight: 500;
+
+
+
+  letter-spacing: 0.5px;
+
+}
+
+
+/* =====================================================
+
+   EMPTY STATE
+
+\===================================================== */
+
+
+
+.palette-empty {
+
+  display: flex;
+
+  align-items: center;
+
+
+
+  gap: 16px;
+
+
+
+  min-height: 100px;
+
+
+
+  padding: 25px;
+
+
+
+  border: 1px solid var(--vanta-border);
+
+  border-radius: 10px;
+
+
+
+  background: var(--vanta-surface);
+
+}
+
+
+
+.palette-empty span {
+
+  width: 42px;
+
+  height: 42px;
+
+
+
+  display: grid;
+
+  place-items: center;
+
+
+
+  flex-shrink: 0;
+
+
+
+  border: 1px solid var(--vanta-border);
+
+
+
+  color: var(--vanta-text);
+
+}
+
+
+
+.palette-empty p {
+
+  margin: 0;
+
+
+
+  color: var(--vanta-text-muted);
+
+
+
+  font-size: 11px;
+
+}
+
+
+/* =====================================================
+
+   RECOMMENDATIONS
+
+\===================================================== */
+
+
+
+.recommendations-grid {
+
+  display: grid;
+
+
+
+  grid-template-columns:
+
+    repeat(3, minmax(0, 1fr));
+
+
+
+  gap: 10px;
+
+}
+
+
+
+.recommendation-card {
+
+  display: flex;
+
+
+
+  gap: 18px;
+
+
+
+  min-width: 0;
+
+  min-height: 170px;
+
+
+
+  padding: 22px;
+
+
+
+  border: 1px solid var(--vanta-border);
+
+  border-radius: 10px;
+
+
+
+  background: var(--vanta-surface);
+
+
+
+  transition:
+
+    transform 0.2s ease,
+
+    border-color 0.2s ease,
+
+    background 0.2s ease;
+
+}
+
+
+
+.recommendation-card:hover {
+
+  transform: translateY(-2px);
+
+
+
+  border-color: var(--vanta-border-strong);
+
+
+
+  background: var(--vanta-surface-2);
+
+}
+
+
+
+.recommendation-number {
+
+  flex-shrink: 0;
+
+
+
+  color: var(--vanta-text-faint);
+
+
+
+  font-size: 10px;
+
+  font-weight: 700;
+
+
+
+  letter-spacing: 1px;
+
+}
+
+
+
+.recommendation-content {
+
+  min-width: 0;
+
+}
+
+
+
+.recommendation-content span {
+
+  display: block;
+
+
+
+  margin-bottom: 10px;
+
+
+
+  color: var(--vanta-text-muted);
+
+
+
+  font-size: 8px;
+
+  font-weight: 700;
+
+
+
+  letter-spacing: 2px;
+
+}
+
+
+
+.recommendation-content p {
+
+  margin: 0;
+
+
+
+  color: var(--vanta-text-soft);
+
+
+
+  font-size: 12px;
+
+  font-weight: 400;
+
+
+
+  line-height: 1.55;
+
+}
+
+
+/* =====================================================
+
+   FINAL ANALYSIS RESULT
+
+\===================================================== */
+
+
+
+.analysis-result {
+
+  position: relative;
+
+
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+
+
+  gap: 30px;
+
+
+
+  width: 100%;
+
+
+
+  margin-top: 55px;
+
+  padding: 30px;
+
+
+
+  border: 1px solid var(--vanta-border);
+
+  border-radius: 12px;
+
+
+
+  background:
+
+    linear-gradient(
+
+      135deg,
+
+      var(--vanta-surface-2) 0%,
+
+      var(--vanta-surface) 55%,
+
+      var(--vanta-bg) 100%
+
+    );
+
+
+
+  overflow: hidden;
+
+}
+
+
+
+.analysis-result::before {
+
+  content: '';
+
+
+
+  position: absolute;
+
+
+
+  top: 0;
+
+  left: 0;
+
+
+
+  width: 100%;
+
+  height: 1px;
+
+
+
+  background:
+
+    linear-gradient(
+
+      90deg,
+
+      transparent,
+
+      var(--vanta-text-muted),
+
+      transparent
+
+    );
+
+}
+
+
+
+.analysis-result .eyebrow {
+
+  color: var(--vanta-text-muted);
+
+}
+
+
+
+.analysis-result h2 {
+
+  margin: 8px 0;
+
+
+
+  color: var(--vanta-text);
+
+
+
+  font-size: 22px;
+
+  font-weight: 500;
+
+
+
+  letter-spacing: -0.5px;
+
+}
+
+
+
+.analysis-result p {
+
+  max-width: 650px;
+
+
+
+  margin: 0;
+
+
+
+  color: var(--vanta-text-muted);
+
+
+
+  font-size: 11px;
+
+  line-height: 1.6;
+
+}
+
+
+
+.analysis-score {
+
+  min-width: 120px;
+
+
+
+  text-align: right;
+
+}
+
+
+
+.analysis-score span {
+
+  display: block;
+
+
+
+  margin-bottom: 5px;
+
+
+
+  color: var(--vanta-text-muted);
+
+
+
+  font-size: 8px;
+
+  font-weight: 700;
+
+
+
+  letter-spacing: 2px;
+
+}
+
+
+
+.analysis-score strong {
+
+  color: var(--vanta-text);
+
+
+
+  font-size: 48px;
+
+  font-weight: 400;
+
+
+
+  line-height: 1;
+
+}
+
+
+
+.analysis-score small {
+
+  margin-left: 3px;
+
+
+
+  color: var(--vanta-text-muted);
+
+
+
+  font-size: 11px;
+
+}
+
+
+/* =====================================================
+
+   ANALYZING STATE
+
+\===================================================== */
+
+
+
+.primary-button:disabled {
+
+  position: relative;
+
+}
+
+
+
+.primary-button:disabled::after {
+
+  content: '';
+
+
+
+  position: absolute;
+
+
+
+  inset: 0;
+
+
+
+  border-radius: inherit;
+
+
+
+  background:
+
+    linear-gradient(
+
+      90deg,
+
+      transparent,
+
+      rgba(var(--vanta-rgb), 0.12),
+
+      transparent
+
+    );
+
+
+
+  transform: translateX(-100%);
+
+
+
+  animation: buttonSweep 1.4s ease-in-out infinite;
+
+}
+
+
+
+@keyframes buttonSweep {
+
+  100% {
+
+    transform: translateX(100%);
+
+  }
+
+}
+
+
+/* =====================================================
+
+   TABLET — 1200
+
+\===================================================== */
+
+
+
+@media (max-width: 1200px) {
+
+
+
+  .page {
+
+    padding: 38px 38px 80px;
+
+  }
+
+
+
+  .profile-overview {
+
+    grid-template-columns:
+
+      minmax(0, 1fr) 240px;
+
+  }
+
+
+
+  .dna-grid {
+
+    grid-template-columns:
+
+      repeat(2, minmax(0, 1fr));
+
+  }
+
+
+
+  .palette-grid {
+
+    grid-template-columns:
+
+      repeat(2, minmax(0, 1fr));
+
+  }
+
+
+
+  .recommendations-grid {
+
+    grid-template-columns:
+
+      repeat(2, minmax(0, 1fr));
+
+  }
+
+
+
+  .evidence-grid {
+
+    grid-template-columns:
+
+      repeat(4, minmax(0, 1fr));
+
+  }
+
+
+
+}
+
+
+/* =====================================================
+
+   TABLET — 900
+
+\===================================================== */
+
+
+
+@media (max-width: 900px) {
+
+
+
+  .page-header {
+
+    align-items: flex-start;
+
+
+
+    flex-direction: column;
+
+  }
+
+
+
+  .primary-button {
+
+    align-self: flex-start;
+
+  }
+
+
+
+  .profile-overview {
+
+    grid-template-columns: 1fr;
+
+  }
+
+
+
+  .impact-card {
+
+    min-height: 130px;
+
+  }
+
+
+
+  .evidence-grid {
+
+    grid-template-columns:
+
+      repeat(3, minmax(0, 1fr));
+
+  }
+
+
+
+}
+
+
+/* =====================================================
+
+   MOBILE — 760
+
+\===================================================== */
+
+
+
+@media (max-width: 760px) {
+
+
+
+  .page {
+
+    padding: 28px 20px 60px;
+
+  }
+
+
+
+  .page-header {
+
+    align-items: flex-start;
+
+
+
+    flex-direction: column;
+
+
+
+    gap: 22px;
+
+  }
+
+
+
+  h1 {
+
+    font-size: 34px;
+
+
+
+    letter-spacing: -1.5px;
+
+  }
+
+
+
+  .page-description {
+
+    max-width: 450px;
+
+  }
+
+
+
+  .primary-button {
+
+    width: 100%;
+
+  }
+
+
+
+  .profile-overview {
+
+    grid-template-columns: 1fr;
+
+  }
+
+
+
+  .profile-main,
+
+  .impact-card {
+
+    width: 100%;
+
+  }
+
+
+
+  .profile-avatar {
+
+    width: 68px;
+
+    height: 68px;
+
+
+
+    min-width: 68px;
+
+    min-height: 68px;
+
+  }
+
+
+
+  .dna-grid,
+
+  .palette-grid,
+
+  .recommendations-grid {
+
+    grid-template-columns: 1fr;
+
+  }
+
+
+
+  .evidence-grid {
+
+    grid-template-columns:
+
+      repeat(2, minmax(0, 1fr));
+
+  }
+
+
+
+  .dna-card {
+
+    min-height: 130px;
+
+  }
+
+
+
+  .recommendation-card {
+
+    min-height: 150px;
+
+  }
+
+
+
+  .analysis-result {
+
+    align-items: flex-start;
+
+
+
+    flex-direction: column;
+
+  }
+
+
+
+  .analysis-score {
+
+    width: 100%;
+
+
+
+    text-align: left;
+
+  }
+
+
+
+}
+
+
+/* =====================================================
+
+   VERY SMALL — 430
+
+\===================================================== */
+
+
+
+@media (max-width: 430px) {
+
+
+
+  .page {
+
+    padding: 24px 16px 50px;
+
+  }
+
+
+
+  h1 {
+
+    font-size: 30px;
+
+  }
+
+
+
+  .profile-main {
+
+    align-items: flex-start;
+
+
+
+    padding: 20px;
+
+
+
+    gap: 15px;
+
+  }
+
+
+
+  .profile-avatar {
+
+    width: 60px;
+
+    height: 60px;
+
+
+
+    min-width: 60px;
+
+    min-height: 60px;
+
+  }
+
+
+
+  .profile-info h2 {
+
+    font-size: 17px;
+
+  }
+
+
+
+  .profile-status {
+
+    font-size: 7px;
+
+
+
+    letter-spacing: 1.5px;
+
+  }
+
+
+
+  .dna-card {
+
+    padding: 20px;
+
+  }
+
+
+
+  .palette-color {
+
+    height: 85px;
+
+  }
+
+
+
+  .evidence-grid {
+
+    grid-template-columns: 1fr 1fr;
+
+
+
+    gap: 7px;
+
+  }
+
+
+
+  .evidence-info {
+
+    padding: 9px;
+
+  }
+
+
+
+  .evidence-info p {
+
+    font-size: 8px;
+
+  }
+
+
+
+  .recommendation-card {
+
+    padding: 18px;
+
+  }
+
+
+
+  .analysis-result {
+
+    padding: 22px;
+
+  }
+
+
+
+  .analysis-result h2 {
+
+    font-size: 19px;
+
+  }
+
+
+
+}
+
+
+/* =========================================================
+   PROFILE — ULTRA PREMIUM REFINEMENT
+   ========================================================= */
+
+.page {
+  position: relative;
+  isolation: isolate;
+  background:
+    radial-gradient(
+      900px 520px at 92% -8%,
+      rgba(var(--vanta-rgb), 0.045),
+      transparent 62%
+    ),
+    radial-gradient(
+      700px 500px at -10% 58%,
+      rgba(var(--vanta-rgb), 0.018),
+      transparent 65%
+    ),
+    var(--vanta-bg);
+}
+
+/* Explicit light-theme surfaces.
+   These rules guarantee that cards become white and their text becomes dark
+   when Settings switches VANTA to Light. */
+:host-context([data-vanta-theme='light']) {
+  .profile-main,
+  .impact-card,
+  .dna-card,
+  .evidence-card,
+  .palette-card,
+  .palette-empty,
+  .recommendation-card {
+    background: #ffffff;
+    color: #090909;
+    border-color: rgba(0, 0, 0, 0.10);
+  }
+
+  .profile-main:hover,
+  .impact-card:hover,
+  .dna-card:hover,
+  .evidence-card:hover,
+  .palette-card:hover,
+  .recommendation-card:hover {
+    background: #fafafa;
+    border-color: rgba(0, 0, 0, 0.17);
+  }
+
+  .profile-info h2,
+  .impact-header strong,
+  .section-title h2,
+  .recommendation-content p,
+  .analysis-result h2,
+  .analysis-score strong {
+    color: #090909;
+  }
+
+  .profile-info p,
+  .section-description,
+  .recommendation-content span,
+  .analysis-result p,
+  .analysis-score span,
+  .analysis-score small,
+  .impact-header span,
+  .impact-card p,
+  .dna-label,
+  .evidence-type {
+    color: #666666;
+  }
+
+  .dna-number,
+  .recommendation-number,
+  .evidence-placeholder {
+    color: #888888;
+  }
+
+  .dna-tag {
+    background: #f1f1f2;
+    border-color: rgba(0, 0, 0, 0.10);
+    color: #222222;
+  }
+
+  .dna-tag::before {
+    color: #777777;
+  }
+
+  .palette-value,
+  .evidence-info p {
+    color: #444444;
+  }
+
+  .palette-color {
+    border-color: rgba(0, 0, 0, 0.08);
+  }
+
+  .evidence-overlay span {
+    background: rgba(0, 0, 0, 0.68);
+    color: #ffffff;
+  }
+
+  .analysis-result {
+    background:
+      linear-gradient(
+        135deg,
+        #ffffff 0%,
+        #f7f7f8 55%,
+        #f1f1f2 100%
+      );
+    border-color: rgba(0, 0, 0, 0.13);
+  }
+
+  .primary-button {
+    border-color: #090909;
+    background: #090909;
+    color: #ffffff;
+  }
+
+  .primary-button:hover:not(:disabled) {
+    background: #e41414;
+    border-color: #e41414;
+    color: #ffffff;
+  }
+
+  .impact-fill {
+    background: linear-gradient(
+      90deg,
+      #090909,
+      var(--vanta-accent)
+    );
+  }
+}
+
+/* Dark mode stays intentionally deep and cinematic. */
+:host-context([data-vanta-theme='dark']) {
+  .profile-main,
+  .impact-card,
+  .dna-card,
+  .evidence-card,
+  .palette-card,
+  .palette-empty,
+  .recommendation-card {
+    color: #f5f5f5;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.001ms !important;
+  }
+}

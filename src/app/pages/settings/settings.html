@@ -1,0 +1,1055 @@
+<div class="page">
+
+  <!-- ================================================= -->
+  <!-- LOADING -->
+  <!-- ================================================= -->
+
+  <div
+    class="settings-loading"
+    *ngIf="loading"
+  >
+
+    <div class="loading-line"></div>
+
+    <div class="loading-line short"></div>
+
+    <div class="loading-card"></div>
+
+  </div>
+
+
+  <!-- ================================================= -->
+  <!-- ERROR -->
+  <!-- ================================================= -->
+
+  <div
+    class="settings-error"
+    *ngIf="!loading && error"
+  >
+
+    {{ error }}
+
+  </div>
+
+
+  <!-- ================================================= -->
+  <!-- MAIN -->
+  <!-- ================================================= -->
+
+  <ng-container *ngIf="!loading">
+
+
+    <!-- ================================================= -->
+    <!-- HEADER -->
+    <!-- ================================================= -->
+
+    <header class="page-header">
+
+      <div>
+
+        <p class="eyebrow">
+          WORKSPACE SETTINGS
+        </p>
+
+        <h1>
+          Make VANTA yours.
+        </h1>
+
+        <p class="subtitle">
+          Manage your account, creative preferences and AI workspace.
+        </p>
+
+      </div>
+
+
+      <button
+        type="button"
+        class="save-button"
+        [class.saved]="saved"
+        [disabled]="saving"
+        (click)="saveChanges()"
+      >
+
+        <span
+          *ngIf="!saving && !saved"
+        >
+          Save changes
+        </span>
+
+        <span
+          *ngIf="saving"
+        >
+          Saving...
+        </span>
+
+        <span
+          *ngIf="!saving && saved"
+        >
+          ✓ Saved
+        </span>
+
+      </button>
+
+    </header>
+
+
+    <!-- ================================================= -->
+    <!-- LAYOUT -->
+    <!-- ================================================= -->
+
+    <div class="settings-layout">
+
+
+      <!-- ================================================= -->
+      <!-- NAVIGATION -->
+      <!-- ================================================= -->
+
+      <aside class="settings-nav">
+
+
+        <!-- ACCOUNT -->
+
+        <button
+          type="button"
+          class="setting-nav"
+          [class.active]="activeTab === 'account'"
+          (click)="setTab('account')"
+        >
+
+          <span>
+            ◉
+          </span>
+
+          Account
+
+        </button>
+
+
+        <!-- INSTAGRAM -->
+
+        <button
+          type="button"
+          class="setting-nav"
+          [class.active]="activeTab === 'instagram'"
+          (click)="setTab('instagram')"
+        >
+
+          <span>
+            ◎
+          </span>
+
+          Instagram
+
+        </button>
+
+
+        <!-- AI -->
+
+        <button
+          type="button"
+          class="setting-nav"
+          [class.active]="activeTab === 'ai'"
+          (click)="setTab('ai')"
+        >
+
+          <span>
+            ✦
+          </span>
+
+          AI Preferences
+
+        </button>
+
+
+        <!-- APPEARANCE -->
+
+        <button
+          type="button"
+          class="setting-nav"
+          [class.active]="activeTab === 'appearance'"
+          (click)="setTab('appearance')"
+        >
+
+          <span>
+            ◐
+          </span>
+
+          Appearance
+
+        </button>
+
+
+        <!-- PLAN -->
+
+        <button
+          type="button"
+          class="setting-nav"
+          [class.active]="activeTab === 'plan'"
+          (click)="setTab('plan')"
+        >
+
+          <span>
+            ◌
+          </span>
+
+          Plan & Credits
+
+        </button>
+
+
+        <div class="nav-divider"></div>
+
+
+        <!-- DELETE -->
+
+        <button
+          type="button"
+          class="setting-nav danger"
+          (click)="deleteWorkspace()"
+        >
+
+          <span>
+            ×
+          </span>
+
+          Delete workspace
+
+        </button>
+
+      </aside>
+
+
+      <!-- ================================================= -->
+      <!-- CONTENT -->
+      <!-- ================================================= -->
+
+      <main class="settings-content">
+
+
+        <!-- ================================================= -->
+        <!-- ACCOUNT -->
+        <!-- ================================================= -->
+
+        <section
+          class="settings-section"
+          *ngIf="activeTab === 'account'"
+        >
+
+          <div class="section-heading">
+
+            <span class="section-number">
+              01
+            </span>
+
+            <div>
+
+              <h2>
+                Account
+              </h2>
+
+              <p>
+                Your personal workspace information.
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <div class="settings-card">
+
+
+            <!-- PROFILE -->
+
+            <div class="profile-row">
+
+
+              <!-- AVATAR / THUMB -->
+
+              <div class="avatar">
+
+                <img
+                  *ngIf="avatarUrl"
+                  [src]="avatarUrl"
+                  alt="VANTA profile avatar"
+                  referrerpolicy="no-referrer"
+                />
+
+                <span
+                  *ngIf="!avatarUrl"
+                >
+                  {{ name.charAt(0).toUpperCase() }}
+                </span>
+
+              </div>
+
+
+              <!-- DETAILS -->
+
+              <div class="profile-details">
+
+                <strong>
+                  {{ name }}
+                </strong>
+
+                <span>
+                  {{ role }} workspace
+                </span>
+
+                <small
+                  *ngIf="instagramConnected"
+                >
+                  @{{ instagramUsername }}
+                </small>
+
+              </div>
+
+
+              <!-- AVATAR BUTTON -->
+
+              <button
+                type="button"
+                class="small-button"
+                (click)="changeAvatar()"
+              >
+
+                Change avatar
+
+              </button>
+
+            </div>
+
+
+            <!-- ACCOUNT FIELDS -->
+
+            <div class="field-grid">
+
+
+              <!-- NAME -->
+
+              <div class="field">
+
+                <label>
+                  NAME
+                </label>
+
+                <input
+                  type="text"
+                  [(ngModel)]="name"
+                  (ngModelChange)="saved = false"
+                  autocomplete="name"
+                />
+
+              </div>
+
+
+              <!-- ROLE -->
+
+              <div class="field">
+
+                <label>
+                  ROLE
+                </label>
+
+                <input
+                  type="text"
+                  [(ngModel)]="role"
+                  (ngModelChange)="saved = false"
+                  autocomplete="organization-title"
+                />
+
+              </div>
+
+
+            </div>
+
+
+            <!-- INSTAGRAM THUMB INFO -->
+
+            <div
+              class="account-instagram"
+              *ngIf="instagramConnected"
+            >
+
+              <div class="account-instagram-avatar">
+
+                <img
+                  *ngIf="instagram.avatarUrl"
+                  [src]="instagram.avatarUrl"
+                  alt="Instagram profile"
+                  referrerpolicy="no-referrer"
+                />
+
+              </div>
+
+              <div>
+
+                <strong>
+                  Instagram connected
+                </strong>
+
+                <span>
+                  @{{ instagramUsername }}
+                </span>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </section>
+
+
+        <!-- ================================================= -->
+        <!-- INSTAGRAM -->
+        <!-- ================================================= -->
+
+        <section
+          class="settings-section"
+          *ngIf="activeTab === 'instagram'"
+        >
+
+          <div class="section-heading">
+
+            <span class="section-number">
+              02
+            </span>
+
+            <div>
+
+              <h2>
+                Instagram
+              </h2>
+
+              <p>
+                Connect your profile to unlock VANTA analysis.
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <div class="connection-card">
+
+
+            <!-- ICON -->
+
+            <div class="instagram-icon">
+              ◎
+            </div>
+
+
+            <!-- INFO -->
+
+            <div class="connection-info">
+
+              <span
+                class="connection-status"
+                [class.disconnected]="!instagramConnected"
+              >
+
+                <span class="status-dot"></span>
+
+                {{
+                  instagramConnected
+                    ? 'CONNECTED'
+                    : 'NOT CONNECTED'
+                }}
+
+              </span>
+
+
+              <strong>
+
+                {{
+                  instagramConnected
+                    ? '@' + instagramUsername
+                    : 'Instagram not connected'
+                }}
+
+              </strong>
+
+
+              <p>
+
+                {{
+                  instagramConnected
+                    ? 'VANTA can analyze your profile, content and visual identity.'
+                    : 'Connect Instagram from your dashboard to unlock VANTA analysis.'
+                }}
+
+              </p>
+
+            </div>
+
+
+            <!-- MANAGE -->
+
+            <button
+              type="button"
+              class="disconnect-button"
+              (click)="manageInstagram()"
+            >
+
+              Manage
+
+            </button>
+
+          </div>
+
+
+          <!-- PROFILE PREVIEW -->
+
+          <div
+            class="instagram-profile-preview"
+            *ngIf="instagramConnected"
+          >
+
+            <div class="instagram-profile-avatar">
+
+              <img
+                *ngIf="instagram.avatarUrl"
+                [src]="instagram.avatarUrl"
+                alt="Instagram profile"
+                referrerpolicy="no-referrer"
+              />
+
+            </div>
+
+
+            <div class="instagram-profile-data">
+
+              <span>
+                CONNECTED PROFILE
+              </span>
+
+              <strong>
+                {{ instagram.name || instagramUsername }}
+              </strong>
+
+              <small>
+                @{{ instagramUsername }}
+              </small>
+
+            </div>
+
+          </div>
+
+        </section>
+
+
+        <!-- ================================================= -->
+        <!-- AI -->
+        <!-- ================================================= -->
+
+        <section
+          class="settings-section"
+          *ngIf="activeTab === 'ai'"
+        >
+
+          <div class="section-heading">
+
+            <span class="section-number">
+              03
+            </span>
+
+            <div>
+
+              <h2>
+                AI Preferences
+              </h2>
+
+              <p>
+                Tell VANTA how you want your content to feel.
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <div class="settings-card preference-card">
+
+
+            <!-- CREATIVE DIRECTION -->
+
+            <div class="preference-row">
+
+              <div>
+
+                <strong>
+                  Creative direction
+                </strong>
+
+                <span>
+                  How aggressive should VANTA be with new ideas?
+                </span>
+
+              </div>
+
+
+              <div class="segmented">
+
+
+                <button
+                  type="button"
+                  [class.active]="creativeDirection === 'Safe'"
+                  (click)="setCreativeDirection('Safe')"
+                >
+                  Safe
+                </button>
+
+
+                <button
+                  type="button"
+                  [class.active]="creativeDirection === 'Balanced'"
+                  (click)="setCreativeDirection('Balanced')"
+                >
+                  Balanced
+                </button>
+
+
+                <button
+                  type="button"
+                  [class.active]="creativeDirection === 'Experimental'"
+                  (click)="setCreativeDirection('Experimental')"
+                >
+                  Experimental
+                </button>
+
+
+              </div>
+
+            </div>
+
+
+            <div class="row-divider"></div>
+
+
+            <!-- OPEN LOOP -->
+
+            <div class="preference-row">
+
+              <div>
+
+                <strong>
+                  Open Loop by default
+                </strong>
+
+                <span>
+                  Prioritize curiosity-driven visual hooks.
+                </span>
+
+              </div>
+
+
+              <button
+                type="button"
+                class="toggle"
+                [class.active]="openLoop"
+                [attr.aria-pressed]="openLoop"
+                (click)="toggleOpenLoop()"
+              >
+
+                <span></span>
+
+              </button>
+
+            </div>
+
+
+            <div class="row-divider"></div>
+
+
+            <!-- PROFILE DNA -->
+
+            <div class="preference-row">
+
+              <div>
+
+                <strong>
+                  Preserve Profile DNA
+                </strong>
+
+                <span>
+                  Keep generated visuals aligned with your identity.
+                </span>
+
+              </div>
+
+
+              <button
+                type="button"
+                class="toggle"
+                [class.active]="preserveDNA"
+                [attr.aria-pressed]="preserveDNA"
+                (click)="togglePreserveDNA()"
+              >
+
+                <span></span>
+
+              </button>
+
+            </div>
+
+
+          </div>
+
+        </section>
+
+
+        <!-- ================================================= -->
+        <!-- APPEARANCE -->
+        <!-- ================================================= -->
+
+        <section
+          class="settings-section"
+          *ngIf="activeTab === 'appearance'"
+        >
+
+          <div class="section-heading">
+
+            <span class="section-number">
+              04
+            </span>
+
+            <div>
+
+              <h2>
+                Appearance
+              </h2>
+
+              <p>
+                Customize how VANTA looks and feels.
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <div class="settings-card appearance-card">
+
+
+            <!-- PREVIEW -->
+
+            <div class="appearance-preview">
+
+
+              <div
+                class="preview-window"
+                [class.preview-light]="isLightTheme"
+                [class.preview-dark]="isDarkTheme"
+              >
+
+                <div class="preview-top">
+
+                  <span></span>
+
+                  <span></span>
+
+                  <span></span>
+
+                </div>
+
+
+                <div class="preview-content">
+
+                  <div class="preview-sidebar">
+                  </div>
+
+
+                  <div class="preview-main">
+
+                    <div class="preview-line large">
+                    </div>
+
+                    <div class="preview-line">
+                    </div>
+
+                    <div class="preview-block">
+                    </div>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+
+              <div class="appearance-info">
+
+                <span class="appearance-label">
+                  CURRENT THEME
+                </span>
+
+                <strong>
+                  {{ themeLabel }}
+                </strong>
+
+                <p>
+                  {{
+                    isLightTheme
+                      ? 'Clean. Bright. Focused.'
+                      : 'Minimal. Cinematic. Focused.'
+                  }}
+                </p>
+
+              </div>
+
+            </div>
+
+
+            <!-- THEME OPTIONS -->
+
+            <div class="appearance-options">
+
+
+              <!-- DARK -->
+
+              <button
+                type="button"
+                class="appearance-option"
+                [class.active]="isDarkTheme"
+                (click)="setTheme('dark')"
+              >
+
+                <span
+                  class="theme-preview dark-theme"
+                ></span>
+
+
+                <span>
+                  Dark
+                </span>
+
+
+                <small>
+                  {{
+                    isDarkTheme
+                      ? 'Current'
+                      : 'Select'
+                  }}
+                </small>
+
+              </button>
+
+
+              <!-- LIGHT -->
+
+              <button
+                type="button"
+                class="appearance-option"
+                [class.active]="isLightTheme"
+                (click)="setTheme('light')"
+              >
+
+                <span
+                  class="theme-preview light-theme"
+                ></span>
+
+
+                <span>
+                  Light
+                </span>
+
+
+                <small>
+                  {{
+                    isLightTheme
+                      ? 'Current'
+                      : 'Select'
+                  }}
+                </small>
+
+              </button>
+
+
+              <!-- BLACK / FUTURE -->
+
+              <button
+                type="button"
+                class="appearance-option disabled"
+                disabled
+              >
+
+                <span
+                  class="theme-preview black-theme"
+                ></span>
+
+
+                <span>
+                  Black
+                </span>
+
+
+                <small>
+                  Coming soon
+                </small>
+
+              </button>
+
+
+            </div>
+
+
+            <!-- SAVE REMINDER -->
+
+            <div
+              class="theme-save-hint"
+              *ngIf="!saved"
+            >
+
+              <span></span>
+
+              Choose a theme and press
+              <strong>Save changes</strong>
+              to persist it.
+
+            </div>
+
+
+          </div>
+
+        </section>
+
+
+        <!-- ================================================= -->
+        <!-- PLAN -->
+        <!-- ================================================= -->
+
+        <section
+          class="settings-section"
+          *ngIf="activeTab === 'plan'"
+        >
+
+          <div class="section-heading">
+
+            <span class="section-number">
+              05
+            </span>
+
+            <div>
+
+              <h2>
+                Plan & Credits
+              </h2>
+
+              <p>
+                Your current VANTA usage.
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <!-- PLAN -->
+
+          <div class="plan-card">
+
+            <div>
+
+              <span class="plan-label">
+                CURRENT PLAN
+              </span>
+
+
+              <h3>
+                {{ planName }}
+              </h3>
+
+
+              <p>
+                Built for creators who want their profile
+                to look intentional.
+              </p>
+
+            </div>
+
+
+            <div class="credit-display">
+
+              <span>
+                AI CREDITS
+              </span>
+
+
+              <strong>
+                {{ credits }}
+              </strong>
+
+
+              <small>
+                remaining this month
+              </small>
+
+            </div>
+
+
+            <button
+              type="button"
+              class="upgrade-button"
+              (click)="upgradePlan()"
+            >
+
+              Upgrade plan →
+
+            </button>
+
+          </div>
+
+
+          <!-- CREDIT USAGE -->
+
+          <div class="credit-card">
+
+            <div class="credit-header">
+
+              <span>
+                CREDIT USAGE
+              </span>
+
+              <strong>
+                {{ credits }} / {{ monthlyCredits }}
+              </strong>
+
+            </div>
+
+
+            <div class="credit-bar">
+
+              <div
+                class="credit-progress"
+                [style.width.%]="creditPercentage"
+              ></div>
+
+            </div>
+
+
+            <div class="credit-footer">
+
+              <span>
+                0
+              </span>
+
+              <span>
+                {{ monthlyCredits }} credits
+              </span>
+
+            </div>
+
+          </div>
+
+        </section>
+
+
+      </main>
+
+    </div>
+
+  </ng-container>
+
+</div>

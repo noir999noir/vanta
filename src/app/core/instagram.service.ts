@@ -12,7 +12,7 @@ import {
   AuthService
 } from './auth.service';
 
-import { environment } from '../../environments/environment';
+import { environment } from '../../environments/environment.prod';
 export interface InstagramProfile {
   id?: string;
   username?: string;

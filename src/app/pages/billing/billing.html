@@ -1,0 +1,80 @@
+
+<main class="billing-page">
+  <header class="billing-header">
+    <a routerLink="/" class="back-link">← Torna a VANTA</a>
+
+    <span class="eyebrow">VANTA / CREDITS</span>
+    <h1>Il tuo spazio creativo.</h1>
+    <p>
+      Ricarica i tuoi crediti e continua a costruire la tua identità visiva.
+    </p>
+  </header>
+
+  <section class="balance-card">
+    <div>
+      <span class="balance-label">SALDO DISPONIBILE</span>
+
+      <div class="balance-value">
+        <span>{{ loadingBalance ? '—' : balance }}</span>
+        <span class="balance-unit">crediti</span>
+      </div>
+
+      <p>I tuoi crediti per le creazioni AI.</p>
+    </div>
+
+    <div class="balance-symbol">✳</div>
+  </section>
+
+  <p class="feedback success" *ngIf="successMessage">
+    {{ successMessage }}
+  </p>
+
+  <p class="feedback error" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </p>
+
+  <section class="packages-section">
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">SCEGLI IL TUO PACCHETTO</span>
+        <h2>Creatività, senza limiti.</h2>
+      </div>
+      <span class="one-time">Pagamento una tantum</span>
+    </div>
+
+    <div class="packages-grid">
+      <article class="package-card" *ngFor="let pkg of packages">
+        <span class="package-tag">{{ pkg.name }}</span>
+
+        <div class="package-price">
+          <span class="currency">€</span>
+          <span class="amount">{{ pkg.price }}</span>
+        </div>
+
+        <div class="credits-amount">
+          {{ pkg.credits }} <span>crediti</span>
+        </div>
+
+        <p class="package-description">{{ pkg.description }}</p>
+
+        <button
+          type="button"
+          class="buy-button"
+          [disabled]="!!checkoutLoading"
+          (click)="buyPackage(pkg)"
+        >
+          {{
+            checkoutLoading === pkg.id
+              ? 'Apertura pagamento...'
+              : 'Acquista pacchetto'
+          }}
+        </button>
+      </article>
+    </div>
+  </section>
+
+  <footer class="billing-footer">
+    <span>VANTA — YOUR VISUAL IDENTITY.</span>
+    <span>Pagamenti elaborati da Stripe.</span>
+  </footer>
+</main>

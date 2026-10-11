@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-
+import { BillingComponent } from './pages/billing/billing';
 import { authGuard } from './core/auth.guard';
 
 export const routes: Routes = [
@@ -70,8 +70,10 @@ export const routes: Routes = [
       import('./pages/settings/settings')
         .then(m => m.Settings)
   },
-
-
+  {
+    path: 'billing',
+    component: BillingComponent,
+  },
   // =====================================================
   // FALLBACK
   // =====================================================

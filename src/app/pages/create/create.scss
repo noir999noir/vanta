@@ -9376,3 +9376,82 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+
+/* =========================================================
+   CREDIT BALANCE
+   ========================================================= */
+
+.credit-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 12px 13px;
+  border: 1px solid var(--border-strong);
+  background: var(--card);
+}
+
+.credit-status-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.credit-status-label {
+  color: var(--text-muted);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+}
+
+.credit-status-copy strong {
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.credit-cost {
+  flex: 0 0 auto;
+  color: var(--text-muted);
+  font-size: 9px;
+  white-space: nowrap;
+}
+
+.insufficient-credits {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 12px;
+  padding: 12px 13px;
+  border: 1px solid rgba(255, 55, 55, 0.28);
+  background: rgba(255, 55, 55, 0.06);
+  color: #ff8e8e;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.insufficient-credits strong {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.insufficient-credits span {
+  color: var(--text-soft);
+}
+
+:host-context([data-vanta-theme='light']) .insufficient-credits {
+  color: #b91c1c;
+}
+
+@media (max-width: 560px) {
+  .credit-status {
+    align-items: flex-start;
+  }
+
+  .credit-cost {
+    padding-top: 2px;
+  }
+}

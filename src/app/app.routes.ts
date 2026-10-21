@@ -64,6 +64,14 @@ export const routes: Routes = [
   },
 
   {
+    path: 'campaign-studio',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/campaign-studio/campaign-studio')
+        .then(m => m.CampaignStudioComponent)
+  },
+
+  {
     path: 'settings',
     canActivate: [authGuard],
     loadComponent: () =>

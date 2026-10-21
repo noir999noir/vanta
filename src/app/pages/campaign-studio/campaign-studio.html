@@ -1,0 +1,496 @@
+
+<div class="campaign-studio">
+  <header class="studio-header">
+    <div class="header-copy">
+      <span class="eyebrow">VANTA / CREATIVE INTELLIGENCE</span>
+      <h1>Campaign <span>Studio</span></h1>
+      <p>Trasforma un'idea in una campagna visiva coerente.</p>
+    </div>
+    <div class="header-status">
+      <span class="status-dot"></span>
+      AI CREATIVE DIRECTOR
+    </div>
+  </header>
+
+  @if (errorMessage()) {
+    <div class="notice error-notice">
+      <span>!</span>
+      <p>{{ errorMessage() }}</p>
+    </div>
+  }
+
+  @if (successMessage()) {
+    <div class="notice success-notice">
+      <span>✓</span>
+      <p>{{ successMessage() }}</p>
+    </div>
+  }
+
+  <div class="studio-layout">
+    <main class="studio-main">
+      <section class="panel">
+        <div class="section-heading">
+          <div>
+            <span class="section-index">01 / STRATEGY</span>
+            <h2>Campaign brief</h2>
+            <p>Definisci il concept e la direzione creativa.</p>
+          </div>
+          <span class="step-indicator">01</span>
+        </div>
+
+        <div class="field">
+          <label for="campaignName">Nome campagna</label>
+          <input
+            id="campaignName"
+            type="text"
+            maxlength="80"
+            placeholder="Es. NOIR — After Dark"
+            [ngModel]="campaignName()"
+            (ngModelChange)="campaignName.set($event)"
+          />
+        </div>
+
+        <div class="field">
+          <label for="campaignBrief">Descrizione creativa</label>
+          <textarea
+            id="campaignBrief"
+            rows="6"
+            maxlength="3000"
+            placeholder="Descrivi il brand, l'atmosfera, i colori, il soggetto e il risultato desiderato..."
+            [ngModel]="campaignBrief()"
+            (ngModelChange)="campaignBrief.set($event)"
+          ></textarea>
+          <div class="field-footer">
+            <span>{{ campaignBrief().length }} / 3000 caratteri</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Soggetto della campagna</label>
+          <div class="option-grid">
+            <button
+              type="button"
+              class="option-card"
+              [class.active]="subjectSource() === 'invent'"
+              (click)="setSubjectSource('invent')"
+            >
+              <span class="option-icon">✳</span>
+              <strong>AI inventa</strong>
+              <small>Crea un soggetto originale</small>
+            </button>
+
+            <button
+              type="button"
+              class="option-card"
+              [class.active]="subjectSource() === 'photo'"
+              (click)="setSubjectSource('photo')"
+            >
+              <span class="option-icon">◉</span>
+              <strong>Foto</strong>
+              <small>Usa immagini di riferimento</small>
+            </button>
+
+            <button
+              type="button"
+              class="option-card"
+              [class.active]="subjectSource() === 'product'"
+              (click)="setSubjectSource('product')"
+            >
+              <span class="option-icon">◇</span>
+              <strong>Prodotto</strong>
+              <small>Preserva i dettagli del prodotto</small>
+            </button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Identità visiva</label>
+          <div class="segmented-options">
+            <button
+              type="button"
+              [class.active]="identityMode() === 'preserve'"
+              (click)="setIdentityMode('preserve')"
+            >
+              Preserva identità
+            </button>
+            <button
+              type="button"
+              [class.active]="identityMode() === 'reinterpret'"
+              (click)="setIdentityMode('reinterpret')"
+            >
+              Reinterpreta
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="section-heading">
+          <div>
+            <span class="section-index">02 / REFERENCES</span>
+            <h2>Visual references</h2>
+            <p>Carica fino a 5 immagini di riferimento.</p>
+          </div>
+          <span class="reference-count">{{ references().length }} / 5</span>
+        </div>
+
+        <label class="upload-zone">
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            multiple
+            [disabled]="references().length >= 5"
+            (change)="onReferenceFilesSelected($event)"
+          />
+          <span class="upload-icon">↑</span>
+          <strong>Seleziona le immagini</strong>
+          <span>JPG, PNG o WebP · massimo 4 MB per immagine</span>
+        </label>
+
+        @if (references().length > 0) {
+          <div class="reference-grid">
+            @for (reference of references(); track reference.id) {
+              <div class="reference-card">
+                <img [src]="reference.dataUrl" [alt]="reference.name" />
+                <button
+                  type="button"
+                  class="remove-reference"
+                  (click)="removeReference(reference.id)"
+                  aria-label="Rimuovi riferimento"
+                >×</button>
+                <span>{{ reference.name }}</span>
+              </div>
+            }
+          </div>
+        }
+      </section>
+
+      <section class="panel">
+        <div class="section-heading">
+          <div>
+            <span class="section-index">03 / OUTPUT</span>
+            <h2>Campaign structure</h2>
+            <p>Scegli i formati e il numero di contenuti.</p>
+          </div>
+          <span class="step-indicator">03</span>
+        </div>
+
+        <div class="field">
+          <label>Formati della campagna</label>
+          <div class="format-options">
+            @for (format of availableFormats; track format) {
+              <button
+                type="button"
+                class="format-option"
+                [class.active]="formats().includes(format)"
+                [attr.aria-pressed]="formats().includes(format)"
+                (click)="toggleFormat(format)"
+              >
+                <span class="format-check">
+                  {{ formats().includes(format) ? '✓' : '+' }}
+                </span>
+                <span class="format-copy">
+                  <strong>{{ format }}</strong>
+                  <small>
+                    @if (format === 'Reel') {
+                      Concept per contenuti video
+                    } @else if (format === 'Post') {
+                      Visual per il feed
+                    } @else {
+                      Sequenza di immagini
+                    }
+                  </small>
+                </span>
+              </button>
+            }
+          </div>
+          @if (formats().length === 0) {
+            <p class="format-error">Seleziona almeno un formato.</p>
+          }
+        </div>
+
+        <div class="field">
+          <label>Numero di visual</label>
+          <div class="count-options">
+            @for (count of [3, 6, 9]; track count) {
+              <button
+                type="button"
+                [class.active]="contentCount() === count"
+                (click)="setContentCount(count)"
+              >
+                <strong>{{ count }}</strong>
+                <span>visual</span>
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Formato immagini</label>
+          <div class="segmented-options">
+            <button
+              type="button"
+              [class.active]="aspectRatio() === '4:5'"
+              (click)="aspectRatio.set('4:5')"
+            >4:5 · Instagram</button>
+            <button
+              type="button"
+              [class.active]="aspectRatio() === '1:1'"
+              (click)="aspectRatio.set('1:1')"
+            >1:1 · Square</button>
+            <button
+              type="button"
+              [class.active]="aspectRatio() === '9:16'"
+              (click)="aspectRatio.set('9:16')"
+            >9:16 · Stories</button>
+          </div>
+        </div>
+
+        <div class="planning-summary">
+          <div>
+            <span>Visual pianificati</span>
+            <strong>{{ contentCount() }}</strong>
+          </div>
+          <div>
+            <span>Costo generazione completa</span>
+            <strong>{{ contentCount() * 5 }} <small>crediti</small></strong>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          class="primary-button plan-button"
+          [disabled]="isPlanning() || isGeneratingAll()"
+          (click)="buildCampaign()"
+        >
+          @if (isPlanning()) {
+            <span class="spinner"></span>
+            Creazione piano...
+          } @else {
+            Genera piano creativo <span>↗</span>
+          }
+        </button>
+      </section>
+    </main>
+
+    <aside class="studio-sidebar">
+      <section class="preview-panel">
+        <div class="preview-topbar">
+          <span class="section-index">LIVE PREVIEW</span>
+          <span class="live-indicator"><span></span> STUDIO</span>
+        </div>
+
+        @if (selectedPost(); as post) {
+          <div class="selected-preview">
+            @if (post.generatedImage) {
+              <img
+                class="hero-preview-image"
+                [src]="post.generatedImage"
+                [alt]="post.title"
+              />
+            } @else {
+              <div class="preview-placeholder">
+                <span class="placeholder-mark">V.</span>
+                <span class="placeholder-caption">CAMPAIGN CONCEPT</span>
+                <h3>{{ post.title }}</h3>
+                <p>{{ post.visualDirection || post.creativePrompt }}</p>
+              </div>
+            }
+
+            <div class="preview-caption">
+              <span class="section-index">SELECTED VISUAL</span>
+              <h3>{{ post.title }}</h3>
+              <p>{{ post.objective || post.format }}</p>
+            </div>
+          </div>
+        } @else {
+          <div class="preview-placeholder empty-preview">
+            <span class="placeholder-mark">V.</span>
+            <span class="placeholder-caption">YOUR NEXT CAMPAIGN</span>
+            <h3>La tua visione.<br />Una nuova identità.</h3>
+            <p>Genera il piano creativo per visualizzare qui il primo contenuto.</p>
+          </div>
+        }
+
+        <div class="preview-meta">
+          <div>
+            <span>FORMAT</span>
+            <strong>{{ aspectRatio() }}</strong>
+          </div>
+          <div>
+            <span>VISUAL</span>
+            <strong>{{ posts().length || contentCount() }}</strong>
+          </div>
+          <div>
+            <span>REFERENCES</span>
+            <strong>{{ references().length }}</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel campaign-overview">
+        <div class="section-heading compact-heading">
+          <div>
+            <span class="section-index">CAMPAIGN OVERVIEW</span>
+            <h2>{{ campaignTitle() || 'La tua campagna' }}</h2>
+          </div>
+          <span class="overview-mark">V.</span>
+        </div>
+
+        @if (campaignConcept()) {
+          <p class="campaign-concept">{{ campaignConcept() }}</p>
+        } @else {
+          <p class="muted-copy">
+            Il concept creativo apparirà dopo la pianificazione.
+          </p>
+        }
+
+        @if (visualIdentity()) {
+          <div class="identity-box">
+            <span>ART DIRECTION</span>
+            <p>{{ visualIdentity() }}</p>
+          </div>
+        }
+
+        @if (palette().length > 0) {
+          <div class="palette-section">
+            <span class="section-index">COLOR PALETTE</span>
+            <div class="palette-list">
+              @for (color of palette(); track color) {
+                <span class="palette-chip">
+                  <span
+                    class="palette-swatch"
+                    [style.background]="color"
+                  ></span>
+                  {{ color }}
+                </span>
+              }
+            </div>
+          </div>
+        }
+      </section>
+
+      <section class="panel storyboard-panel">
+        <div class="section-heading compact-heading">
+          <div>
+            <span class="section-index">STORYBOARD</span>
+            <h2>Visual sequence</h2>
+          </div>
+          <span class="storyboard-count">{{ posts().length }}</span>
+        </div>
+
+        @if (posts().length > 0) {
+          <div class="storyboard-list">
+            @for (post of posts(); track post.id; let i = $index) {
+              <button
+                type="button"
+                class="storyboard-item"
+                [class.active]="selectedPostId() === post.id"
+                (click)="selectPost(post.id)"
+              >
+                <div class="storyboard-thumb">
+                  @if (post.generatedImage) {
+                    <img [src]="post.generatedImage" [alt]="post.title" />
+                  } @else {
+                    <span>{{ (i + 1).toString().padStart(2, '0') }}</span>
+                  }
+                </div>
+                <div class="storyboard-info">
+                  <strong>{{ post.title }}</strong>
+                  <span>{{ post.format }}</span>
+                  <small>{{ post.status }}</small>
+                </div>
+                <span class="storyboard-arrow">↗</span>
+              </button>
+            }
+          </div>
+        } @else {
+          <div class="empty-storyboard">
+            <span>01 — {{ contentCount().toString().padStart(2, '0') }}</span>
+            <p>Lo storyboard verrà creato dall'AI.</p>
+          </div>
+        }
+
+        @if (selectedPost(); as post) {
+          <div class="selected-post-details">
+            <span class="section-index">CREATIVE DIRECTION</span>
+            <p>{{ post.visualDirection || post.creativePrompt || 'Nessuna descrizione disponibile.' }}</p>
+
+            @if (post.caption) {
+              <div class="caption-preview">
+                <span class="section-index">CAPTION</span>
+                <p>{{ post.caption }}</p>
+              </div>
+            }
+
+            @if (post.hashtags.length > 0) {
+              <div class="hashtag-list">
+                @for (tag of post.hashtags; track tag) {
+                  <span>{{ tag.startsWith('#') ? tag : '#' + tag }}</span>
+                }
+              </div>
+            }
+
+            @if (post.generationError) {
+              <p class="post-error">{{ post.generationError }}</p>
+            }
+
+            @if (post.generatedImage) {
+              <button
+                type="button"
+                class="secondary-button"
+                (click)="downloadImage(post)"
+              >↓ Scarica immagine</button>
+            } @else {
+              <button
+                type="button"
+                class="secondary-button"
+                [disabled]="isGeneratingAll() || isPlanning() || post.status === 'generating'"
+                (click)="post.status === 'error' ? retryPost(post.id) : generateOne(post.id)"
+              >
+                @if (post.status === 'generating') {
+                  <span class="spinner"></span>
+                  Generazione...
+                } @else if (post.status === 'error') {
+                  Riprova visual
+                } @else {
+                  Genera questo visual · 5 crediti
+                }
+              </button>
+            }
+          </div>
+        }
+      </section>
+
+      <section class="generation-panel">
+        <div class="generation-heading">
+          <span class="section-index">FINAL GENERATION</span>
+          <span class="credit-label">{{ creditsRequired() }} crediti</span>
+        </div>
+
+        <div class="generation-summary">
+          <strong>{{ pendingPosts().length }} visual da generare</strong>
+          <span>5 crediti per immagine</span>
+        </div>
+
+        <button
+          type="button"
+          class="primary-button generate-all-button"
+          [disabled]="!canGenerateAll()"
+          (click)="generateAll()"
+        >
+          @if (isGeneratingAll()) {
+            <span class="spinner"></span>
+            Generazione in corso...
+          } @else {
+            Genera campagna completa <span>↗</span>
+          }
+        </button>
+
+        <p class="generation-footnote">
+          Generazione sequenziale. Il saldo viene verificato dal server.
+        </p>
+      </section>
+    </aside>
+  </div>
+</div>

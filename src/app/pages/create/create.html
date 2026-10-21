@@ -915,7 +915,26 @@
 
       <div class="create-action">
 
+        <div class="credit-status" aria-live="polite">
+          <div class="credit-status-copy">
+            <span class="credit-status-label">VANTA CREDITS</span>
+            @if (loadingCredits()) {
+              <strong>Checking balance…</strong>
+            } @else if (creditBalance() !== null) {
+              <strong>{{ creditBalance() }} available</strong>
+            } @else {
+              <strong>Balance unavailable</strong>
+            }
+          </div>
+          <span class="credit-cost">−{{ imageCreditCost }} per image</span>
+        </div>
 
+        @if (!loadingCredits() && creditBalance() !== null && creditBalance()! < imageCreditCost) {
+          <div class="insufficient-credits" role="alert">
+            <strong>Not enough credits</strong>
+            <span>You need {{ imageCreditCost }} credits to generate a visual. Your current balance is {{ creditBalance() }}.</span>
+          </div>
+        }
 
         <button
 
@@ -926,6 +945,8 @@
           [disabled]="
 
             generating() ||
+
+            (creditBalance() !== null && creditBalance()! < imageCreditCost) ||
 
             !selectedImage() ||
 

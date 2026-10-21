@@ -572,6 +572,17 @@ export class Create
     signal(false);
 
 
+  // =====================================================
+  // CREDITS
+  // =====================================================
+
+  readonly imageCreditCost = 5;
+
+  creditBalance = signal<number | null>(null);
+
+  loadingCredits = signal(false);
+
+
 
 
 
@@ -971,12 +982,71 @@ export class Create
 
     this.loadProfileDNA();
 
+    // Load the current credit balance without blocking the creation flow.
+    void this.loadCreditBalance();
+
 
 
   }
 
 
 
+
+
+  // =====================================================
+  // CREDITS
+  // =====================================================
+
+  private loadCreditBalance(): void {
+    this.loadingCredits.set(true);
+
+    void this.authService.getSession()
+      .then(session => {
+        if (!session?.access_token) {
+          this.creditBalance.set(null);
+          this.loadingCredits.set(false);
+          return;
+        }
+
+        const headers = new HttpHeaders({
+          Authorization: `Bearer ${session.access_token}`
+        });
+
+        this.http.get<any>(
+          `${environment.apiUrl}/api/billing/balance`,
+          { headers }
+        ).subscribe({
+          next: response => {
+            const candidates = [
+              response?.balance,
+              response?.balance?.balance,
+              response?.credits,
+              response?.data?.balance,
+              response?.data?.credits
+            ];
+
+            const parsedBalance = candidates
+              .map(value => typeof value === 'number' ? value : Number(value))
+              .find(value => Number.isFinite(value) && value >= 0);
+
+            this.creditBalance.set(
+              parsedBalance === undefined ? null : parsedBalance
+            );
+            this.loadingCredits.set(false);
+          },
+          error: error => {
+            console.error('Unable to load VANTA credit balance:', error);
+            this.creditBalance.set(null);
+            this.loadingCredits.set(false);
+          }
+        });
+      })
+      .catch(error => {
+        console.error('Unable to verify session for credit balance:', error);
+        this.creditBalance.set(null);
+        this.loadingCredits.set(false);
+      });
+  }
 
 
   // =====================================================
@@ -1804,6 +1874,12 @@ export class Create
 
     }
 
+    if (this.creditBalance() !== null && this.creditBalance()! < this.imageCreditCost) {
+      this.error.set('You do not have enough credits. 5 credits are required to create a visual.');
+      this.setStage('error', 'Insufficient credits.', 0);
+      return;
+    }
+
 
 
 
@@ -2487,6 +2563,7 @@ export class Create
       ).subscribe({
         next: response => {
           if (response.success && response.generatedImage) {
+            this.loadCreditBalance();
             this.generatedImage.set(response.generatedImage);
             this.imageReady.set(true);
             this.generatingImage.set(false);
@@ -2524,10 +2601,15 @@ export class Create
           console.error('IMAGE GENERATION ERROR:', error);
           console.error('BACKEND ERROR:', error?.error);
 
-          this.error.set(
-            error?.error?.message ||
-            'Unable to generate the image.'
-          );
+          if (error?.status === 402) {
+            this.error.set('Insufficient credits. You need 5 credits to generate an image.');
+            this.loadCreditBalance();
+          } else {
+            this.error.set(
+              error?.error?.message ||
+              'Unable to generate the image.'
+            );
+          }
 
           this.setStage(
             'error',

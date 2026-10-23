@@ -328,6 +328,73 @@
         </div>
       </section>
 
+      <section class="panel persistence-panel">
+        <div class="section-heading compact-heading">
+          <div>
+            <span class="section-index">CAMPAIGN LIBRARY</span>
+            <h2>Salva e riprendi</h2>
+            <p>Le campagne salvate restano disponibili anche dopo aver chiuso lo studio.</p>
+          </div>
+          <span class="overview-mark">↻</span>
+        </div>
+
+        <div class="persistence-actions">
+          <button
+            type="button"
+            class="primary-button"
+            [disabled]="posts().length === 0 || isSavingCampaign() || isPlanning() || isGeneratingAll()"
+            (click)="saveCampaign()"
+          >
+            @if (isSavingCampaign()) {
+              <span class="spinner"></span>
+              Salvataggio...
+            } @else {
+              {{ currentCampaignId() ? 'Aggiorna campagna' : 'Salva campagna' }} <span>↗</span>
+            }
+          </button>
+
+          <button
+            type="button"
+            class="secondary-button"
+            (click)="startNewCampaign()"
+            [disabled]="isSavingCampaign() || isLoadingCampaign()"
+          >Nuova campagna</button>
+        </div>
+
+        <div class="saved-campaigns">
+          <div class="saved-campaigns-heading">
+            <span class="section-index">SALVATE</span>
+            <button
+              type="button"
+              class="text-button"
+              (click)="loadSavedCampaigns()"
+              [disabled]="isLoadingCampaigns()"
+            >{{ isLoadingCampaigns() ? 'Caricamento...' : 'Aggiorna elenco ↻' }}</button>
+          </div>
+
+          @if (savedCampaigns().length > 0) {
+            @for (campaign of savedCampaigns(); track campaign.id) {
+              <button
+                type="button"
+                class="saved-campaign-item"
+                [class.active]="currentCampaignId() === campaign.id"
+                (click)="loadCampaign(campaign.id)"
+                [disabled]="isLoadingCampaign()"
+              >
+                <span class="saved-campaign-mark">V.</span>
+                <span class="saved-campaign-copy">
+                  <strong>{{ campaign.title || 'Campagna senza titolo' }}</strong>
+                  <small>{{ campaign.updated_at ? (campaign.updated_at | date:'dd/MM/yyyy HH:mm') : 'Salvata' }}</small>
+                </span>
+                <span class="saved-campaign-arrow">↗</span>
+              </button>
+            }
+          } @else {
+            <p class="muted-copy">Nessuna campagna caricata nell'elenco. Premi “Aggiorna elenco”.</p>
+          }
+        </div>
+      </section>
+
       <section class="panel campaign-overview">
         <div class="section-heading compact-heading">
           <div>

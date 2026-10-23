@@ -78,6 +78,29 @@ interface ApiError {
   error?: string | { message?: string };
 }
 
+interface PersistedCampaign {
+  id: string;
+  title?: string;
+  brief?: string;
+  status?: string;
+  subject_source?: string;
+  identity_mode?: string;
+  aspect_ratio?: string;
+  formats?: string[];
+  settings?: Record<string, unknown>;
+  campaign_dna?: Record<string, unknown>;
+  posts?: Array<Record<string, unknown>>;
+  created_at?: string;
+  updated_at?: string;
+}
+
+interface CampaignPersistenceResponse {
+  success?: boolean;
+  campaign?: PersistedCampaign;
+  campaigns?: PersistedCampaign[];
+  message?: string;
+}
+
 @Component({
   selector: 'app-campaign-studio',
   standalone: true,
@@ -122,6 +145,13 @@ export class CampaignStudioComponent {
 
   readonly errorMessage = signal('');
   readonly successMessage = signal('');
+
+  // Persistence is additive: existing planning and generation flow stays intact.
+  readonly currentCampaignId = signal<string | null>(null);
+  readonly savedCampaigns = signal<PersistedCampaign[]>([]);
+  readonly isSavingCampaign = signal(false);
+  readonly isLoadingCampaigns = signal(false);
+  readonly isLoadingCampaign = signal(false);
 
   readonly selectedPost = computed<CampaignPost | null>(() => {
     const id = this.selectedPostId();
@@ -545,6 +575,254 @@ export class CampaignStudioComponent {
 
   retryPost(postId: string): Promise<void> {
     return this.generateOne(postId);
+  }
+
+  /**
+   * Save the current campaign to the backend persistence route.
+   * Existing generated images are sent in the posts payload; the backend
+   * route is responsible for storing them and returning durable image URLs.
+   */
+  async saveCampaign(): Promise<void> {
+    this.errorMessage.set('');
+    this.successMessage.set('');
+
+    if (this.isSavingCampaign() || this.isPlanning() || this.isGeneratingAll()) {
+      return;
+    }
+
+    if (this.posts().length === 0) {
+      this.errorMessage.set('Crea prima un piano creativo da salvare.');
+      return;
+    }
+
+    this.isSavingCampaign.set(true);
+
+    try {
+      const session = await this.authService.getSession();
+      if (!session?.user?.id || !session.access_token) {
+        throw new Error('Sessione non valida. Effettua nuovamente il login.');
+      }
+
+      const headers = new HttpHeaders({
+        Authorization: `Bearer ${session.access_token}`,
+        'Content-Type': 'application/json'
+      });
+
+      const payload = {
+        title: this.campaignTitle() || this.campaignName().trim() || 'Nuova campagna',
+        brief: this.campaignBrief().trim(),
+        status: this.posts().every(post => post.status === 'ready') ? 'completed' : 'draft',
+        subject_source: this.subjectSource(),
+        identity_mode: this.identityMode(),
+        aspect_ratio: this.aspectRatio(),
+        formats: this.formats(),
+        settings: {
+          campaignName: this.campaignName(),
+          contentCount: this.contentCount(),
+          references: this.references().map(reference => ({
+            name: reference.name,
+            mimeType: reference.mimeType
+          }))
+        },
+        campaign_dna: {
+          concept: this.campaignConcept(),
+          visualIdentity: this.visualIdentity(),
+          palette: this.palette()
+        },
+        posts: this.posts().map(post => ({
+          id: post.id,
+          title: post.title,
+          format: post.format,
+          objective: post.objective,
+          visualDirection: post.visualDirection,
+          creativePrompt: post.creativePrompt,
+          negativePrompt: post.negativePrompt,
+          caption: post.caption,
+          hashtags: post.hashtags,
+          generatedImage: post.generatedImage,
+          status: post.status,
+          generationError: post.generationError
+        }))
+      };
+
+      const id = this.currentCampaignId();
+      const url = id
+        ? `${environment.apiUrl}/api/campaign-persistence/${encodeURIComponent(id)}`
+        : `${environment.apiUrl}/api/campaign-persistence`;
+
+      const response = await firstValueFrom(
+        id
+          ? this.http.put<CampaignPersistenceResponse>(url, payload, { headers })
+          : this.http.post<CampaignPersistenceResponse>(url, payload, { headers })
+      );
+
+      if (!response.success || !response.campaign?.id) {
+        throw new Error(response.message || 'Il server non ha confermato il salvataggio.');
+      }
+
+      this.currentCampaignId.set(response.campaign.id);
+      this.successMessage.set('Campagna salvata correttamente.');
+      await this.loadSavedCampaigns();
+    } catch (error: unknown) {
+      console.error('VANTA campaign save error:', error);
+      this.errorMessage.set(
+        error instanceof HttpErrorResponse
+          ? this.getHttpErrorMessage(error)
+          : error instanceof Error
+            ? error.message
+            : 'Errore durante il salvataggio della campagna.'
+      );
+    } finally {
+      this.isSavingCampaign.set(false);
+    }
+  }
+
+  async loadSavedCampaigns(): Promise<void> {
+    this.isLoadingCampaigns.set(true);
+
+    try {
+      const session = await this.authService.getSession();
+      if (!session?.access_token) {
+        throw new Error('Sessione non valida. Effettua nuovamente il login.');
+      }
+
+      const response = await firstValueFrom(
+        this.http.get<CampaignPersistenceResponse>(
+          `${environment.apiUrl}/api/campaign-persistence`,
+          { headers: new HttpHeaders({ Authorization: `Bearer ${session.access_token}` }) }
+        )
+      );
+
+      this.savedCampaigns.set(Array.isArray(response.campaigns) ? response.campaigns : []);
+    } catch (error: unknown) {
+      console.error('VANTA campaign list error:', error);
+      this.errorMessage.set(
+        error instanceof HttpErrorResponse
+          ? this.getHttpErrorMessage(error)
+          : error instanceof Error
+            ? error.message
+            : 'Impossibile caricare le campagne salvate.'
+      );
+    } finally {
+      this.isLoadingCampaigns.set(false);
+    }
+  }
+
+  async loadCampaign(campaignId: string): Promise<void> {
+    if (!campaignId || this.isLoadingCampaign()) {
+      return;
+    }
+
+    this.errorMessage.set('');
+    this.successMessage.set('');
+    this.isLoadingCampaign.set(true);
+
+    try {
+      const session = await this.authService.getSession();
+      if (!session?.access_token) {
+        throw new Error('Sessione non valida. Effettua nuovamente il login.');
+      }
+
+      const response = await firstValueFrom(
+        this.http.get<CampaignPersistenceResponse>(
+          `${environment.apiUrl}/api/campaign-persistence/${encodeURIComponent(campaignId)}`,
+          { headers: new HttpHeaders({ Authorization: `Bearer ${session.access_token}` }) }
+        )
+      );
+
+      const campaign = response.campaign;
+      if (!response.success || !campaign) {
+        throw new Error(response.message || 'Campagna non trovata.');
+      }
+
+      const settings = campaign.settings ?? {};
+      const dna = campaign.campaign_dna ?? {};
+      const savedPosts = Array.isArray(campaign.posts) ? campaign.posts : [];
+
+      this.currentCampaignId.set(campaign.id);
+      this.campaignName.set(String(settings['campaignName'] ?? campaign.title ?? ''));
+      this.campaignBrief.set(String(campaign.brief ?? ''));
+      this.campaignTitle.set(String(campaign.title ?? 'Nuova campagna'));
+      this.subjectSource.set(
+        ['photo', 'product', 'invent'].includes(String(campaign.subject_source))
+          ? String(campaign.subject_source) as SubjectSource
+          : 'invent'
+      );
+      this.identityMode.set(
+        campaign.identity_mode === 'preserve' ? 'preserve' : 'reinterpret'
+      );
+      this.aspectRatio.set(
+        ['4:5', '1:1', '9:16'].includes(String(campaign.aspect_ratio))
+          ? String(campaign.aspect_ratio)
+          : '4:5'
+      );
+      this.formats.set(
+        Array.isArray(campaign.formats)
+          ? campaign.formats.filter((format): format is CampaignFormat =>
+              this.availableFormats.includes(format as CampaignFormat))
+          : ['Post']
+      );
+      this.contentCount.set(
+        [3, 6, 9].includes(Number(settings['contentCount']))
+          ? Number(settings['contentCount'])
+          : Math.max(3, Math.min(9, savedPosts.length))
+      );
+      this.campaignConcept.set(String(dna['concept'] ?? ''));
+      this.visualIdentity.set(String(dna['visualIdentity'] ?? ''));
+      this.palette.set(Array.isArray(dna['palette']) ? dna['palette'].filter((x): x is string => typeof x === 'string') : []);
+
+      const restoredPosts: CampaignPost[] = savedPosts.map((raw, index) => {
+        const status = String(raw['status'] ?? 'pending');
+        return {
+          id: String(raw['id'] ?? this.createId()),
+          title: String(raw['title'] ?? `Visual ${index + 1}`),
+          format: String(raw['format'] ?? 'Post'),
+          objective: String(raw['objective'] ?? ''),
+          visualDirection: String(raw['visualDirection'] ?? ''),
+          creativePrompt: String(raw['creativePrompt'] ?? ''),
+          negativePrompt: String(raw['negativePrompt'] ?? ''),
+          caption: String(raw['caption'] ?? ''),
+          hashtags: Array.isArray(raw['hashtags']) ? raw['hashtags'].filter((x): x is string => typeof x === 'string') : [],
+          generatedImage: typeof raw['generatedImage'] === 'string'
+            ? raw['generatedImage']
+            : typeof raw['generated_image_url'] === 'string'
+              ? String(raw['generated_image_url'])
+              : null,
+          status: (['pending', 'generating', 'ready', 'error'].includes(status) ? status : 'pending') as PostStatus,
+          generationError: String(raw['generationError'] ?? '')
+        };
+      });
+
+      this.posts.set(restoredPosts);
+      this.selectedPostId.set(restoredPosts[0]?.id ?? null);
+      this.successMessage.set('Campagna caricata.');
+    } catch (error: unknown) {
+      console.error('VANTA campaign load error:', error);
+      this.errorMessage.set(
+        error instanceof HttpErrorResponse
+          ? this.getHttpErrorMessage(error)
+          : error instanceof Error
+            ? error.message
+            : 'Impossibile caricare la campagna.'
+      );
+    } finally {
+      this.isLoadingCampaign.set(false);
+    }
+  }
+
+  startNewCampaign(): void {
+    this.currentCampaignId.set(null);
+    this.campaignName.set('');
+    this.campaignBrief.set('');
+    this.campaignTitle.set('');
+    this.campaignConcept.set('');
+    this.visualIdentity.set('');
+    this.palette.set([]);
+    this.posts.set([]);
+    this.selectedPostId.set(null);
+    this.references.set([]);
+    this.successMessage.set('');
+    this.errorMessage.set('');
   }
 
   downloadImage(post: CampaignPost): void {

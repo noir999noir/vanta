@@ -1383,6 +1383,23 @@
 }
 
 
+.campaign-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 18px;
+  color: #ef526b;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.campaign-cta:hover {
+  color: #ff8294;
+  transform: translateX(3px);
+}
+
 // =====================================================
 // MOBILE NAVIGATION
 // =====================================================

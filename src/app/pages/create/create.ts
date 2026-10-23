@@ -525,6 +525,26 @@ export class Create
 
   implements OnInit {
 
+  /** Keep Instagram integration in the codebase, but disable it for launch. */
+  readonly instagramIntegrationEnabled = false;
+
+  /** Generic creative context used when Instagram/Profile DNA is disabled. */
+  private readonly defaultCreativeDNA: ProfileDNA = {
+    mood: ['Cinematic', 'Editorial'],
+    visualStyle: ['Premium', 'Contemporary'],
+    palette: ['Black', 'White', 'Deep red'],
+    composition: ['Strong focal point', 'Balanced composition'],
+    typography: ['Bold', 'Minimal'],
+    texture: ['Subtle grain', 'High contrast'],
+    identity: ['Distinctive', 'Memorable'],
+    recommendations: [
+      'Preserve the main subject',
+      'Use a clear visual hierarchy',
+      'Create a polished, professional result'
+    ],
+    impactScore: 0
+  };
+
 
 
 
@@ -847,150 +867,20 @@ export class Create
 
 
   async ngOnInit(): Promise<void> {
-
-
-
-    console.log('');
-
-
-
-    console.log(
-
-      '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'
-
-    );
-
-
-
-    console.log(
-
-      '🎬 VANTA CREATE INITIALIZED'
-
-    );
-
-
-
-    console.log(
-
-      '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'
-
-    );
-
-
-
-
-
-    console.log(
-
-      '🔐 AUTH USER:',
-
-      this.authService.user()
-
-    );
-
-
-
-
-
-    // =================================================
-
-    // LOAD GLOBAL INSTAGRAM STATE
-
-    // =================================================
-
-
-
-    await this.instagramServiceInternal.load();
-
-
-
-
-
-    // =================================================
-
-    // CHECK INSTAGRAM CONNECTION
-
-    // =================================================
-
-
-
-    if (
-
-      !this.instagramServiceInternal.connected()
-
-    ) {
-
-
-
-      console.log(
-
-        '⚠️ INSTAGRAM NOT CONNECTED'
-
-      );
-
-
-
-
-
-      this.loadingDNA.set(
-
-        false
-
-      );
-
-
-
-
-
-      this.error.set(
-
-        'Connect Instagram before creating.'
-
-      );
-
-
-
-
-
-      return;
-
+    console.log('VANTA CREATE INITIALIZED');
+
+    // Instagram stays available for later reactivation.
+    if (this.instagramIntegrationEnabled) {
+      await this.instagramServiceInternal.load();
+
+      if (this.instagramServiceInternal.connected()) {
+        this.loadProfileDNA();
+      }
     }
 
-
-
-
-
-    console.log(
-
-      '✅ INSTAGRAM CONNECTED:',
-
-      this.instagramServiceInternal.getUsername()
-
-    );
-
-
-
-
-
-    // =================================================
-
-    // LOAD PROFILE DNA
-
-    // =================================================
-
-
-
-    this.loadProfileDNA();
-
-    // Load the current credit balance without blocking the creation flow.
+    // Credits do not depend on Instagram.
     void this.loadCreditBalance();
-
-
-
   }
-
-
-
 
 
   // =====================================================
@@ -1058,6 +948,13 @@ export class Create
 
 
   loadProfileDNA(): void {
+    if (!this.instagramIntegrationEnabled) {
+      this.loadingDNA.set(false);
+      this.dna.set(null);
+      return;
+    }
+
+
 
 
 
@@ -1884,56 +1781,6 @@ export class Create
 
 
 
-    // =================================================
-
-    // INSTAGRAM CONNECTION CHECK
-
-    // =================================================
-
-
-
-    if (
-
-      !this.instagramServiceInternal.connected()
-
-    ) {
-
-
-
-      this.error.set(
-
-        'Connect Instagram before creating a visual.'
-
-      );
-
-
-
-
-
-      this.setStage(
-
-        'error',
-
-        'Connect Instagram before creating.',
-
-        0
-
-      );
-
-
-
-
-
-      return;
-
-
-
-    }
-
-
-
-
-
     const image =
 
       this.selectedImage();
@@ -1986,56 +1833,7 @@ export class Create
 
 
 
-    const currentDNA =
-
-      this.dna();
-
-
-
-
-
-    if (!currentDNA) {
-
-
-
-      this.error.set(
-
-        'Profile DNA is not available.'
-
-      );
-
-
-
-
-
-      this.stage.set(
-
-        'error'
-
-      );
-
-
-
-
-
-      this.stageMessage.set(
-
-        'Connect Instagram before creating.'
-
-      );
-
-
-
-
-
-      return;
-
-
-
-    }
-
-
-
+    const currentDNA = this.dna() ?? this.defaultCreativeDNA;
 
 
     this.generating.set(

@@ -1,0 +1,194 @@
+
+<div class="library-shell">
+ 
+
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">YOUR CREATIVE WORKSPACE</p>
+        <h1>Library<span>.</span></h1>
+        <p class="subtitle">
+          Every saved visual and campaign, in one place.
+        </p>
+      </div>
+
+      <a routerLink="/create" class="primary-button">＋ Create visual</a>
+    </header>
+
+    <section class="stats">
+      <article class="stat-card">
+        <span>Saved visuals</span>
+        <strong>{{ visuals().length }}</strong>
+      </article>
+      <article class="stat-card">
+        <span>Campaigns</span>
+        <strong>{{ campaigns().length }}</strong>
+      </article>
+      <article class="stat-card">
+        <span>Campaign assets</span>
+        <strong>{{ totalPosts() }}</strong>
+      </article>
+    </section>
+
+    <nav class="tabs">
+      <button
+        type="button"
+        [class.active]="activeTab() === 'all'"
+        (click)="setTab('all')">
+        All content
+      </button>
+      <button
+        type="button"
+        [class.active]="activeTab() === 'campaigns'"
+        (click)="setTab('campaigns')">
+        Campaigns
+      </button>
+      <button
+        type="button"
+        [class.active]="activeTab() === 'visuals'"
+        (click)="setTab('visuals')">
+        Saved visuals
+      </button>
+
+      <button
+        type="button"
+        class="refresh-button"
+        (click)="loadLibrary()"
+        [disabled]="loading()">
+        ↻ Refresh
+      </button>
+    </nav>
+
+    @if (loading()) {
+      <div class="state-card">
+        <div class="spinner"></div>
+        Loading your creative library...
+      </div>
+    } @else if (error()) {
+      <div class="state-card error">
+        <p>{{ error() }}</p>
+        <button type="button" (click)="loadLibrary()">Try again</button>
+      </div>
+    } @else {
+      @if (activeTab() !== 'visuals') {
+        <section class="content-section">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">CONTENT COLLECTIONS</p>
+              <h2>Campaigns</h2>
+            </div>
+            <a routerLink="/campaign-studio">Open Campaign Studio ↗</a>
+          </div>
+
+          @if (campaigns().length) {
+            <div class="campaign-grid">
+              @for (campaign of campaigns(); track trackCampaign($index, campaign)) {
+                <article class="campaign-card">
+                  @if (campaignCover(campaign); as cover) {
+                    <img class="campaign-cover" [src]="cover" [alt]="campaignTitle(campaign)" />
+                  } @else {
+                    <div class="campaign-cover placeholder">◈</div>
+                  }
+
+                  <div class="campaign-info">
+                    <div class="card-meta">
+                      <span>CAMPAIGN</span>
+                      <span>{{ campaign.status || 'Saved' }}</span>
+                    </div>
+                    <h3>{{ campaignTitle(campaign) }}</h3>
+                    <p>{{ campaign.brief || 'No campaign description.' }}</p>
+                    <div class="card-footer">
+                      <span>{{ campaign.posts?.length ?? 0 }} assets</span>
+                      <span>
+                        {{ campaign.created_at ? (campaign.created_at | date:'mediumDate') : 'Saved campaign' }}
+                      </span>
+                    </div>
+                  </div>
+                </article>
+              }
+            </div>
+          } @else {
+            <div class="empty-card">
+              <span>◈</span>
+              <h3>No campaigns yet</h3>
+              <p>Your saved campaigns will appear here automatically.</p>
+              <a routerLink="/campaign-studio" class="primary-button">
+                Build a campaign
+              </a>
+            </div>
+          }
+        </section>
+      }
+
+      @if (activeTab() !== 'campaigns') {
+        <section class="content-section">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">YOUR VISUAL ASSETS</p>
+              <h2>Saved visuals</h2>
+            </div>
+            <span class="muted">{{ visuals().length }} saved</span>
+          </div>
+
+          @if (visuals().length) {
+            <div class="visual-grid">
+              @for (visual of visuals(); track trackVisual($index, visual)) {
+                <button
+                  type="button"
+                  class="visual-card"
+                  (click)="openVisual(visual)">
+                  @if (visual.generated_image_url) {
+                    <img
+                      [src]="visual.generated_image_url"
+                      [alt]="visualTitle(visual)"
+                      loading="lazy" />
+                  } @else {
+                    <div class="visual-placeholder">Image unavailable</div>
+                  }
+                  <span class="visual-overlay">
+                    <strong>{{ visualTitle(visual) }}</strong>
+                    <small>
+                      {{ visual.created_at ? (visual.created_at | date:'mediumDate') : 'Saved visual' }}
+                    </small>
+                  </span>
+                </button>
+              }
+            </div>
+          } @else {
+            <div class="empty-card">
+              <span>✦</span>
+              <h3>Your visual collection starts here</h3>
+              <p>Generate an image in Create and choose Save. It will appear here.</p>
+              <a routerLink="/create" class="primary-button">Create your first visual</a>
+            </div>
+          }
+        </section>
+      }
+    }
+  </main>
+
+  @if (selectedVisual(); as visual) {
+    <div class="modal-backdrop" (click)="closeVisual()">
+      <section class="visual-modal" (click)="$event.stopPropagation()">
+        <button class="modal-close" type="button" (click)="closeVisual()">✕</button>
+        @if (visual.generated_image_url) {
+          <img [src]="visual.generated_image_url" [alt]="visualTitle(visual)" />
+        }
+        <div class="modal-info">
+          <p class="eyebrow">SAVED VISUAL</p>
+          <h2>{{ visualTitle(visual) }}</h2>
+          @if (visual.prompt || visual.concept) {
+            <p>{{ visual.prompt || visual.concept }}</p>
+          }
+          <a
+            class="primary-button"
+            [href]="visual.generated_image_url"
+            target="_blank"
+            rel="noopener noreferrer">
+            Open full image ↗
+          </a>
+        </div>
+      </section>
+    </div>
+  }
+</div>

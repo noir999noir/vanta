@@ -78,6 +78,12 @@ export const routes: Routes = [
       import('./pages/settings/settings')
         .then(m => m.Settings)
   },
+    {
+    path: 'library',
+    loadComponent: () =>
+      import('./pages/library/library')
+        .then(m => m.LibraryComponent)
+  },
   {
     path: 'billing',
     component: BillingComponent,

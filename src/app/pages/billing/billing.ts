@@ -8,6 +8,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../core/auth.service';
 
@@ -24,6 +25,19 @@ interface BillingPackage {
   description: string;
 }
 
+interface SubscriptionPlan {
+  id: string;
+  name: string;
+  price: number;
+  credits: number;
+  description: string;
+}
+
+interface CheckoutResponse {
+  success: boolean;
+  checkoutUrl: string;
+}
+
 @Component({
   selector: 'app-billing',
   standalone: true,
@@ -38,7 +52,10 @@ export class BillingComponent implements OnInit {
 
   balance = 0;
   loadingBalance = true;
+
   checkoutLoading: string | null = null;
+  subscriptionLoading: string | null = null;
+
   errorMessage = '';
   successMessage = '';
 
@@ -56,6 +73,37 @@ export class BillingComponent implements OnInit {
       price: 12,
       credits: 300,
       description: 'Per dare spazio alla creatività.',
+    },
+  ];
+
+  subscriptionPlans: SubscriptionPlan[] = [
+    {
+      id: 'creator',
+      name: 'Creator',
+      price: 14.99,
+      credits: 80,
+      description: 'Per creare con continuità.',
+    },
+    {
+      id: 'pro',
+      name: 'Pro',
+      price: 29.99,
+      credits: 200,
+      description: 'Per una produzione creativa costante.',
+    },
+    {
+      id: 'studio',
+      name: 'Studio',
+      price: 59.99,
+      credits: 500,
+      description: 'Per progetti e campagne più intensi.',
+    },
+    {
+      id: 'agency',
+      name: 'Agency',
+      price: 129.99,
+      credits: 1200,
+      description: 'Per un flusso creativo ad alto volume.',
     },
   ];
 
@@ -96,12 +144,12 @@ export class BillingComponent implements OnInit {
         return;
       }
 
-      const result = await this.http
-        .get<CreditBalance & { success: boolean }>(
+      const result = await firstValueFrom(
+        this.http.get<CreditBalance & { success: boolean }>(
           `${environment.apiUrl}/api/billing/balance`,
           { headers },
-        )
-        .toPromise();
+        ),
+      );
 
       if (
         result?.success &&
@@ -122,7 +170,7 @@ export class BillingComponent implements OnInit {
   }
 
   async buyPackage(pkg: BillingPackage): Promise<void> {
-    if (this.checkoutLoading) return;
+    if (this.checkoutLoading || this.subscriptionLoading) return;
 
     this.checkoutLoading = pkg.id;
     this.errorMessage = '';
@@ -136,13 +184,13 @@ export class BillingComponent implements OnInit {
         return;
       }
 
-      const result = await this.http
-        .post<{ success: boolean; checkoutUrl: string }>(
+      const result = await firstValueFrom(
+        this.http.post<CheckoutResponse>(
           `${environment.apiUrl}/api/billing/checkout`,
           { packageId: pkg.id },
           { headers },
-        )
-        .toPromise();
+        ),
+      );
 
       if (!result?.success || !result.checkoutUrl) {
         throw new Error('Checkout URL missing');
@@ -159,59 +207,96 @@ export class BillingComponent implements OnInit {
     }
   }
 
+  async buySubscription(plan: SubscriptionPlan): Promise<void> {
+    if (this.checkoutLoading || this.subscriptionLoading) return;
+
+    this.subscriptionLoading = plan.id;
+    this.errorMessage = '';
+    this.cdr.detectChanges();
+
+    try {
+      const headers = await this.authHeaders();
+
+      if (!headers) {
+        this.errorMessage =
+          'Accedi prima di sottoscrivere un piano.';
+        return;
+      }
+
+      const result = await firstValueFrom(
+        this.http.post<CheckoutResponse>(
+          `${environment.apiUrl}/api/billing/subscription-checkout`,
+          { planId: plan.id },
+          { headers },
+        ),
+      );
+
+      if (!result?.success || !result.checkoutUrl) {
+        throw new Error('Subscription checkout URL missing');
+      }
+
+      window.location.assign(result.checkoutUrl);
+    } catch (error) {
+      console.error('Subscription checkout failed:', error);
+      this.errorMessage =
+        'Non è stato possibile avviare l’abbonamento. Riprova.';
+    } finally {
+      this.subscriptionLoading = null;
+      this.cdr.detectChanges();
+    }
+  }
+
   private handleCheckoutReturn(): void {
     const params = new URLSearchParams(window.location.search);
+
+    if (params.get('subscription_success') === 'true') {
+      this.successMessage =
+        'Pagamento ricevuto. Stiamo verificando l’abbonamento e i crediti.';
+
+      this.cleanCheckoutQuery();
+      return;
+    }
 
     if (params.get('success') === 'true') {
       this.successMessage =
         'Pagamento ricevuto. Verifico l’accredito dei crediti...';
 
-      window.history.replaceState(
-        {},
-        '',
-        window.location.pathname,
-      );
-
+      this.cleanCheckoutQuery();
       void this.waitForBalanceUpdate();
       return;
     }
 
     if (params.get('canceled') === 'true') {
       this.errorMessage =
-        'Pagamento annullato. Non è stato effettuato alcun addebito.';
+        'Checkout annullato. Controlla Stripe per verificare eventuali addebiti.';
 
-      window.history.replaceState(
-        {},
-        '',
-        window.location.pathname,
-      );
-
-      this.cdr.detectChanges();
+      this.cleanCheckoutQuery();
     }
   }
 
+  private cleanCheckoutQuery(): void {
+    window.history.replaceState(
+      {},
+      '',
+      window.location.pathname,
+    );
+
+    this.cdr.detectChanges();
+  }
+
   private async waitForBalanceUpdate(): Promise<void> {
-    // Il webhook potrebbe impiegare alcuni secondi.
     for (let attempt = 0; attempt < 15; attempt++) {
       await this.loadBalance();
 
-      // Non assumiamo che un saldo maggiore di zero dimostri
-      // che il nuovo acquisto sia stato accreditato.
-      // Verifichiamo il saldo soltanto come aggiornamento UI.
-      if (this.balance > 0) {
-        this.successMessage =
-          'Saldo caricato correttamente. I tuoi crediti sono disponibili!';
-        this.cdr.detectChanges();
-        return;
-      }
-
+      // The existing balance alone cannot prove that this specific
+      // purchase was credited. Do not claim a confirmed purchase here.
       if (attempt < 14) {
         await new Promise(resolve => setTimeout(resolve, 2000));
       }
     }
 
     this.successMessage =
-      'Pagamento ricevuto. L’accredito è ancora in elaborazione: aggiorna il saldo tra poco.';
+      'Checkout completato. Se i crediti non sono aggiornati, attendi qualche secondo e ricarica il saldo.';
 
     this.cdr.detectChanges();
   }

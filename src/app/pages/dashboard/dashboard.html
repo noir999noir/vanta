@@ -1,12 +1,18 @@
 
-<div class="app-shell">
-  <aside class="sidebar">
-    <div class="brand">
-      <div class="brand-mark">V</div>
-      <span>VANTA</span>
-    </div>
+<div class="dashboard-shell">
 
-    <nav class="navigation">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+
+    <a routerLink="/dashboard" class="brand">
+      <span class="brand-mark">V</span>
+      <span class="brand-name">VANTA</span>
+    </a>
+
+    <div class="sidebar-label">WORKSPACE</div>
+
+    <nav class="sidebar-nav">
+
       <a
         routerLink="/dashboard"
         routerLinkActive="active"
@@ -17,28 +23,23 @@
         <span>Dashboard</span>
       </a>
 
-      <!-- Instagram integration temporarily disabled.
-           Keep this section for future reactivation.
-      @if (instagramIntegrationEnabled) {
-        <a routerLink="/profile" routerLinkActive="active" class="nav-item">
-          <span class="nav-icon">◎</span>
-          <span>Profile</span>
-        </a>
-      }
-      -->
-
-      <a routerLink="/create" routerLinkActive="active" class="nav-item">
-        <span class="nav-icon">✦</span>
-        <span>Create</span>
-      </a>
-
       <a
         routerLink="/campaign-studio"
         routerLinkActive="active"
         class="nav-item"
       >
-        <span class="nav-icon">◈</span>
+        <span class="nav-icon">✳</span>
         <span>Campaign</span>
+        <span class="nav-badge">AI</span>
+      </a>
+
+      <a
+        routerLink="/create"
+        routerLinkActive="active"
+        class="nav-item"
+      >
+        <span class="nav-icon">✧</span>
+        <span>Create</span>
       </a>
 
       <a
@@ -46,390 +47,442 @@
         routerLinkActive="active"
         class="nav-item"
       >
-        <span class="nav-icon">▤</span>
+        <span class="nav-icon">▧</span>
         <span>Library</span>
       </a>
 
-      <!-- Feed hidden temporarily; preserve route for later.
-      @if (instagramIntegrationEnabled) {
-        <a routerLink="/feed" routerLinkActive="active" class="nav-item">
-          <span class="nav-icon">▦</span>
-          <span>Feed</span>
-        </a>
-      }
-      -->
     </nav>
 
-    <div class="sidebar-bottom">
-      <a routerLink="/settings" routerLinkActive="active" class="nav-item">
+    <div class="sidebar-label account-label">ACCOUNT</div>
+
+    <nav class="sidebar-nav">
+
+      <a
+        routerLink="/billing"
+        routerLinkActive="active"
+        class="nav-item"
+      >
+        <span class="nav-icon">◇</span>
+        <span>Billing & Plans</span>
+      </a>
+
+      <a
+        routerLink="/settings"
+        routerLinkActive="active"
+        class="nav-item"
+      >
         <span class="nav-icon">⚙</span>
         <span>Settings</span>
       </a>
 
-      <!-- Instagram-connected user card preserved for later.
-      @if (instagramIntegrationEnabled && connected() && profile()) {
-        <div class="user-card">
-          <div class="avatar">
-            @if (getProfileImage()) {
-              <img [src]="getProfileImage()" [alt]="getProfileName()" />
-            } @else {
-              <span>{{ getProfileName().charAt(0).toUpperCase() }}</span>
-            }
-          </div>
+    </nav>
 
-          <div class="user-info">
-            <strong>{{ getProfileName() }}</strong>
-            <span>&#64;{{ getUsername() }}</span>
-          </div>
+    <div class="sidebar-spacer"></div>
 
-          <button
-            type="button"
-            class="logout-button"
-            (click)="logout()"
-            [disabled]="loggingOut()"
-            title="Logout"
-          >
-            @if (loggingOut()) {
-              <span class="logout-spinner"></span>
-            } @else {
-              <span>↪</span>
-            }
-          </button>
-        </div>
-      } @else if (instagramIntegrationEnabled && !loading()) {
-        <div class="user-card disconnected">
-          <div class="avatar">V</div>
-          <div class="user-info">
-            <strong>VANTA</strong>
-            <span>Instagram not connected</span>
-          </div>
-        </div>
-      }
-      -->
+    <div class="sidebar-upgrade">
+      <div class="upgrade-orb">✦</div>
+      <h3>Unlock your vision.</h3>
+      <p>Get more credits and bring your ideas to life.</p>
 
-      <!-- Standard account card: no Instagram dependency. -->
-      <div class="user-card">
-        <div class="avatar">V</div>
-        <div class="user-info">
-          <strong>VANTA</strong>
-          <span>Creative workspace</span>
-        </div>
-
-        <button
-          type="button"
-          class="logout-button"
-          (click)="logout()"
-          [disabled]="loggingOut()"
-          title="Logout"
-        >
-          @if (loggingOut()) {
-            <span class="logout-spinner"></span>
-          } @else {
-            <span>↪</span>
-          }
-        </button>
-      </div>
+      <a routerLink="/billing" class="upgrade-link">
+        Explore plans <span>↗</span>
+      </a>
     </div>
+
+    <button
+      type="button"
+      class="logout-button"
+      (click)="logout()"
+      [disabled]="loggingOut()"
+    >
+      <span>↪</span>
+      {{ loggingOut() ? 'Signing out...' : 'Log out' }}
+    </button>
+
   </aside>
 
-  <main class="main">
+
+  <!-- MAIN -->
+  <main class="dashboard-main">
+
+    <!-- TOPBAR -->
     <header class="topbar">
-      <div>
-        <p class="eyebrow">WELCOME TO VANTA</p>
-        <h1>Build your visual identity.</h1>
+
+      <div class="breadcrumb">
+        <span>Workspace</span>
+        <span class="breadcrumb-separator">/</span>
+        <strong>Dashboard</strong>
       </div>
 
-      <button routerLink="/create" class="create-button">
-        <span>＋</span>
-        Create
-      </button>
+      <div class="topbar-actions">
+
+        <a routerLink="/billing" class="topbar-credits">
+          <span class="credits-icon">✦</span>
+          <span class="credits-label">Credits</span>
+
+          @if (creditsLoading()) {
+            <strong>...</strong>
+          } @else if (credits() !== null) {
+            <strong>{{ credits() }}</strong>
+          } @else {
+            <strong>—</strong>
+          }
+
+          <span class="credits-add">+</span>
+        </a>
+
+        <a
+          routerLink="/settings"
+          class="avatar-button"
+          aria-label="Account settings"
+        >
+          V
+        </a>
+
+      </div>
+
     </header>
 
-    <!-- Instagram errors intentionally hidden during launch.
-    @if (instagramIntegrationEnabled && error()) {
-      <div class="error-message">
-        <span>!</span>
-        {{ error() }}
-      </div>
-    }
-    -->
 
-    @if (loading()) {
-      <section class="loading-state">
-        <div class="loading-orb"></div>
-        <p>Loading your VANTA workspace...</p>
+    <!-- DASHBOARD CONTENT -->
+    <section class="dashboard-content">
+
+      <!-- WELCOME -->
+      <section class="welcome-section">
+
+        <div class="welcome-copy">
+
+          <div class="eyebrow">
+            <span class="status-dot"></span>
+            YOUR CREATIVE WORKSPACE
+          </div>
+
+          <h1>Make your vision <span>visible.</span></h1>
+
+          <p>
+            Create campaigns, generate visuals and build your brand identity
+            with AI.
+          </p>
+
+        </div>
+
+        <a routerLink="/campaign-studio" class="primary-button">
+          <span>✳</span>
+          Create a campaign
+          <span class="button-arrow">↗</span>
+        </a>
+
       </section>
-    } @else {
-      <!-- Instagram connection prompt preserved but disabled.
-      @if (instagramIntegrationEnabled && !connected()) {
-        <section class="connect-state">
-          <div class="connect-glow"></div>
-          <div class="connect-content">
-            <div class="connect-badge">OPTIONAL INTEGRATION</div>
-            <div class="connect-icon">◎</div>
 
-            <h2>
-              Your creative space.
-              <span>Without limits.</span>
-            </h2>
 
-            <p>
-              Create original visuals, build campaigns and shape your
-              visual identity with VANTA. Connect Instagram whenever
-              you want to unlock profile analysis and personalized insights.
-            </p>
+      <!-- STATS -->
+      <section class="stats-grid">
 
+        <article class="stat-card">
+
+          <div class="stat-top">
+            <span class="stat-label">Available credits</span>
+            <span class="stat-icon">✦</span>
+          </div>
+
+          @if (creditsLoading()) {
+            <div class="stat-value muted-value">...</div>
+          } @else if (credits() !== null) {
+            <div class="stat-value">{{ credits() }}</div>
+          } @else {
+            <div class="stat-value muted-value">—</div>
+          }
+
+          @if (creditsError()) {
             <button
               type="button"
-              class="instagram-button"
-              (click)="connectInstagram()"
-              [disabled]="connecting()"
+              class="inline-retry"
+              (click)="loadCredits()"
             >
-              @if (connecting()) {
-                <span>Connecting...</span>
-              } @else {
-                <span>Connect Instagram</span>
-                <span class="button-arrow">→</span>
-              }
+              Retry
             </button>
-
-            <small>
-              Instagram connection is optional. You can connect it later.
-            </small>
-
-            <a routerLink="/campaign-studio" class="campaign-cta">
-              Open Campaign Studio →
+          } @else {
+            <a routerLink="/billing" class="stat-link">
+              Manage credits <span>→</span>
             </a>
-          </div>
-        </section>
-      }
-      -->
+          }
 
-      <section class="hero">
-        <div class="hero-content">
-          <div class="badge">AI CREATIVE DIRECTOR</div>
+        </article>
+
+
+        <article class="stat-card">
+
+          <div class="stat-top">
+            <span class="stat-label">Campaign studio</span>
+            <span class="stat-icon">✳</span>
+          </div>
+
+          <div class="stat-value stat-value-text">Campaign</div>
+
+          <a routerLink="/campaign-studio" class="stat-link">
+            Open Campaign <span>→</span>
+          </a>
+
+        </article>
+
+
+        <article class="stat-card">
+
+          <div class="stat-top">
+            <span class="stat-label">Recent visuals</span>
+            <span class="stat-icon">▧</span>
+          </div>
+
+          <div class="stat-value">{{ visualCount() }}</div>
+
+          <a routerLink="/library" class="stat-link">
+            Open Library <span>→</span>
+          </a>
+
+        </article>
+
+      </section>
+
+
+      <!-- CAMPAIGN FEATURE -->
+      <section class="campaign-feature">
+
+        <div class="campaign-feature-content">
+
+          <div class="feature-tag">
+            <span>✦</span>
+            VANTA AI STUDIO
+          </div>
 
           <h2>
-            Make your content
-            <span>impossible to ignore.</span>
+            Your next campaign<br />
+            starts <span>here.</span>
           </h2>
 
           <p>
-            Create distinctive visuals, build campaigns and develop
-            a consistent visual identity with VANTA.
+            Turn your ideas into scroll-stopping visuals.
+            Create content that matches your aesthetic and brand identity.
           </p>
 
-          <button routerLink="/create" class="hero-button">
-            Start creating <span>→</span>
-          </button>
-
-          <a routerLink="/campaign-studio" class="campaign-cta">
-            Explore Campaign Studio →
+          <a routerLink="/campaign-studio" class="feature-button">
+            Open Campaign <span>↗</span>
           </a>
+
         </div>
 
-        <div class="hero-visual">
-          <div class="orb"></div>
-          <div class="orb-ring ring-one"></div>
-          <div class="orb-ring ring-two"></div>
+        <div class="campaign-art" aria-hidden="true">
+          <div class="art-glow"></div>
+          <div class="art-ring art-ring-one"></div>
+          <div class="art-ring art-ring-two"></div>
+          <div class="art-center">V</div>
+          <div class="art-caption">CREATE<br />YOUR WORLD</div>
+          <div class="art-index">001 / VANTA</div>
         </div>
+
       </section>
 
-      <!-- Instagram profile and Profile DNA preserved for reactivation.
-      @if (instagramIntegrationEnabled && connected()) {
-        <section class="section">
-          <div class="section-header">
-            <div>
-              <p class="eyebrow">CONNECTED PROFILE</p>
-              <h3>Instagram</h3>
-            </div>
 
-            <span class="connected-badge">
-              <i></i> Connected
-            </span>
+      <!-- LIBRARY PREVIEW -->
+      <section class="library-section">
+
+        <div class="section-heading">
+
+          <div>
+            <div class="section-eyebrow">YOUR CREATIVE ARCHIVE</div>
+            <h2>Recent visuals</h2>
+            <p>Your latest saved creations from Library.</p>
           </div>
 
-          <div class="instagram-profile-card">
-            <div class="profile-avatar">
-              @if (getProfileImage()) {
-                <img [src]="getProfileImage()" [alt]="getProfileName()" />
-              } @else {
-                <span>{{ getProfileName().charAt(0).toUpperCase() }}</span>
-              }
-            </div>
+          <a routerLink="/library" class="text-link">
+            Open Library <span>→</span>
+          </a>
 
-            <div class="profile-main">
-              <span class="profile-handle">&#64;{{ getUsername() }}</span>
-              <h4>{{ getProfileName() }}</h4>
-              <p>Your visual identity is connected to VANTA.</p>
-            </div>
+        </div>
 
-            <div class="profile-stats">
-              <div>
-                <strong>{{ profile()?.followers_count ?? '—' }}</strong>
-                <span>Followers</span>
-              </div>
-              <div>
-                <strong>{{ profile()?.media_count ?? '—' }}</strong>
-                <span>Posts</span>
-              </div>
-            </div>
-          </div>
-        </section>
 
-        <section class="section">
-          <div class="section-header">
-            <div>
-              <p class="eyebrow">YOUR PROFILE</p>
-              <h3>Profile DNA</h3>
-            </div>
-            <a routerLink="/profile">View profile →</a>
+        @if (visualsLoading()) {
+
+          <div class="visuals-loading">
+            <span class="loading-spinner"></span>
+            <span>Loading your visuals...</span>
           </div>
 
-          <div class="dna-grid">
-            <div class="dna-card">
-              <span class="dna-label">MOOD</span>
-              <strong>{{ getMood() }}</strong>
-            </div>
+        } @else if (visualsError()) {
 
-            <div class="dna-card">
-              <span class="dna-label">STYLE</span>
-              <strong>{{ getStyle() }}</strong>
-            </div>
+          <div class="visuals-empty">
+            <div class="empty-icon">↻</div>
+            <h3>Unable to load your visuals</h3>
 
-            <div class="dna-card">
-              <span class="dna-label">PALETTE</span>
-              <div class="palette">
-                @for (color of getPalette(); track color) {
-                  <span [style.background]="color" [title]="color"></span>
-                }
-              </div>
-            </div>
-
-            <div class="dna-card score-card">
-              <span class="dna-label">PROFILE IMPACT</span>
-              <strong>{{ getImpactScore() }}<span>/100</span></strong>
-            </div>
-          </div>
-        </section>
-      }
-      -->
-
-      <!-- Instagram-dependent empty state intentionally hidden.
-      @if (instagramIntegrationEnabled && !connected()) {
-        <section class="section">
-          <div class="section-header">
-            <div>
-              <p class="eyebrow">PERSONALIZE YOUR EXPERIENCE</p>
-              <h3>Unlock your Profile DNA</h3>
-            </div>
-          </div>
-
-          <div class="empty-state">
-            <div class="empty-icon">◎</div>
-            <h4>Your Instagram, understood.</h4>
             <p>
-              Connect your Instagram account to analyze your visual style,
-              discover your color palette and unlock personalized profile insights.
+              We couldn't load your saved creations. Please try again.
             </p>
+
             <button
               type="button"
-              (click)="connectInstagram()"
-              [disabled]="connecting()"
+              class="secondary-button"
+              (click)="refreshDashboard()"
             >
-              @if (connecting()) {
-                Connecting...
-              } @else {
-                Connect Instagram
-              }
+              Try again
             </button>
           </div>
-        </section>
-      }
-      -->
 
-      <section class="section">
-        <div class="section-header">
+        } @else if (visuals().length === 0) {
+
+          <div class="visuals-empty">
+            <div class="empty-icon">▧</div>
+            <h3>Your library starts here</h3>
+
+            <p>
+              Your generated visuals will appear here once you create
+              your first design. All saved creations remain in Library.
+            </p>
+
+            <div class="empty-actions">
+
+              <a routerLink="/create" class="primary-button">
+                Create a visual <span>↗</span>
+              </a>
+
+              <a routerLink="/library" class="secondary-button">
+                Open Library
+              </a>
+
+            </div>
+          </div>
+
+        } @else {
+
+          <div class="visuals-grid">
+
+            @for (
+              visual of visuals();
+              track trackVisual($index, visual)
+            ) {
+
+              <article class="visual-card">
+
+                <a routerLink="/library" class="visual-image">
+
+                  <img
+                    [src]="visual.generated_image_url"
+                    [alt]="visual.title || 'VANTA generated visual'"
+                    loading="lazy"
+                  />
+
+                  <div class="visual-overlay">
+                    <span>View in Library ↗</span>
+                  </div>
+
+                </a>
+
+                <div class="visual-info">
+
+                  <div class="visual-title">
+                    {{ visual.title || 'Untitled creation' }}
+                  </div>
+
+                  <div class="visual-meta">
+
+                    <span>
+                      @if (visual.created_at) {
+                        {{ visual.created_at | date:'dd MMM yyyy' }}
+                      } @else {
+                        Recently created
+                      }
+                    </span>
+
+                    <span class="visual-status">
+                      <span class="status-dot"></span>
+                      Saved
+                    </span>
+
+                  </div>
+
+                </div>
+
+              </article>
+
+            }
+
+          </div>
+
+        }
+
+      </section>
+
+
+      <!-- QUICK ACTIONS -->
+      <section class="quick-actions-section">
+
+        <div class="section-heading">
           <div>
-            <p class="eyebrow">YOUR WORKSPACE</p>
-            <h3>Your latest creations</h3>
+            <div class="section-eyebrow">KEEP CREATING</div>
+            <h2>Quick actions</h2>
           </div>
         </div>
 
-        <div class="empty-state">
-          <div class="empty-icon">✦</div>
-          <h4>Your canvas is ready.</h4>
-          <p>
-            Start creating content or build your first campaign.
-            Your next visual idea starts here.
-          </p>
+        <div class="quick-actions-grid">
 
-          <button routerLink="/create">Create your first Reel</button>
-          <button routerLink="/campaign-studio">Open Campaign Studio</button>
+          <a routerLink="/campaign-studio" class="quick-action-card">
+            <span class="quick-action-icon">✳</span>
+
+            <span class="quick-action-copy">
+              <strong>New campaign</strong>
+              <small>Create a campaign with AI</small>
+            </span>
+
+            <span class="quick-action-arrow">↗</span>
+          </a>
+
+
+          <a routerLink="/create" class="quick-action-card">
+            <span class="quick-action-icon">✧</span>
+
+            <span class="quick-action-copy">
+              <strong>Quick Create</strong>
+              <small>Generate a visual directly</small>
+            </span>
+
+            <span class="quick-action-arrow">↗</span>
+          </a>
+
+
+          <a routerLink="/library" class="quick-action-card">
+            <span class="quick-action-icon">▧</span>
+
+            <span class="quick-action-copy">
+              <strong>Explore Library</strong>
+              <small>Browse your saved visuals</small>
+            </span>
+
+            <span class="quick-action-arrow">↗</span>
+          </a>
+
+
+          <a routerLink="/billing" class="quick-action-card">
+            <span class="quick-action-icon">◇</span>
+
+            <span class="quick-action-copy">
+              <strong>Plans & credits</strong>
+              <small>Choose your subscription plan</small>
+            </span>
+
+            <span class="quick-action-arrow">↗</span>
+          </a>
+
         </div>
+
       </section>
-    }
+
+
+      <!-- FOOTER -->
+      <footer class="dashboard-footer">
+        <span>VANTA © {{ currentYear }}</span>
+        <span>Made for your vision.</span>
+      </footer>
+
+    </section>
+
   </main>
 
-  <nav class="mobile-navigation">
-    <a
-      routerLink="/dashboard"
-      routerLinkActive="active"
-      [routerLinkActiveOptions]="{ exact: true }"
-      class="mobile-nav-item"
-    >
-      <span class="nav-icon">⌂</span>
-      <span class="nav-label">Dashboard</span>
-    </a>
-
-    <!-- Profile hidden until Instagram is re-enabled.
-    <a routerLink="/profile" routerLinkActive="active" class="mobile-nav-item">
-      <span class="nav-icon">◎</span>
-      <span class="nav-label">Profile</span>
-    </a>
-    -->
-
-    <a
-      routerLink="/campaign-studio"
-      routerLinkActive="active"
-      class="mobile-nav-item"
-    >
-      <span class="nav-icon">◈</span>
-      <span class="nav-label">Campaign</span>
-    </a>
-
-    <a
-      routerLink="/create"
-      routerLinkActive="active"
-      class="mobile-nav-item"
-    >
-      <span class="nav-icon">✦</span>
-      <span class="nav-label">Create</span>
-    </a>
-
-    <a
-        routerLink="/library"
-        routerLinkActive="active"
-        class="mobile-nav-item"
-      >
-        <span class="nav-icon">▤</span>
-        <span class="nav-label">Library</span>
-      </a>
-
-    <!-- Feed hidden until Instagram is re-enabled.
-    <a routerLink="/feed" routerLinkActive="active" class="mobile-nav-item">
-      <span class="nav-icon">▦</span>
-      <span class="nav-label">Feed</span>
-    </a>
-    -->
-
-    <a
-      routerLink="/settings"
-      routerLinkActive="active"
-      class="mobile-nav-item"
-    >
-      <span class="nav-icon">⚙</span>
-      <span class="nav-label">Settings</span>
-    </a>
-  </nav>
 </div>

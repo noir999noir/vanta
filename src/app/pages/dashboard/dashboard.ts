@@ -1,15 +1,29 @@
 
-import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Component, OnInit, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 
 import { AuthService } from '../../core/auth.service';
-import {
-  InstagramService,
-  InstagramProfile
-} from '../../core/instagram.service';
-
 import { environment } from '../../../environments/environment.prod';
+
+interface CreditBalanceResponse {
+  success: boolean;
+  balance?: number;
+}
+
+interface VantaVisual {
+  id: string;
+  title?: string | null;
+  generated_image_url?: string | null;
+  created_at?: string | null;
+}
+
+interface VisualsResponse {
+  success: boolean;
+  visuals?: VantaVisual[];
+}
 
 @Component({
   selector: 'app-dashboard',
@@ -24,248 +38,159 @@ import { environment } from '../../../environments/environment.prod';
 })
 export class Dashboard implements OnInit {
 
-  // =====================================================
-  // FEATURE FLAGS
-  // Riattivare Instagram impostando il valore a true.
-  // =====================================================
-
-  readonly instagramIntegrationEnabled = false;
-
-  // =====================================================
-  // LOCAL STATE
-  // =====================================================
+  readonly currentYear = new Date().getFullYear();
 
   readonly loading = signal(true);
   readonly loggingOut = signal(false);
 
-  // =====================================================
-  // PROFILE DNA
-  // =====================================================
+  readonly credits = signal<number | null>(null);
+  readonly creditsLoading = signal(true);
+  readonly creditsError = signal(false);
 
-  readonly dna = signal<any>(null);
-
-  // =====================================================
-  // CONSTRUCTOR
-  // =====================================================
+  readonly visuals = signal<VantaVisual[]>([]);
+  readonly visualsLoading = signal(true);
+  readonly visualsError = signal(false);
 
   constructor(
-    public readonly instagramService: InstagramService,
     private readonly authService: AuthService,
+    private readonly http: HttpClient,
     private readonly router: Router
   ) {}
-
-  // =====================================================
-  // INIT
-  // Non avvia chiamate Instagram durante il lancio.
-  // =====================================================
 
   async ngOnInit(): Promise<void> {
     this.loading.set(true);
 
     try {
-      if (this.instagramIntegrationEnabled) {
-        await this.instagramService.load();
-
-        if (this.instagramService.connected()) {
-          await this.loadDNA();
-        }
-      }
-    } catch (error) {
-      console.error('Dashboard initialization error:', error);
+      await Promise.all([
+        this.loadCredits(),
+        this.loadVisuals()
+      ]);
     } finally {
       this.loading.set(false);
     }
   }
 
-  // =====================================================
-  // INSTAGRAM CONNECTION - PRESERVED
-  // =====================================================
+  private async getAuthHeaders(): Promise<HttpHeaders> {
+    const session = await this.authService.getSession();
+    const accessToken = session?.access_token;
 
-  async connectInstagram(): Promise<void> {
-    if (!this.instagramIntegrationEnabled) return;
-
-    await this.instagramService.connect();
-  }
-
-  // =====================================================
-  // REFRESH INSTAGRAM - PRESERVED
-  // =====================================================
-
-  async refreshInstagram(): Promise<void> {
-    if (!this.instagramIntegrationEnabled) return;
-
-    try {
-      await this.instagramService.refresh();
-
-      if (this.instagramService.connected()) {
-        await this.loadDNA();
-      }
-    } catch (error) {
-      console.error('Instagram refresh error:', error);
+    if (!accessToken) {
+      throw new Error('Sessione non valida. Effettua nuovamente il login.');
     }
+
+    return new HttpHeaders({
+      Authorization: `Bearer ${accessToken}`
+    });
   }
 
-  // =====================================================
-  // LOAD PROFILE DNA - PRESERVED
-  // =====================================================
-
-  async loadDNA(): Promise<void> {
-    if (!this.instagramIntegrationEnabled) return;
+  async loadCredits(): Promise<void> {
+    this.creditsLoading.set(true);
+    this.creditsError.set(false);
 
     try {
-      const session = await this.authService.getSession();
+      const headers = await this.getAuthHeaders();
 
-      if (!session) {
-        this.dna.set(null);
-        return;
-      }
-
-      const response = await fetch(
-        `${environment.apiUrl}/api/instagram/analyze`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session.access_token}`
-          }
-        }
+      const response = await firstValueFrom(
+        this.http.get<CreditBalanceResponse>(
+          `${environment.apiUrl}/api/billing/balance`,
+          { headers }
+        )
       );
 
-      if (!response.ok) {
-        throw new Error(`DNA request failed: ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      if (data?.success) {
-        this.dna.set(data.dna ?? null);
+      if (
+        response.success &&
+        typeof response.balance === 'number'
+      ) {
+        this.credits.set(response.balance);
       } else {
-        this.dna.set(null);
+        throw new Error('Risposta saldo non valida.');
       }
     } catch (error) {
-      console.error('Profile DNA error:', error);
-      this.dna.set(null);
+      console.error('Errore caricamento crediti:', error);
+      this.credits.set(null);
+      this.creditsError.set(true);
+    } finally {
+      this.creditsLoading.set(false);
     }
   }
 
-  // =====================================================
-  // INSTAGRAM COMPATIBILITY HELPERS - PRESERVED
-  // =====================================================
+  async loadVisuals(): Promise<void> {
+    this.visualsLoading.set(true);
+    this.visualsError.set(false);
 
-  connected(): boolean {
-    return this.instagramIntegrationEnabled &&
-      this.instagramService.connected();
-  }
+    try {
+      const headers = await this.getAuthHeaders();
 
-  profile(): InstagramProfile | null {
-    return this.instagramIntegrationEnabled
-      ? this.instagramService.profile()
-      : null;
-  }
+      const response = await firstValueFrom(
+        this.http.get<VisualsResponse>(
+          `${environment.apiUrl}/api/visuals`,
+          { headers }
+        )
+      );
 
-  connecting(): boolean {
-    return this.instagramIntegrationEnabled &&
-      this.instagramService.connecting();
-  }
+      if (!response.success || !Array.isArray(response.visuals)) {
+        throw new Error('Risposta Library non valida.');
+      }
 
-  error(): string {
-    return this.instagramIntegrationEnabled
-      ? this.instagramService.error()
-      : '';
-  }
+      const recentVisuals = response.visuals
+        .filter(
+          (visual): visual is VantaVisual & {
+            generated_image_url: string;
+          } =>
+            typeof visual.generated_image_url === 'string' &&
+            visual.generated_image_url.trim().length > 0
+        )
+        .sort((a, b) => {
+          const dateA = a.created_at
+            ? new Date(a.created_at).getTime()
+            : 0;
 
-  getUsername(): string {
-    return this.instagramService.getUsername();
-  }
+          const dateB = b.created_at
+            ? new Date(b.created_at).getTime()
+            : 0;
 
-  getProfileName(): string {
-    return this.instagramService.getName();
-  }
+          return dateB - dateA;
+        })
+        .slice(0, 6);
 
-  getProfileImage(): string {
-    return this.instagramService.getAvatar();
-  }
-
-  // =====================================================
-  // DNA HELPERS - PRESERVED
-  // =====================================================
-
-  getMood(): string {
-    const mood = this.dna()?.mood;
-
-    if (Array.isArray(mood) && mood.length) {
-      return mood.slice(0, 2).join(' · ');
+      this.visuals.set(recentVisuals);
+    } catch (error) {
+      console.error('Errore caricamento visual:', error);
+      this.visuals.set([]);
+      this.visualsError.set(true);
+    } finally {
+      this.visualsLoading.set(false);
     }
-
-    return '—';
   }
 
-  getStyle(): string {
-    const style = this.dna()?.visualStyle;
-
-    if (Array.isArray(style) && style.length) {
-      return style.slice(0, 2).join(' · ');
-    }
-
-    return '—';
+  visualCount(): number {
+    return this.visuals().length;
   }
 
-  getPalette(): string[] {
-    const palette = this.dna()?.palette;
-    return Array.isArray(palette) ? palette : [];
+  trackVisual(index: number, visual: VantaVisual): string {
+    return visual.id || String(index);
   }
 
-  getImpactScore(): number | string {
-    const score = this.dna()?.impactScore;
-    return typeof score === 'number' ? score : '—';
+  async refreshDashboard(): Promise<void> {
+    await Promise.all([
+      this.loadCredits(),
+      this.loadVisuals()
+    ]);
   }
-
-  // =====================================================
-  // NAVIGATION
-  // =====================================================
-
-  goToDashboard(): void {
-    void this.router.navigate(['/dashboard']);
-  }
-
-  goToCreate(): void {
-    void this.router.navigate(['/create']);
-  }
-
-  goToProfile(): void {
-    void this.router.navigate(['/profile']);
-  }
-
-  goToFeed(): void {
-    void this.router.navigate(['/feed']);
-  }
-
-  goToSettings(): void {
-    void this.router.navigate(['/settings']);
-  }
-
-  // =====================================================
-  // LOGOUT
-  // =====================================================
 
   async logout(): Promise<void> {
-    if (this.loggingOut()) return;
+    if (this.loggingOut()) {
+      return;
+    }
 
     this.loggingOut.set(true);
 
     try {
       await this.authService.signOut();
-
-      // Reset Instagram state only when the integration is enabled.
-      if (this.instagramIntegrationEnabled) {
-        this.instagramService.disconnect();
-      }
-
-      this.dna.set(null);
-
       await this.router.navigate(['/auth']);
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error('Errore durante il logout:', error);
+    } finally {
       this.loggingOut.set(false);
     }
   }

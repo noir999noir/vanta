@@ -30,6 +30,7 @@ export class AuthService {
 
   readonly loading =
     signal(true);
+  supabase: any;
 
 
   // =====================================================

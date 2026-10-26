@@ -1,11 +1,14 @@
+import {
+  Component,
+  OnInit,
+  ChangeDetectorRef
+} from '@angular/core';
 
-import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Router } from '@angular/router';
 import { firstValueFrom, timeout } from 'rxjs';
-import { ChangeDetectorRef } from '@angular/core';  
+
 import {
   SettingsService,
   VantaSettings,
@@ -20,17 +23,10 @@ import { environment } from '../../../environments/environment';
 
 type SettingsTab =
   | 'account'
-  | 'instagram'
+  | 'security'
   | 'ai'
   | 'appearance'
   | 'plan';
-
-interface InstagramSettingsProfile {
-  connected: boolean;
-  username: string | null;
-  name: string | null;
-  avatarUrl: string | null;
-}
 
 interface CreditBalanceResponse {
   success: boolean;
@@ -50,24 +46,25 @@ export class Settings implements OnInit {
   loading = false;
   saving = false;
   saved = false;
+
   error = '';
+  success = '';
 
   activeTab: SettingsTab = 'account';
 
   // ACCOUNT
   name = 'Riccardo';
   role = 'Creator';
-  avatarUrl: string | null = null;
 
-  // INSTAGRAM
-  instagram: InstagramSettingsProfile = {
-    connected: false,
-    username: null,
-    name: null,
-    avatarUrl: null
-  };
+  // SECURITY
+  newPassword = '';
+  confirmPassword = '';
 
-  // AI
+  passwordLoading = false;
+  passwordError = '';
+  passwordSuccess = '';
+
+  // AI PREFERENCES
   creativeDirection: CreativeDirection = 'Balanced';
   openLoop = true;
   preserveDNA = true;
@@ -83,10 +80,9 @@ export class Settings implements OnInit {
   };
 
   constructor(
-    private cdr: ChangeDetectorRef,
+    private readonly cdr: ChangeDetectorRef,
     private readonly settingsService: SettingsService,
     private readonly themeService: ThemeService,
-    private readonly router: Router,
     private readonly http: HttpClient,
     private readonly authService: AuthService
   ) {}
@@ -95,7 +91,18 @@ export class Settings implements OnInit {
 
   ngOnInit(): void {
     this.theme = this.themeService.getTheme();
+
+    // La pagina viene mostrata subito.
+    this.loading = false;
+
+    // Le impostazioni vengono caricate in background.
     void this.loadSettings();
+  }
+
+  // ACCOUNT EMAIL
+
+  get accountEmail(): string {
+    return this.authService.user()?.email ?? '';
   }
 
   // LOAD SETTINGS
@@ -107,30 +114,14 @@ export class Settings implements OnInit {
 
     this.loading = true;
     this.error = '';
-
-    console.log('[Settings] loadSettings START');
+    this.success = '';
 
     try {
       const response = await this.withTimeout(
         this.settingsService.load(),
-        12000,
-        'Settings loading timed out. Please try again.'
+        12000
       );
 
-      console.log('[Settings] settings loaded', response);
-      console.log('[Settings] BEFORE applySettings');
-
-      if (response?.settings) {
-        this.applySettings(response.settings);
-      }
-
-      console.log('[Settings] AFTER applySettings');
-
-      if (response?.plan) {
-        this.applyPlan(response.plan);
-      }
-
-      console.log('[Settings] AFTER applyPlan');
       if (response?.settings) {
         this.applySettings(response.settings);
       }
@@ -140,33 +131,35 @@ export class Settings implements OnInit {
       }
 
     } catch (error: unknown) {
-      console.error('[Settings] LOAD ERROR', error);
+      console.error('[Settings] Load error:', error);
 
       this.error = this.getErrorMessage(
         error,
-        'Unable to load VANTA settings.'
+        'Unable to load your settings.'
       );
 
     } finally {
       this.loading = false;
       this.cdr.detectChanges();
 
-      console.log('[Settings] loading FALSE');
+      console.log('[Settings] Loading finished');
     }
 
-    // Load secondary data independently.
-    void this.loadInstagram();
+    // I crediti non devono bloccare la pagina.
     void this.refreshCredits();
   }
 
+  // TIMEOUT
+
   private withTimeout<T>(
     promise: Promise<T>,
-    milliseconds: number,
-    message: string
+    milliseconds: number
   ): Promise<T> {
     return new Promise<T>((resolve, reject) => {
       const timer = setTimeout(() => {
-        reject(new Error(message));
+        reject(
+          new Error('Settings loading timed out. Please try again.')
+        );
       }, milliseconds);
 
       promise.then(
@@ -200,12 +193,6 @@ export class Settings implements OnInit {
       ? 'light'
       : 'dark';
 
-    this.avatarUrl = settings.avatarUrl || null;
-
-    if (!this.avatarUrl && this.instagram.avatarUrl) {
-      this.avatarUrl = this.instagram.avatarUrl;
-    }
-
     this.themeService.setTheme(this.theme);
   }
 
@@ -219,39 +206,62 @@ export class Settings implements OnInit {
     };
   }
 
-  // CREATIVE DIRECTION
+  // SAVE SETTINGS
 
-  private normalizeCreativeDirection(
-    value: string | null | undefined
-  ): CreativeDirection {
-    switch (value) {
-      case 'Safe':
-        return 'Safe';
-      case 'Experimental':
-        return 'Experimental';
-      case 'Balanced':
-      default:
-        return 'Balanced';
-    }
+  async saveSettings(): Promise<void> {
+  if (this.saving) {
+    return;
   }
 
-  setCreativeDirection(value: CreativeDirection): void {
-    this.creativeDirection = value;
-    this.markDirty();
+  this.saving = true;
+  this.saved = false;
+  this.error = '';
+  this.success = '';
+
+  this.cdr.detectChanges();
+
+  const payload: VantaSettings = {
+    name: this.name.trim() || 'Riccardo',
+    role: this.role.trim() || 'Creator',
+    creativeDirection: this.creativeDirection,
+    openLoop: this.openLoop,
+    preserveDNA: this.preserveDNA,
+    theme: this.theme
+  };
+
+  try {
+    await this.withTimeout(
+      this.settingsService.save(payload),
+      15000
+    );
+
+    this.themeService.setTheme(this.theme);
+
+    this.saved = true;
+    this.success = 'Settings saved successfully.';
+
+  } catch (error: unknown) {
+    console.error('[Settings] Save error:', error);
+
+    this.error = this.getErrorMessage(
+      error,
+      'Unable to save your settings. Please try again.'
+    );
+
+  } finally {
+    this.saving = false;
+    this.cdr.detectChanges();
+
+    console.log('[Settings] Saving finished:', this.saving);
   }
+}
 
-  // OPEN LOOP
+  // DIRTY STATE
 
-  toggleOpenLoop(): void {
-    this.openLoop = !this.openLoop;
-    this.markDirty();
-  }
-
-  // PROFILE DNA
-
-  togglePreserveDNA(): void {
-    this.preserveDNA = !this.preserveDNA;
-    this.markDirty();
+  markDirty(): void {
+    this.saved = false;
+    this.success = '';
+    this.error = '';
   }
 
   // TABS
@@ -259,124 +269,39 @@ export class Settings implements OnInit {
   setTab(tab: SettingsTab): void {
     this.activeTab = tab;
     this.error = '';
+    this.success = '';
   }
 
-  isTabActive(tab: SettingsTab): boolean {
-    return this.activeTab === tab;
-  }
+  // CREATIVE DIRECTION
 
-  // DIRTY STATE
-
-  private markDirty(): void {
-    this.saved = false;
-    this.error = '';
-  }
-
-  // SAVE SETTINGS
-
-  saveChanges(): void {
-    void this.saveSettings();
-  }
-
-  async saveSettings(): Promise<void> {
-    if (this.saving) {
-      return;
+  private normalizeCreativeDirection(
+    value: string | null | undefined
+  ): CreativeDirection {
+    if (
+      value === 'Safe' ||
+      value === 'Experimental'
+    ) {
+      return value;
     }
 
-    this.saving = true;
-    this.saved = false;
-    this.error = '';
-
-    const payload: VantaSettings = {
-      name: this.name.trim() || 'Riccardo',
-      role: this.role.trim() || 'Creator',
-      creativeDirection: this.creativeDirection,
-      openLoop: Boolean(this.openLoop),
-      preserveDNA: Boolean(this.preserveDNA),
-      theme: this.theme,
-      avatarUrl: this.avatarUrl || null
-    };
-
-    try {
-      await this.withTimeout(
-        this.settingsService.save(payload),
-        12000,
-        'Saving settings timed out. Please try again.'
-      );
-
-      this.themeService.setTheme(this.theme);
-      this.saved = true;
-
-    } catch (error: unknown) {
-      console.error('[Settings] SAVE ERROR', error);
-
-      this.error = this.getErrorMessage(
-        error,
-        'Unable to save your settings.'
-      );
-
-    } finally {
-      this.saving = false;
-    }
+    return 'Balanced';
   }
 
-  // INSTAGRAM
-
-  async loadInstagram(): Promise<void> {
-    try {
-      const response = await this.withTimeout(
-        this.settingsService.loadInstagram(),
-        8000,
-        'Instagram request timed out.'
-      );
-
-      if (!response) {
-        return;
-      }
-
-      const profile = response.profile ?? null;
-
-      this.instagram = {
-        connected: Boolean(response.connected),
-        username: response.username ?? profile?.username ?? null,
-        name: response.name ?? profile?.name ?? null,
-        avatarUrl: response.avatarUrl ?? profile?.avatarUrl ?? null
-      };
-
-      if (!this.avatarUrl && this.instagram.avatarUrl) {
-        this.avatarUrl = this.instagram.avatarUrl;
-      }
-
-    } catch (error: unknown) {
-      console.error('[Settings] Instagram error:', error);
-    }
+  setCreativeDirection(value: CreativeDirection): void {
+    this.creativeDirection = value;
+    this.markDirty();
   }
 
-  get instagramConnected(): boolean {
-    return this.instagram.connected;
+  // AI TOGGLES
+
+  toggleOpenLoop(): void {
+    this.openLoop = !this.openLoop;
+    this.markDirty();
   }
 
-  get instagramUsername(): string {
-    return this.instagram.username || '';
-  }
-
-  get instagramStatus(): string {
-    return this.instagram.connected
-      ? 'Connected'
-      : 'Not connected';
-  }
-
-  // AVATAR
-
-  changeAvatar(): void {
-    if (this.instagram.avatarUrl) {
-      this.avatarUrl = this.instagram.avatarUrl;
-      this.markDirty();
-      return;
-    }
-
-    this.error =
-      'Connect Instagram to use your Instagram profile image.';
+  togglePreserveDNA(): void {
+    this.preserveDNA = !this.preserveDNA;
+    this.markDirty();
   }
 
   // THEME
@@ -387,7 +312,11 @@ export class Settings implements OnInit {
     }
 
     this.theme = value;
+
+    // Applica subito il tema.
     this.themeService.setTheme(value);
+
+    // Il salvataggio persistente avviene con Save changes.
     this.markDirty();
   }
 
@@ -400,25 +329,67 @@ export class Settings implements OnInit {
   }
 
   get themeLabel(): string {
-    return this.theme === 'light'
-      ? 'VANTA Light'
-      : 'VANTA Dark';
+    return this.theme === 'light' ? 'Light' : 'Dark';
   }
 
-  // CREDITS
+  // CHANGE PASSWORD
+
+  async changePassword(): Promise<void> {
+    this.passwordError = '';
+    this.passwordSuccess = '';
+
+    if (this.passwordLoading) {
+      return;
+    }
+
+    if (!this.newPassword || !this.confirmPassword) {
+      this.passwordError = 'Complete both password fields.';
+      return;
+    }
+
+    if (this.newPassword.length < 8) {
+      this.passwordError =
+        'Your password must contain at least 8 characters.';
+      return;
+    }
+
+    if (this.newPassword !== this.confirmPassword) {
+      this.passwordError = 'Passwords do not match.';
+      return;
+    }
+
+    this.passwordLoading = true;
+
+    try {
+      await this.authService.updatePassword(this.newPassword);
+
+      this.newPassword = '';
+      this.confirmPassword = '';
+
+      this.passwordSuccess = 'Password updated successfully.';
+
+    } catch (error: unknown) {
+      console.error('[Settings] Password update error:', error);
+
+      this.passwordError = this.getErrorMessage(
+        error,
+        'Unable to update your password. Please try again.'
+      );
+
+    } finally {
+      this.passwordLoading = false;
+      this.cdr.detectChanges();
+    }
+  }
+
+  // REFRESH CREDITS
 
   async refreshCredits(): Promise<void> {
     try {
-      const session = await this.withTimeout(
-        this.authService.getSession(),
-        8000,
-        'Session request timed out.'
-      );
-
+      const session = await this.authService.getSession();
       const accessToken = session?.access_token;
 
       if (!accessToken) {
-        console.warn('[Settings] No session available for credits.');
         return;
       }
 
@@ -427,12 +398,12 @@ export class Settings implements OnInit {
       });
 
       const response = await firstValueFrom(
-        this.http.get<CreditBalanceResponse>(
-          `${environment.apiUrl}/api/billing/balance`,
-          { headers }
-        ).pipe(
-          timeout({ first: 8000 })
-        )
+        this.http
+          .get<CreditBalanceResponse>(
+            `${environment.apiUrl}/api/billing/balance`,
+            { headers }
+          )
+          .pipe(timeout({ first: 8000 }))
       );
 
       if (
@@ -444,15 +415,16 @@ export class Settings implements OnInit {
           ...this.plan,
           credits: response.balance
         };
-      } else {
-        throw new Error('Invalid credit balance response.');
+
+        this.cdr.detectChanges();
       }
 
     } catch (error: unknown) {
       console.error('[Settings] Credits error:', error);
-      // Credit failures must not block the Settings page.
     }
   }
+
+  // PLAN GETTERS
 
   get credits(): number {
     return this.plan.credits;
@@ -476,38 +448,16 @@ export class Settings implements OnInit {
     );
   }
 
-  // PLAN
-
   get planName(): string {
     return this.plan.name;
   }
 
-  upgradePlan(): void {
-    this.error = '';
-    void this.router.navigate(['/billing']);
-  }
-
-  // INSTAGRAM MANAGEMENT
-
-  manageInstagram(): void {
-    void this.router.navigate(['/dashboard']);
-  }
-
-  // DELETE WORKSPACE
-
-  deleteWorkspace(): void {
-    this.error = 'Workspace deletion is not available yet.';
-  }
-
-  // ERROR
+  // ERROR MESSAGE
 
   private getErrorMessage(
     error: unknown,
     fallback: string
   ): string {
-    return this.settingsService.getErrorMessage(
-      error,
-      fallback
-    );
+    return this.settingsService.getErrorMessage(error, fallback);
   }
 }

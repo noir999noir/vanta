@@ -14,6 +14,7 @@ import {
 import {
   AuthService
 } from '../../core/auth.service';
+import { SupabaseService } from '../../core/supabase.service';
 
 @Component({
   selector: 'app-auth',
@@ -42,7 +43,9 @@ export class Auth {
 
   constructor(
     private readonly authService: AuthService,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly supabaseService: SupabaseService
+
   ) {}
 
   // CHANGE AUTH MODE
@@ -196,6 +199,8 @@ export class Auth {
     }
   }
 
+  
+
   // EMAIL VALIDATION
   private isValidEmail(email: string): boolean {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -234,4 +239,26 @@ export class Auth {
     return error?.message ||
       'Si è verificato un errore. Riprova.';
   }
+
+
+  // =====================================================
+// UPDATE PASSWORD — SETTINGS
+// =====================================================
+
+async updatePassword(newPassword: string): Promise<void> {
+  const { data, error } = await this.supabaseService
+    .getClient()
+    .auth
+    .updateUser({
+      password: newPassword
+    });
+
+  if (error) {
+    throw error;
+  }
+
+  if (!data.user) {
+    throw new Error('Unable to update your password.');
+  }
+}
 }

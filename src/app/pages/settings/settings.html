@@ -1,498 +1,614 @@
+<div class="settings-page">
 
-<div class="page">
   @if (loading) {
     <div class="settings-loading">
-      <div class="loading-line"></div>
-      <div class="loading-line short"></div>
-      <div class="loading-card"></div>
+      <div class="skeleton skeleton-title"></div>
+      <div class="skeleton skeleton-subtitle"></div>
+      <div class="skeleton skeleton-panel"></div>
     </div>
-  }
+  } @else {
 
-  @if (!loading && error) {
-    <div class="settings-error">
-      {{ error }}
-    </div>
-  }
-
-  @if (!loading) {
-    <header class="page-header">
-      <div>
-        <p class="eyebrow">WORKSPACE SETTINGS</p>
-        <h1>Make VANTA yours.</h1>
-        <p class="subtitle">
-          Manage your account, creative preferences and AI workspace.
-        </p>
+    <header class="settings-header">
+      <div class="header-copy">
+        <span class="eyebrow">WORKSPACE / SETTINGS</span>
+        <h1>Settings<span>.</span></h1>
+        <p>Configure your workspace and creative experience.</p>
       </div>
 
       <button
         type="button"
-        class="save-button"
-        [class.saved]="saved"
+        class="primary-button save-button"
         [disabled]="saving"
-        (click)="saveChanges()"
+        (click)="saveSettings()"
       >
-        @if (!saving && !saved) {
-          <span>Save changes</span>
-        }
         @if (saving) {
-          <span>Saving...</span>
-        }
-        @if (!saving && saved) {
-          <span>✓ Saved</span>
+          <span class="button-spinner"></span>
+          Saving
+        } @else {
+          Save changes
+          <span aria-hidden="true">↗</span>
         }
       </button>
     </header>
 
+    @if (error) {
+      <div class="feedback feedback-error" role="alert">
+        <span class="feedback-icon">!</span>
+        <span>{{ error }}</span>
+      </div>
+    }
+
+    @if (success) {
+      <div class="feedback feedback-success" role="status">
+        <span class="feedback-icon">✓</span>
+        <span>{{ success }}</span>
+      </div>
+    }
+
     <div class="settings-layout">
-      <aside class="settings-nav">
+
+      <!-- SIDEBAR -->
+
+      <aside class="settings-sidebar">
+        <span class="sidebar-label">PREFERENCES</span>
+
         <button
           type="button"
-          class="setting-nav"
+          class="nav-item"
           [class.active]="activeTab === 'account'"
           (click)="setTab('account')"
         >
-          <span>◉</span>
-          Account
+          <span class="nav-icon">◉</span>
+          <span>Account</span>
+          @if (activeTab === 'account') {
+            <span class="nav-indicator"></span>
+          }
         </button>
 
         <button
           type="button"
-          class="setting-nav"
-          [class.active]="activeTab === 'instagram'"
-          (click)="setTab('instagram')"
+          class="nav-item"
+          [class.active]="activeTab === 'security'"
+          (click)="setTab('security')"
         >
-          <span>◎</span>
-          Instagram
+          <span class="nav-icon">⌑</span>
+          <span>Security</span>
+          @if (activeTab === 'security') {
+            <span class="nav-indicator"></span>
+          }
         </button>
 
         <button
           type="button"
-          class="setting-nav"
+          class="nav-item"
           [class.active]="activeTab === 'ai'"
           (click)="setTab('ai')"
         >
-          <span>✦</span>
-          AI Preferences
+          <span class="nav-icon">✳</span>
+          <span>AI preferences</span>
+          @if (activeTab === 'ai') {
+            <span class="nav-indicator"></span>
+          }
         </button>
 
         <button
           type="button"
-          class="setting-nav"
+          class="nav-item"
           [class.active]="activeTab === 'appearance'"
           (click)="setTab('appearance')"
         >
-          <span>◐</span>
-          Appearance
+          <span class="nav-icon">◐</span>
+          <span>Appearance</span>
+          @if (activeTab === 'appearance') {
+            <span class="nav-indicator"></span>
+          }
         </button>
 
         <button
           type="button"
-          class="setting-nav"
+          class="nav-item"
           [class.active]="activeTab === 'plan'"
           (click)="setTab('plan')"
         >
-          <span>◌</span>
-          Plan & Credits
+          <span class="nav-icon">◈</span>
+          <span>Plan & credits</span>
+          @if (activeTab === 'plan') {
+            <span class="nav-indicator"></span>
+          }
         </button>
 
-        <div class="nav-divider"></div>
-
-        <button
-          type="button"
-          class="setting-nav danger"
-          (click)="deleteWorkspace()"
-        >
-          <span>×</span>
-          Delete workspace
-        </button>
+        <div class="sidebar-footer">
+          <span class="status-indicator"></span>
+          <span>VANTA workspace</span>
+        </div>
       </aside>
 
-      <main class="settings-content">
+      <!-- MAIN -->
+
+      <main class="settings-main">
+
+        <!-- ACCOUNT -->
+
         @if (activeTab === 'account') {
           <section class="settings-section">
+
             <div class="section-heading">
-              <span class="section-number">01</span>
               <div>
+                <span class="section-kicker">01 / PROFILE</span>
                 <h2>Account</h2>
-                <p>Your personal workspace information.</p>
+                <p>Manage the basic information for your workspace.</p>
               </div>
             </div>
 
             <div class="settings-card">
-              <div class="profile-row">
-                <div class="avatar">
-                  @if (avatarUrl) {
-                    <img
-                      [src]="avatarUrl"
-                      alt="VANTA profile avatar"
-                      referrerpolicy="no-referrer"
-                    />
-                  } @else {
-                    <span>{{ name.charAt(0).toUpperCase() }}</span>
-                  }
+
+              <div class="card-heading">
+                <div>
+                  <h3>Personal information</h3>
+                  <p>Your account details and workspace identity.</p>
+                </div>
+                <span class="card-mark">01</span>
+              </div>
+
+              <div class="account-identity">
+                <div class="identity-mark">
+                  {{ (name || 'V').charAt(0).toUpperCase() }}
                 </div>
 
-                <div class="profile-details">
-                  <strong>{{ name }}</strong>
-                  <span>{{ role }} workspace</span>
-
-                  @if (instagramConnected) {
-                    <small>@{{ instagramUsername }}</small>
-                  }
+                <div class="identity-copy">
+                  <strong>{{ name || 'Your workspace' }}</strong>
+                  <span>{{ role || 'Creator' }}</span>
                 </div>
 
-                <button
-                  type="button"
-                  class="small-button"
-                  (click)="changeAvatar()"
-                >
-                  Change avatar
-                </button>
+                <span class="identity-badge">WORKSPACE</span>
               </div>
 
               <div class="field-grid">
-                <div class="field">
-                  <label>NAME</label>
+
+                <div class="form-field">
+                  <label for="settings-name">DISPLAY NAME</label>
                   <input
+                    id="settings-name"
                     type="text"
                     [(ngModel)]="name"
-                    (ngModelChange)="saved = false"
+                    (ngModelChange)="markDirty()"
+                    maxlength="80"
                     autocomplete="name"
+                    placeholder="Your name"
                   />
                 </div>
 
-                <div class="field">
-                  <label>ROLE</label>
+                <div class="form-field">
+                  <label for="settings-role">ROLE</label>
                   <input
+                    id="settings-role"
                     type="text"
                     [(ngModel)]="role"
-                    (ngModelChange)="saved = false"
+                    (ngModelChange)="markDirty()"
+                    maxlength="80"
                     autocomplete="organization-title"
+                    placeholder="Creator"
                   />
                 </div>
+
               </div>
 
-              @if (instagramConnected) {
-                <div class="account-instagram">
-                  <div class="account-instagram-avatar">
-                    @if (instagram.avatarUrl) {
-                      <img
-                        [src]="instagram.avatarUrl"
-                        alt="Instagram profile"
-                        referrerpolicy="no-referrer"
-                      />
-                    }
-                  </div>
+              <div class="form-field email-field">
+                <label for="settings-email">ACCOUNT EMAIL</label>
+                <input
+                  id="settings-email"
+                  type="email"
+                  [value]="accountEmail"
+                  readonly
+                  aria-describedby="email-note"
+                />
+                <small id="email-note">
+                  Your login email is managed by your authentication account.
+                </small>
+              </div>
 
-                  <div>
-                    <strong>Instagram connected</strong>
-                    <span>@{{ instagramUsername }}</span>
-                  </div>
-                </div>
-              }
             </div>
           </section>
         }
 
-        @if (activeTab === 'instagram') {
+        <!-- SECURITY -->
+
+        @if (activeTab === 'security') {
           <section class="settings-section">
+
             <div class="section-heading">
-              <span class="section-number">02</span>
               <div>
-                <h2>Instagram</h2>
-                <p>Connect your profile to unlock VANTA analysis.</p>
+                <span class="section-kicker">02 / SECURITY</span>
+                <h2>Security</h2>
+                <p>Keep your account access secure.</p>
               </div>
             </div>
 
-            <div class="connection-card">
-              <div class="instagram-icon">◎</div>
+            <div class="settings-card">
 
-              <div class="connection-info">
-                <span
-                  class="connection-status"
-                  [class.disconnected]="!instagramConnected"
-                >
-                  <span class="status-dot"></span>
-                  {{ instagramConnected ? 'CONNECTED' : 'NOT CONNECTED' }}
-                </span>
+              <div class="card-heading">
+                <div>
+                  <h3>Change password</h3>
+                  <p>Choose a new password for your VANTA account.</p>
+                </div>
+                <span class="card-mark">02</span>
+              </div>
 
-                <strong>
-                  {{ instagramConnected ? '@' + instagramUsername : 'Instagram not connected' }}
-                </strong>
-
+              <div class="security-notice">
+                <span class="notice-icon">⌑</span>
                 <p>
-                  {{
-                    instagramConnected
-                      ? 'VANTA can analyze your profile, content and visual identity.'
-                      : 'Connect Instagram from your dashboard to unlock VANTA analysis.'
-                  }}
+                  Use at least 8 characters. Your new password will be
+                  updated through your authenticated account.
                 </p>
               </div>
 
-              <button
-                type="button"
-                class="disconnect-button"
-                (click)="manageInstagram()"
-              >
-                Manage
-              </button>
-            </div>
-
-            @if (instagramConnected) {
-              <div class="instagram-profile-preview">
-                <div class="instagram-profile-avatar">
-                  @if (instagram.avatarUrl) {
-                    <img
-                      [src]="instagram.avatarUrl"
-                      alt="Instagram profile"
-                      referrerpolicy="no-referrer"
-                    />
-                  }
-                </div>
-
-                <div class="instagram-profile-data">
-                  <span>CONNECTED PROFILE</span>
-                  <strong>{{ instagram.name || instagramUsername }}</strong>
-                  <small>@{{ instagramUsername }}</small>
-                </div>
+              <div class="form-field">
+                <label for="new-password">NEW PASSWORD</label>
+                <input
+                  id="new-password"
+                  type="password"
+                  [(ngModel)]="newPassword"
+                  autocomplete="new-password"
+                  minlength="8"
+                  placeholder="Enter a new password"
+                />
               </div>
-            }
+
+              <div class="form-field password-confirm-field">
+                <label for="confirm-password">CONFIRM NEW PASSWORD</label>
+                <input
+                  id="confirm-password"
+                  type="password"
+                  [(ngModel)]="confirmPassword"
+                  autocomplete="new-password"
+                  minlength="8"
+                  placeholder="Repeat your new password"
+                />
+              </div>
+
+              @if (passwordError) {
+                <div class="inline-message inline-error" role="alert">
+                  {{ passwordError }}
+                </div>
+              }
+
+              @if (passwordSuccess) {
+                <div class="inline-message inline-success" role="status">
+                  {{ passwordSuccess }}
+                </div>
+              }
+
+              <div class="card-actions">
+                <button
+                  type="button"
+                  class="primary-button"
+                  [disabled]="passwordLoading"
+                  (click)="changePassword()"
+                >
+                  @if (passwordLoading) {
+                    <span class="button-spinner"></span>
+                    Updating
+                  } @else {
+                    Update password
+                    <span aria-hidden="true">↗</span>
+                  }
+                </button>
+              </div>
+
+            </div>
           </section>
         }
 
+        <!-- AI PREFERENCES -->
+
         @if (activeTab === 'ai') {
           <section class="settings-section">
+
             <div class="section-heading">
-              <span class="section-number">03</span>
               <div>
-                <h2>AI Preferences</h2>
-                <p>Tell VANTA how you want your content to feel.</p>
+                <span class="section-kicker">03 / CREATIVE ENGINE</span>
+                <h2>AI preferences</h2>
+                <p>Set the creative direction VANTA should use.</p>
               </div>
             </div>
 
-            <div class="settings-card preference-card">
-              <div class="preference-row">
+            <div class="settings-card">
+
+              <div class="card-heading">
                 <div>
-                  <strong>Creative direction</strong>
-                  <span>How aggressive should VANTA be with new ideas?</span>
+                  <h3>Creative direction</h3>
+                  <p>Choose how experimental your visual outputs should feel.</p>
                 </div>
-
-                <div class="segmented">
-                  <button
-                    type="button"
-                    [class.active]="creativeDirection === 'Safe'"
-                    (click)="setCreativeDirection('Safe')"
-                  >
-                    Safe
-                  </button>
-
-                  <button
-                    type="button"
-                    [class.active]="creativeDirection === 'Balanced'"
-                    (click)="setCreativeDirection('Balanced')"
-                  >
-                    Balanced
-                  </button>
-
-                  <button
-                    type="button"
-                    [class.active]="creativeDirection === 'Experimental'"
-                    (click)="setCreativeDirection('Experimental')"
-                  >
-                    Experimental
-                  </button>
-                </div>
+                <span class="card-mark">03</span>
               </div>
 
-              <div class="row-divider"></div>
+              <div class="direction-options">
+
+                <button
+                  type="button"
+                  class="direction-option"
+                  [class.selected]="creativeDirection === 'Safe'"
+                  [attr.aria-pressed]="creativeDirection === 'Safe'"
+                  (click)="setCreativeDirection('Safe')"
+                >
+                  <span class="option-symbol">○</span>
+                  <strong>Safe</strong>
+                  <span class="option-description">
+                    Consistent, restrained and brand-focused.
+                  </span>
+                  <span class="option-check">
+                    {{ creativeDirection === 'Safe' ? '✓' : '' }}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  class="direction-option"
+                  [class.selected]="creativeDirection === 'Balanced'"
+                  [attr.aria-pressed]="creativeDirection === 'Balanced'"
+                  (click)="setCreativeDirection('Balanced')"
+                >
+                  <span class="option-symbol">◈</span>
+                  <strong>Balanced</strong>
+                  <span class="option-description">
+                    A mix of consistency and creative variation.
+                  </span>
+                  <span class="option-check">
+                    {{ creativeDirection === 'Balanced' ? '✓' : '' }}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  class="direction-option"
+                  [class.selected]="creativeDirection === 'Experimental'"
+                  [attr.aria-pressed]="creativeDirection === 'Experimental'"
+                  (click)="setCreativeDirection('Experimental')"
+                >
+                  <span class="option-symbol">✳</span>
+                  <strong>Experimental</strong>
+                  <span class="option-description">
+                    More expressive, unconventional visual ideas.
+                  </span>
+                  <span class="option-check">
+                    {{ creativeDirection === 'Experimental' ? '✓' : '' }}
+                  </span>
+                </button>
+
+              </div>
+
+              <div class="settings-divider"></div>
 
               <div class="preference-row">
-                <div>
-                  <strong>Open Loop by default</strong>
-                  <span>Prioritize curiosity-driven visual hooks.</span>
+                <div class="preference-copy">
+                  <strong>Open Loop</strong>
+                  <span>
+                    Allow more variation when exploring creative directions.
+                  </span>
                 </div>
 
                 <button
                   type="button"
                   class="toggle"
-                  [class.active]="openLoop"
+                  [class.enabled]="openLoop"
                   [attr.aria-pressed]="openLoop"
+                  [attr.aria-label]="
+                    'Open Loop ' + (openLoop ? 'enabled' : 'disabled')
+                  "
                   (click)="toggleOpenLoop()"
                 >
                   <span></span>
                 </button>
               </div>
 
-              <div class="row-divider"></div>
+              <div class="settings-divider"></div>
 
               <div class="preference-row">
-                <div>
-                  <strong>Preserve Profile DNA</strong>
-                  <span>Keep generated visuals aligned with your identity.</span>
+                <div class="preference-copy">
+                  <strong>Preserve DNA</strong>
+                  <span>
+                    Prioritize consistency with your established visual identity.
+                  </span>
                 </div>
 
                 <button
                   type="button"
                   class="toggle"
-                  [class.active]="preserveDNA"
+                  [class.enabled]="preserveDNA"
                   [attr.aria-pressed]="preserveDNA"
+                  [attr.aria-label]="
+                    'Preserve DNA ' +
+                    (preserveDNA ? 'enabled' : 'disabled')
+                  "
                   (click)="togglePreserveDNA()"
                 >
                   <span></span>
                 </button>
               </div>
+
+              <div class="settings-footnote">
+                Changes to AI preferences are saved when you select
+                <strong>Save changes</strong>.
+              </div>
+
             </div>
           </section>
         }
+
+        <!-- APPEARANCE -->
 
         @if (activeTab === 'appearance') {
           <section class="settings-section">
+
             <div class="section-heading">
-              <span class="section-number">04</span>
               <div>
+                <span class="section-kicker">04 / INTERFACE</span>
                 <h2>Appearance</h2>
-                <p>Customize how VANTA looks and feels.</p>
+                <p>Choose the VANTA interface theme that suits you.</p>
               </div>
             </div>
 
-            <div class="settings-card appearance-card">
-              <div class="appearance-preview">
-                <div
-                  class="preview-window"
-                  [class.preview-light]="isLightTheme"
-                  [class.preview-dark]="isDarkTheme"
-                >
-                  <div class="preview-top">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                  </div>
+            <div class="settings-card">
 
-                  <div class="preview-content">
-                    <div class="preview-sidebar"></div>
-                    <div class="preview-main">
-                      <div class="preview-line large"></div>
-                      <div class="preview-line"></div>
-                      <div class="preview-block"></div>
-                    </div>
-                  </div>
+              <div class="card-heading">
+                <div>
+                  <h3>Interface theme</h3>
+                  <p>The selected theme is applied immediately.</p>
                 </div>
-
-                <div class="appearance-info">
-                  <span class="appearance-label">CURRENT THEME</span>
-                  <strong>{{ themeLabel }}</strong>
-                  <p>
-                    {{
-                      isLightTheme
-                        ? 'Clean. Bright. Focused.'
-                        : 'Minimal. Cinematic. Focused.'
-                    }}
-                  </p>
-                </div>
+                <span class="card-mark">04</span>
               </div>
 
-              <div class="appearance-options">
+              <div class="theme-options">
+
                 <button
                   type="button"
-                  class="appearance-option"
-                  [class.active]="isDarkTheme"
+                  class="theme-option"
+                  [class.selected]="isDarkTheme"
+                  [attr.aria-pressed]="isDarkTheme"
                   (click)="setTheme('dark')"
                 >
-                  <span class="theme-preview dark-theme"></span>
-                  <span>Dark</span>
-                  <small>{{ isDarkTheme ? 'Current' : 'Select' }}</small>
+                  <div class="theme-preview preview-dark">
+                    <div class="preview-topbar">
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                    </div>
+
+                    <div class="preview-content">
+                      <div class="preview-sidebar"></div>
+                      <div class="preview-lines">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <div class="preview-block"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="theme-option-footer">
+                    <div>
+                      <strong>Dark</strong>
+                      <span>Dark surfaces, reduced glare</span>
+                    </div>
+
+                    <span class="theme-radio">
+                      @if (isDarkTheme) {
+                        ✓
+                      }
+                    </span>
+                  </div>
                 </button>
 
                 <button
                   type="button"
-                  class="appearance-option"
-                  [class.active]="isLightTheme"
+                  class="theme-option"
+                  [class.selected]="isLightTheme"
+                  [attr.aria-pressed]="isLightTheme"
                   (click)="setTheme('light')"
                 >
-                  <span class="theme-preview light-theme"></span>
-                  <span>Light</span>
-                  <small>{{ isLightTheme ? 'Current' : 'Select' }}</small>
+                  <div class="theme-preview preview-light">
+                    <div class="preview-topbar">
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                    </div>
+
+                    <div class="preview-content">
+                      <div class="preview-sidebar"></div>
+                      <div class="preview-lines">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <div class="preview-block"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="theme-option-footer">
+                    <div>
+                      <strong>Light</strong>
+                      <span>Bright surfaces, clear contrast</span>
+                    </div>
+
+                    <span class="theme-radio">
+                      @if (isLightTheme) {
+                        ✓
+                      }
+                    </span>
+                  </div>
                 </button>
 
-                <button
-                  type="button"
-                  class="appearance-option disabled"
-                  disabled
-                >
-                  <span class="theme-preview black-theme"></span>
-                  <span>Black</span>
-                  <small>Coming soon</small>
-                </button>
               </div>
 
-              @if (!saved) {
-                <div class="theme-save-hint">
-                  <span></span>
-                  Choose a theme and press
-                  <strong>Save changes</strong>
-                  to persist it.
-                </div>
-              }
+              <div class="settings-footnote">
+                Current theme: <strong>{{ themeLabel }}</strong>.
+                Save changes to remember your choice.
+              </div>
+
             </div>
           </section>
         }
+
+        <!-- PLAN AND CREDITS -->
 
         @if (activeTab === 'plan') {
           <section class="settings-section">
+
             <div class="section-heading">
-              <span class="section-number">05</span>
               <div>
-                <h2>Plan & Credits</h2>
-                <p>Your current VANTA usage.</p>
+                <span class="section-kicker">05 / USAGE</span>
+                <h2>Plan & credits</h2>
+                <p>An overview of your current workspace usage.</p>
               </div>
             </div>
 
-            <div class="plan-card">
-              <div>
-                <span class="plan-label">CURRENT PLAN</span>
-                <h3>{{ planName }}</h3>
-                <p>
-                  Built for creators who want their profile
-                  to look intentional.
-                </p>
+            <div class="plan-summary">
+
+              <div class="plan-summary-top">
+                <div>
+                  <span class="plan-label">CURRENT PLAN</span>
+                  <h3>{{ planName }}</h3>
+                </div>
+
+                <span class="plan-badge">ACTIVE</span>
               </div>
 
-              <div class="credit-display">
-                <span>AI CREDITS</span>
-                <strong>{{ credits }}</strong>
-                <small>credits available</small>
+              <div class="plan-divider"></div>
+
+              <div class="credit-summary">
+                <div>
+                  <span class="credit-label">AVAILABLE CREDITS</span>
+                  <strong>{{ credits | number }}</strong>
+                </div>
+
+                <div class="credit-total">
+                  <span>Reference</span>
+                  <strong>{{ monthlyCredits | number }}</strong>
+                </div>
               </div>
 
-              <button
-                type="button"
-                class="upgrade-button"
-                (click)="upgradePlan()"
+              <div
+                class="credit-progress"
+                role="progressbar"
+                [attr.aria-valuenow]="creditPercentage"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-label="Credit balance relative to reference amount"
               >
-                Upgrade plan →
-              </button>
-            </div>
-
-            <div class="credit-card">
-              <div class="credit-header">
-                <span>CREDIT BALANCE</span>
-                <strong>{{ credits }}</strong>
+                <span [style.width.%]="creditPercentage"></span>
               </div>
 
-              <div class="credit-bar">
-                <div
-                  class="credit-progress"
-                  [style.width.%]="creditPercentage"
-                ></div>
-              </div>
+              <p class="credit-note">
+                The balance is retrieved from your VANTA account.
+                The reference amount is informational and is not a purchase limit.
+              </p>
 
-              <div class="credit-footer">
-                <span>0</span>
-                <span>Available balance</span>
-              </div>
             </div>
           </section>
         }
+
       </main>
     </div>
   }
+
 </div>

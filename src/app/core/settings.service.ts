@@ -26,7 +26,6 @@ export interface VantaSettings {
   openLoop: boolean;
   preserveDNA: boolean;
   theme: VantaTheme;
-  avatarUrl: string | null;
 }
 
 export interface VantaPlan {
@@ -189,7 +188,6 @@ export class SettingsService {
         openLoop: Boolean(settings.openLoop),
         preserveDNA: Boolean(settings.preserveDNA),
         theme: settings.theme === 'light' ? 'light' : 'dark',
-        avatarUrl: settings.avatarUrl || null
       };
 
       console.log('⚙️ VANTA saving settings:', payload);

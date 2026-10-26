@@ -78,6 +78,12 @@ export const routes: Routes = [
       import('./pages/settings/settings')
         .then(m => m.Settings)
   },
+  {
+      path: 'reset-password',
+      loadComponent: () =>
+        import('./pages/reset-password/reset-password')
+          .then(m => m.ResetPassword)
+    },
     {
     path: 'library',
     loadComponent: () =>

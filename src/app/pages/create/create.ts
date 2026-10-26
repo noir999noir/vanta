@@ -29,6 +29,7 @@ import { AuthService } from '../../core/auth.service';
 import { InstagramService } from '../../core/instagram.service';
 
 import { environment } from '../../../environments/environment';
+import { firstValueFrom } from 'rxjs';
 
 
 
@@ -2312,10 +2313,9 @@ export class Create
   async generateImage(
     creative: CreativeDirection
   ): Promise<void> {
+    const sourceImage = this.selectedImage();
 
-    const image = this.selectedImage();
-
-    if (!image) {
+    if (!sourceImage) {
       this.error.set('Source image is missing.');
       this.setStage('error', 'The source image is missing.', 0);
       this.generatingImage.set(false);
@@ -2325,7 +2325,6 @@ export class Create
 
     try {
       const session = await this.authService.getSession();
-
       if (!session?.user?.id || !session.access_token) {
         this.error.set('Your VANTA session has expired. Please log in again.');
         this.setStage('error', 'Authentication required.', 0);
@@ -2335,100 +2334,126 @@ export class Create
       }
 
       this.generatingImage.set(true);
+      this.setStage('generating', 'Queueing a persistent VANTA generation...', 60);
 
-      this.setStage(
-        'generating',
-        `Creating your ${this.aspectRatio()} visual...`,
-        65
+      const headers = new HttpHeaders({
+        Authorization: `Bearer ${session.access_token}`,
+        'Content-Type': 'application/json'
+      });
+
+      /*
+       * Create now uses the same persistent job queue as Campaign Studio.
+       * The job is stored server-side before the UI starts polling, so a
+       * refresh does not cancel the backend generation.
+       */
+      const idempotencyKey = `create-${session.user.id}-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+      const createResponse: any = await this.firstValueFromSafe(
+        this.http.post<any>(
+          `${environment.apiUrl}/api/image/jobs`,
+          {
+            sourceType: 'create',
+            idempotencyKey,
+            userId: session.user.id,
+            prompt: creative.creativePrompt,
+            negativePrompt: creative.negativePrompt,
+            aspectRatio: this.aspectRatio(),
+            sourceImage,
+            sourceImages: [sourceImage],
+            subjectSource: 'photo',
+            identityMode: creative.preserveSubject ? 'preserve' : 'reinterpret',
+            title: creative.title,
+            concept: creative.concept,
+            theme: creative.theme
+          },
+          { headers }
+        )
       );
 
-      const imageRequest = {
-        userId: session.user.id,
-        prompt: creative.creativePrompt,
-        negativePrompt: creative.negativePrompt,
-        aspectRatio: this.aspectRatio(),
-        sourceImage: image
-      };
+      const job = createResponse?.job ?? createResponse?.data?.job ?? createResponse?.data ?? createResponse;
+      const jobId = job?.id ?? job?.jobId ?? job?.job_id;
+      if (!jobId) {
+        console.error('Unexpected /api/image/jobs response:', createResponse);
+        throw new Error('The image job was created without returning a job ID.');
+      }
 
-      this.http.post<ImageGenerationResponse>(
-        `${environment.apiUrl}/api/image/generate`,
-        imageRequest,
-        {
-          headers: {
-            Authorization: `Bearer ${session.access_token}`
-          }
-        }
-      ).subscribe({
-        next: response => {
-          if (response.success && response.generatedImage) {
-            this.loadCreditBalance();
-            this.generatedImage.set(response.generatedImage);
-            this.imageReady.set(true);
-            this.generatingImage.set(false);
+      console.info('[VANTA Create] Persistent image job created:', jobId);
+      this.setStage('generating', 'VANTA is generating and saving your visual...', 68);
 
-            const dna = this.dna();
+      const completedJob = await this.waitForImageJob(jobId, session.access_token);
+      const generatedUrl =
+        completedJob?.generatedImage ??
+        completedJob?.generated_image ??
+        completedJob?.result?.generatedImage ??
+        completedJob?.result?.url ??
+        completedJob?.output?.url;
 
-            if (dna) {
-              this.evaluateImpact(
-                image,
-                response.generatedImage,
-                dna
-              );
-            } else {
-              this.generating.set(false);
-              this.setStage(
-                'complete',
-                'Your VANTA visual is ready.',
-                100
-              );
-            }
-          } else {
-            this.error.set(
-              response.message || 'Image generation failed.'
-            );
-            this.setStage(
-              'error',
-              'VANTA could not generate the visual.',
-              0
-            );
-            this.generatingImage.set(false);
-            this.generating.set(false);
-          }
-        },
-        error: error => {
-          console.error('IMAGE GENERATION ERROR:', error);
-          console.error('BACKEND ERROR:', error?.error);
+      if (!generatedUrl) {
+        console.error('Completed image job has no generated image URL:', completedJob);
+        throw new Error(completedJob?.error_message || completedJob?.message || 'The job completed without returning an image URL.');
+      }
 
-          if (error?.status === 402) {
-            this.error.set('Insufficient credits. You need 5 credits to generate an image.');
-            this.loadCreditBalance();
-          } else {
-            this.error.set(
-              error?.error?.message ||
-              'Unable to generate the image.'
-            );
-          }
+      this.loadCreditBalance();
+      this.generatedImage.set(generatedUrl);
+      this.imageReady.set(true);
+      this.generatingImage.set(false);
 
-          this.setStage(
-            'error',
-            'Something went wrong while generating your visual.',
-            0
-          );
+      const dna = this.dna();
+      if (dna) {
+        this.evaluateImpact(sourceImage, generatedUrl, dna);
+      } else {
+        this.generating.set(false);
+        this.setStage('complete', 'Your VANTA visual is ready and its generation job is persisted.', 100);
+      }
+    } catch (error: any) {
+      console.error('[VANTA Create] Persistent image generation failed:', error);
+      console.error('[VANTA Create] Backend response:', error?.error ?? error);
 
-          this.generatingImage.set(false);
-          this.generating.set(false);
-        }
-      });
-    } catch (error) {
-      console.error('AUTHENTICATION ERROR:', error);
+      if (error?.status === 402) {
+        this.error.set('Insufficient credits. You need 5 credits to generate an image.');
+        this.loadCreditBalance();
+      } else {
+        this.error.set(
+          error?.error?.message ??
+          error?.message ??
+          'Unable to generate the image.'
+        );
+      }
 
-      this.error.set('Unable to verify your VANTA session.');
-      this.setStage('error', 'Authentication failed.', 0);
+      this.setStage('error', 'Something went wrong while generating your visual.', 0);
       this.generatingImage.set(false);
       this.generating.set(false);
     }
   }
 
+  /** Convert Angular's HttpClient observable to a promise without adding dependencies. */
+  private firstValueFromSafe<T>(observable: import('rxjs').Observable<T>): Promise<T> {
+    return firstValueFrom(observable);
+  }
+
+  /** Poll the persistent job API until the worker returns a saved image URL. */
+  private async waitForImageJob(jobId: string, accessToken: string): Promise<any> {
+    const headers = new HttpHeaders({ Authorization: `Bearer ${accessToken}` });
+    const deadline = Date.now() + 5 * 60 * 1000;
+
+    while (Date.now() < deadline) {
+      const response: any = await this.firstValueFromSafe(
+        this.http.get<any>(`${environment.apiUrl}/api/image/jobs/${encodeURIComponent(jobId)}`, { headers })
+      );
+      const job = response?.job ?? response?.data?.job ?? response?.data ?? response;
+      const status = String(job?.status ?? '').toLowerCase();
+
+      if (['completed', 'complete', 'succeeded', 'success', 'done'].includes(status)) {
+        return job;
+      }
+      if (['failed', 'error', 'cancelled', 'canceled'].includes(status)) {
+        throw new Error(job?.error_message || job?.message || `Image job ${status}.`);
+      }
+
+      await new Promise(resolve => setTimeout(resolve, 2000));
+    }
+
+    throw new Error('Image generation is still processing. The job remains in the backend; reopen Create or retry checking its status.');
+  }
 
 
 

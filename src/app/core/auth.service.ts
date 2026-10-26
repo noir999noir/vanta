@@ -271,6 +271,52 @@ export class AuthService {
   }
 
 
+
+  // =====================================================
+  // PASSWORD RECOVERY
+  // =====================================================
+  // =====================================================
+  // PASSWORD RECOVERY
+  // =====================================================
+
+  async resetPasswordForEmail(email: string): Promise<void> {
+    const normalizedEmail = email.trim().toLowerCase();
+
+    if (!normalizedEmail) {
+      throw new Error('Inserisci il tuo indirizzo email.');
+    }
+
+    const redirectTo = `${window.location.origin}/reset-password`;
+
+    const { error } = await this.supabaseService
+      .getClient()
+      .auth
+      .resetPasswordForEmail(normalizedEmail, {
+        redirectTo
+      });
+
+    if (error) {
+      throw error;
+    }
+  }
+
+
+  // =====================================================
+  // UPDATE PASSWORD
+  // =====================================================
+
+  async updatePassword(password: string): Promise<void> {
+    const { error } = await this.supabaseService
+      .getClient()
+      .auth
+      .updateUser({
+        password
+      });
+
+    if (error) {
+      throw error;
+    }
+  }
   // =====================================================
   // AUTHENTICATED?
   // =====================================================

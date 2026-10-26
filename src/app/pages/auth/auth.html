@@ -1,17 +1,16 @@
 <div class="auth-page">
 
-  <div class="auth-glow"></div>
+  <div class="auth-glow auth-glow-top"></div>
+  <div class="auth-glow auth-glow-bottom"></div>
 
   <main class="auth-card">
 
-    <!-- ========================================= -->
     <!-- BRAND -->
-    <!-- ========================================= -->
 
     <div class="brand">
 
       <div class="brand-mark">
-        V
+        <span>V</span>
       </div>
 
       <div class="brand-copy">
@@ -29,9 +28,7 @@
     </div>
 
 
-    <!-- ========================================= -->
     <!-- HEADING -->
-    <!-- ========================================= -->
 
     <div class="heading">
 
@@ -42,7 +39,8 @@
         </span>
 
         <h1>
-          Welcome back.
+          Welcome<br>
+          <span>back.</span>
         </h1>
 
         <p>
@@ -57,11 +55,13 @@
         </span>
 
         <h1>
-          Create your VANTA.
+          Create your<br>
+          <span>VANTA.</span>
         </h1>
 
         <p>
           Build your visual identity with AI.
+          Your creative world starts here.
         </p>
 
       }
@@ -69,9 +69,7 @@
     </div>
 
 
-    <!-- ========================================= -->
     <!-- MODE SWITCH -->
-    <!-- ========================================= -->
 
     <div class="mode-switch">
 
@@ -96,9 +94,7 @@
     </div>
 
 
-    <!-- ========================================= -->
-    <!-- FORM -->
-    <!-- ========================================= -->
+    <!-- AUTH FORM -->
 
     <form
       (ngSubmit)="submit()"
@@ -110,7 +106,7 @@
       <div class="field">
 
         <label for="email">
-          Email
+          Email address
         </label>
 
         <div class="input-wrap">
@@ -125,6 +121,7 @@
             autocapitalize="none"
             spellcheck="false"
             [disabled]="loading()"
+            required
           />
 
         </div>
@@ -142,10 +139,10 @@
             Password
           </label>
 
-          @if (mode() === 'login') {
+          @if (mode() === 'register') {
 
             <span class="field-hint">
-              Minimum 6 characters
+              MIN. 6 CHARACTERS
             </span>
 
           }
@@ -166,9 +163,36 @@
                 : 'new-password'
             "
             [disabled]="loading()"
+            required
           />
 
         </div>
+
+
+        <!-- FORGOT PASSWORD -->
+
+        @if (mode() === 'login') {
+
+          <div class="forgot-password-row">
+
+            <button
+              class="forgot-password-button"
+              type="button"
+              [disabled]="loading() || resetLoading()"
+              (click)="requestPasswordReset()"
+            >
+
+              @if (resetLoading()) {
+                Sending recovery link...
+              } @else {
+                Forgot your password?
+              }
+
+            </button>
+
+          </div>
+
+        }
 
       </div>
 
@@ -222,7 +246,7 @@
       <button
         class="submit-button"
         type="submit"
-        [disabled]="loading()"
+        [disabled]="loading() || resetLoading()"
       >
 
         @if (loading()) {
@@ -267,9 +291,7 @@
     </form>
 
 
-    <!-- ========================================= -->
     <!-- SWITCH FOOTER -->
-    <!-- ========================================= -->
 
     <div class="auth-switch-copy">
 
@@ -281,7 +303,7 @@
 
         <button
           type="button"
-          [disabled]="loading()"
+          [disabled]="loading() || resetLoading()"
           (click)="setMode('register')"
         >
           Create one
@@ -295,7 +317,7 @@
 
         <button
           type="button"
-          [disabled]="loading()"
+          [disabled]="loading() || resetLoading()"
           (click)="setMode('login')"
         >
           Login
@@ -306,23 +328,13 @@
     </div>
 
 
-    <!-- ========================================= -->
     <!-- FOOTER -->
-    <!-- ========================================= -->
 
     <div class="footer">
 
-      <span>
-        VANTA
-      </span>
-
-      <span>
-        •
-      </span>
-
-      <span>
-        CREATE WITHOUT LIMITS
-      </span>
+      <span>VANTA</span>
+      <span>•</span>
+      <span>CREATE WITHOUT LIMITS</span>
 
     </div>
 

@@ -22,55 +22,30 @@ export class AuthService {
   // GLOBAL AUTH STATE
   // =====================================================
 
-  readonly user =
-    signal<User | null>(null);
-
-  readonly session =
-    signal<Session | null>(null);
-
-  readonly loading =
-    signal(true);
-  supabase: any;
-
+  readonly user = signal<User | null>(null);
+  readonly session = signal<Session | null>(null);
+  readonly loading = signal(true);
 
   // =====================================================
   // CONSTRUCTOR
   // =====================================================
 
   constructor(
-    private readonly supabaseService:
-      SupabaseService
+    private readonly supabaseService: SupabaseService
   ) {
-
     void this.init();
-
   }
-
 
   // =====================================================
   // INITIALIZE AUTH
   // =====================================================
 
   private async init(): Promise<void> {
-
     try {
+      const session = await this.supabaseService.getSession();
 
-      const session =
-        await this.supabaseService
-          .getSession();
-
-      this.session.set(
-        session
-      );
-
-      this.user.set(
-        session?.user ?? null
-      );
-
-
-      // -------------------------------------------------
-      // LISTEN FOR AUTH CHANGES
-      // -------------------------------------------------
+      this.session.set(session);
+      this.user.set(session?.user ?? null);
 
       this.supabaseService
         .getClient()
@@ -80,43 +55,24 @@ export class AuthService {
             _event: AuthChangeEvent,
             session: Session | null
           ) => {
-
-            this.session.set(
-              session
-            );
-
-            this.user.set(
-              session?.user ?? null
-            );
-
+            this.session.set(session);
+            this.user.set(session?.user ?? null);
           }
         );
 
     } catch (error) {
-
       console.error(
         '❌ VANTA Auth initialization error:',
         error
       );
 
-      this.session.set(
-        null
-      );
-
-      this.user.set(
-        null
-      );
+      this.session.set(null);
+      this.user.set(null);
 
     } finally {
-
-      this.loading.set(
-        false
-      );
-
+      this.loading.set(false);
     }
-
   }
-
 
   // =====================================================
   // REGISTER
@@ -126,16 +82,9 @@ export class AuthService {
     email: string,
     password: string
   ) {
+    const normalizedEmail = email.trim().toLowerCase();
 
-    const normalizedEmail =
-      email
-        .trim()
-        .toLowerCase();
-
-    const {
-      data,
-      error
-    } = await this.supabaseService
+    const { data, error } = await this.supabaseService
       .getClient()
       .auth
       .signUp({
@@ -147,23 +96,11 @@ export class AuthService {
       throw error;
     }
 
-    // ---------------------------------------------------
-    // Supabase may return a session immediately
-    // or require email confirmation.
-    // ---------------------------------------------------
-
-    this.session.set(
-      data.session
-    );
-
-    this.user.set(
-      data.user
-    );
+    this.session.set(data.session);
+    this.user.set(data.user);
 
     return data;
-
   }
-
 
   // =====================================================
   // LOGIN
@@ -173,16 +110,9 @@ export class AuthService {
     email: string,
     password: string
   ) {
+    const normalizedEmail = email.trim().toLowerCase();
 
-    const normalizedEmail =
-      email
-        .trim()
-        .toLowerCase();
-
-    const {
-      data,
-      error
-    } = await this.supabaseService
+    const { data, error } = await this.supabaseService
       .getClient()
       .auth
       .signInWithPassword({
@@ -194,28 +124,18 @@ export class AuthService {
       throw error;
     }
 
-    this.session.set(
-      data.session
-    );
-
-    this.user.set(
-      data.user
-    );
+    this.session.set(data.session);
+    this.user.set(data.user);
 
     return data;
-
   }
-
 
   // =====================================================
   // LOGOUT
   // =====================================================
 
   async signOut(): Promise<void> {
-
-    const {
-      error
-    } = await this.supabaseService
+    const { error } = await this.supabaseService
       .getClient()
       .auth
       .signOut();
@@ -224,57 +144,31 @@ export class AuthService {
       throw error;
     }
 
-    this.session.set(
-      null
-    );
-
-    this.user.set(
-      null
-    );
-
+    this.session.set(null);
+    this.user.set(null);
   }
-
 
   // =====================================================
   // CURRENT USER
   // =====================================================
 
   async getUser(): Promise<User | null> {
-
-    return this.supabaseService
-      .getUser();
-
+    return this.supabaseService.getUser();
   }
-
 
   // =====================================================
   // CURRENT SESSION
   // =====================================================
 
   async getSession(): Promise<Session | null> {
+    const session = await this.supabaseService.getSession();
 
-    const session =
-      await this.supabaseService
-        .getSession();
-
-    // Keep local state synchronized.
-    this.session.set(
-      session
-    );
-
-    this.user.set(
-      session?.user ?? null
-    );
+    this.session.set(session);
+    this.user.set(session?.user ?? null);
 
     return session;
-
   }
 
-
-
-  // =====================================================
-  // PASSWORD RECOVERY
-  // =====================================================
   // =====================================================
   // PASSWORD RECOVERY
   // =====================================================
@@ -286,20 +180,17 @@ export class AuthService {
       throw new Error('Inserisci il tuo indirizzo email.');
     }
 
-    const redirectTo = `${window.location.origin}/reset-password`;
-
     const { error } = await this.supabaseService
       .getClient()
       .auth
       .resetPasswordForEmail(normalizedEmail, {
-        redirectTo
+        redirectTo: 'https://vantalab.it/reset-password'
       });
 
     if (error) {
       throw error;
     }
   }
-
 
   // =====================================================
   // UPDATE PASSWORD
@@ -317,14 +208,12 @@ export class AuthService {
       throw error;
     }
   }
+
   // =====================================================
   // AUTHENTICATED?
   // =====================================================
 
   isAuthenticated(): boolean {
-
     return !!this.user();
-
   }
-
 }

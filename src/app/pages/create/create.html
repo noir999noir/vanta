@@ -575,7 +575,7 @@
                 </div>
               </div>
 
-              @if (impactEvaluation()!.strengths?.length) {
+              @if (impactEvaluation()!.strengths.length) {
                 <div class="impact-list">
                   <span>STRENGTHS</span>
                   @for (strength of impactEvaluation()!.strengths; track strength) {
@@ -587,7 +587,7 @@
                 </div>
               }
 
-              @if (impactEvaluation()!.weaknesses?.length) {
+              @if (impactEvaluation()!.weaknesses.length) {
                 <div class="impact-list weaknesses">
                   <span>AREAS TO IMPROVE</span>
                   @for (weakness of impactEvaluation()!.weaknesses; track weakness) {

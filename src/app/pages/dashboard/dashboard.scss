@@ -1067,9 +1067,36 @@ button {
 
   .sidebar-label,
   .sidebar-upgrade,
-  .sidebar-spacer,
-  .logout-button {
+  .sidebar-spacer {
     display: none;
+  }
+
+  /* Logout visibile anche nella navigazione mobile */
+  .logout-button {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    min-height: 40px;
+    margin-top: 12px;
+    padding: 0 12px;
+    border: 1px solid rgba(230, 59, 69, 0.2);
+    border-radius: 9px;
+    background: rgba(230, 59, 69, 0.06);
+    color: #a5a2aa;
+    cursor: pointer;
+    text-align: left;
+    font-size: 12px;
+  }
+
+  .logout-button:hover:not(:disabled) {
+    color: #fff;
+    background: rgba(230, 59, 69, 0.12);
+  }
+
+  .logout-button:disabled {
+    cursor: wait;
+    opacity: 0.6;
   }
 
   .sidebar-nav {
@@ -1093,6 +1120,28 @@ button {
   .nav-icon {
     width: auto;
     font-size: 15px;
+    opacity: 1;
+    filter: none;
+    color: inherit;
+  }
+
+  /* Mantieni su mobile gli stessi colori delle icone desktop */
+  .nav-item .nav-icon {
+    color: #a5a2aa;
+  }
+
+  .nav-item.active .nav-icon {
+    color: #fff;
+  }
+
+  .stat-icon,
+  .quick-action-icon,
+  .credits-icon,
+  .upgrade-orb,
+  .feature-tag > span,
+  .empty-icon {
+    filter: none;
+    opacity: 1;
   }
 
   .nav-badge {

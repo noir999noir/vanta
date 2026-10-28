@@ -61,20 +61,35 @@ export class BillingComponent implements OnInit {
 
   packages: BillingPackage[] = [
     {
-      id: 'starter',
-      name: 'Starter',
-      price: 5,
-      credits: 100,
-      description: 'Per iniziare a creare.',
+      id: 'mini',
+      name: 'Mini',
+      price: 4.99,
+      credits: 25,
+      description: '5 generazioni per continuare a creare.',
     },
     {
-      id: 'creator',
-      name: 'Creator',
-      price: 12,
-      credits: 300,
-      description: 'Per dare spazio alla creatività.',
+      id: 'creator-pack',
+      name: 'Creator Pack',
+      price: 12.99,
+      credits: 70,
+      description: '14 generazioni per dare spazio alla creatività.',
+    },
+    {
+      id: 'pro-pack',
+      name: 'Pro Pack',
+      price: 29.99,
+      credits: 180,
+      description: '36 generazioni per una produzione costante.',
+    },
+    {
+      id: 'studio-pack',
+      name: 'Studio Pack',
+      price: 59.99,
+      credits: 400,
+      description: '80 generazioni per i tuoi progetti più intensi.',
     },
   ];
+
 
   subscriptionPlans: SubscriptionPlan[] = [
     {

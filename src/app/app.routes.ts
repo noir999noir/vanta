@@ -1,68 +1,48 @@
+
 import { Routes } from '@angular/router';
-import { BillingComponent } from './pages/billing/billing';
 import { authGuard } from './core/auth.guard';
 
 export const routes: Routes = [
-
-  // =====================================================
-  // ROOT
-  // =====================================================
-
   {
     path: '',
     redirectTo: 'dashboard',
     pathMatch: 'full'
   },
-
-
-  // =====================================================
-  // AUTH
-  // =====================================================
-
   {
     path: 'auth',
     loadComponent: () =>
-      import('./pages/auth/auth')
-        .then(m => m.Auth)
+      import('./pages/auth/auth').then(m => m.Auth)
   },
-
-
-  // =====================================================
-  // PROTECTED ROUTES
-  // =====================================================
-
+  {
+    path: 'reset-password',
+    loadComponent: () =>
+      import('./pages/reset-password/reset-password')
+        .then(m => m.ResetPassword)
+  },
   {
     path: 'dashboard',
-    canActivate: [authGuard],
     loadComponent: () =>
       import('./pages/dashboard/dashboard')
         .then(m => m.Dashboard)
   },
-
   {
     path: 'profile',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./pages/profile/profile')
-        .then(m => m.Profile)
+      import('./pages/profile/profile').then(m => m.Profile)
   },
-
   {
     path: 'create',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./pages/create/create')
-        .then(m => m.Create)
+      import('./pages/create/create').then(m => m.Create)
   },
-
   {
     path: 'feed',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./pages/feed/feed')
-        .then(m => m.Feed)
+      import('./pages/feed/feed').then(m => m.Feed)
   },
-
   {
     path: 'campaign-studio',
     canActivate: [authGuard],
@@ -70,37 +50,28 @@ export const routes: Routes = [
       import('./pages/campaign-studio/campaign-studio')
         .then(m => m.CampaignStudioComponent)
   },
-
   {
     path: 'settings',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./pages/settings/settings')
-        .then(m => m.Settings)
+      import('./pages/settings/settings').then(m => m.Settings)
   },
   {
-      path: 'reset-password',
-      loadComponent: () =>
-        import('./pages/reset-password/reset-password')
-          .then(m => m.ResetPassword)
-    },
-    {
     path: 'library',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./pages/library/library')
         .then(m => m.LibraryComponent)
   },
   {
     path: 'billing',
-    component: BillingComponent,
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/billing/billing')
+        .then(m => m.BillingComponent)
   },
-  // =====================================================
-  // FALLBACK
-  // =====================================================
-
   {
     path: '**',
     redirectTo: 'dashboard'
   }
-
 ];

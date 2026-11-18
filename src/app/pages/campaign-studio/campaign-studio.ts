@@ -6,6 +6,7 @@ import {
 } from '@angular/common/http';
 import { Component, OnInit, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 
 import { AuthService } from '../../core/auth.service';
@@ -23,6 +24,7 @@ interface SubjectReference {
   dataUrl: string;
   mimeType: string;
   size: number;
+  storagePath?: string;
 }
 
 interface CampaignPost {
@@ -182,11 +184,18 @@ export class CampaignStudioComponent implements OnInit {
   constructor(
     private readonly http: HttpClient,
     private readonly authService: AuthService,
-    private readonly imageJobs: ImageGenerationJobsService
+    private readonly imageJobs: ImageGenerationJobsService,
+    private readonly route: ActivatedRoute
   ) {}
 
   async ngOnInit(): Promise<void> {
     await this.loadSavedCampaigns();
+
+    const resumeId = this.route.snapshot.queryParamMap.get('resume');
+    if (resumeId) {
+      await this.loadCampaign(resumeId);
+      return;
+    }
 
     try {
       const jobs = await this.imageJobs.listJobs(100);
@@ -742,8 +751,11 @@ export class CampaignStudioComponent implements OnInit {
           campaignName: this.campaignName(),
           contentCount: this.contentCount(),
           references: this.references().map(reference => ({
+            id: reference.id,
             name: reference.name,
-            mimeType: reference.mimeType
+            mimeType: reference.mimeType,
+            dataUrl: reference.dataUrl,
+            storagePath: reference.storagePath
           }))
         },
         campaign_dna: {
@@ -956,6 +968,38 @@ export class CampaignStudioComponent implements OnInit {
             )
           : ['Post']
       );
+
+      const savedReferences = Array.isArray(settings['references'])
+        ? settings['references'] as Array<Record<string, unknown>>
+        : [];
+
+      const restoredReferences: SubjectReference[] = [];
+      for (const reference of savedReferences.slice(0, this.maxReferences)) {
+        const source = typeof reference['dataUrl'] === 'string'
+          ? String(reference['dataUrl'])
+          : typeof reference['signedUrl'] === 'string'
+            ? String(reference['signedUrl'])
+            : '';
+        if (!source) continue;
+        try {
+          const dataUrl = source.startsWith('data:')
+            ? source
+            : await this.urlToDataUrl(source);
+          restoredReferences.push({
+            id: String(reference['id'] ?? this.createId()),
+            name: String(reference['name'] ?? 'Reference image'),
+            mimeType: String(reference['mimeType'] ?? 'image/jpeg'),
+            dataUrl,
+            size: this.estimateDataUrlSize(dataUrl),
+            ...(typeof reference['storagePath'] === 'string'
+              ? { storagePath: String(reference['storagePath']) }
+              : {})
+          });
+        } catch (referenceError) {
+          console.warn('Unable to restore campaign reference:', referenceError);
+        }
+      }
+      this.references.set(restoredReferences);
 
       const savedCount = Number(settings['contentCount']);
 
@@ -1355,6 +1399,25 @@ export class CampaignStudioComponent implements OnInit {
     }
 
     return `Errore HTTP ${error.status}: ${error.statusText || error.message}`;
+  }
+
+  private async urlToDataUrl(url: string): Promise<string> {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Impossibile recuperare un’immagine di riferimento.');
+    const blob = await response.blob();
+    return await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => typeof reader.result === 'string'
+        ? resolve(reader.result)
+        : reject(new Error('Formato reference non valido.'));
+      reader.onerror = () => reject(new Error('Lettura reference non riuscita.'));
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  private estimateDataUrlSize(dataUrl: string): number {
+    const base64 = dataUrl.split(',')[1] ?? '';
+    return Math.floor(base64.length * 3 / 4);
   }
 
   private readFileAsDataUrl(

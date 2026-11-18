@@ -1,113 +1,8 @@
-
 <div class="dashboard-shell">
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-
-    <a routerLink="/dashboard" class="brand">
-      <span class="brand-mark">V</span>
-      <span class="brand-name">VANTA</span>
-    </a>
-
-    <div class="sidebar-label">WORKSPACE</div>
-
-    <nav class="sidebar-nav">
-
-      <a
-        routerLink="/dashboard"
-        routerLinkActive="active"
-        [routerLinkActiveOptions]="{ exact: true }"
-        class="nav-item"
-      >
-        <span class="nav-icon">⌂</span>
-        <span>Dashboard</span>
-      </a>
-
-      <a
-        routerLink="/campaign-studio"
-        routerLinkActive="active"
-        class="nav-item"
-      >
-        <span class="nav-icon">✳</span>
-        <span>Campaign</span>
-        <span class="nav-badge">AI</span>
-      </a>
-
-      <a
-        routerLink="/create"
-        routerLinkActive="active"
-        class="nav-item"
-      >
-        <span class="nav-icon">✧</span>
-        <span>Create</span>
-      </a>
-
-      <a
-        routerLink="/library"
-        routerLinkActive="active"
-        class="nav-item"
-      >
-        <span class="nav-icon">▧</span>
-        <span>Library</span>
-      </a>
-
-    </nav>
-
-    <div class="sidebar-label account-label">ACCOUNT</div>
-
-    <nav class="sidebar-nav">
-
-      <a
-        routerLink="/billing"
-        routerLinkActive="active"
-        class="nav-item"
-      >
-        <span class="nav-icon">◇</span>
-        <span>Billing & Plans</span>
-      </a>
-
-      <a
-        routerLink="/settings"
-        routerLinkActive="active"
-        class="nav-item"
-      >
-        <span class="nav-icon">⚙</span>
-        <span>Settings</span>
-      </a>
-
-    </nav>
-
-    <div class="sidebar-spacer"></div>
-
-    <div class="sidebar-upgrade">
-      <div class="upgrade-orb">✦</div>
-      <h3>Unlock your vision.</h3>
-      <p>Get more credits and bring your ideas to life.</p>
-
-      <a routerLink="/billing" class="upgrade-link">
-        Explore plans <span>↗</span>
-      </a>
-    </div>
-
-    <button
-      type="button"
-      class="logout-button"
-      (click)="logout()"
-      [disabled]="loggingOut()"
-    >
-      <span>↪</span>
-      {{ loggingOut() ? 'Signing out...' : 'Log out' }}
-    </button>
-
-  </aside>
-
-
-  <!-- MAIN -->
   <main class="dashboard-main">
 
-    <!-- TOPBAR -->
     <header class="topbar">
-
       <div class="breadcrumb">
         <span>Workspace</span>
         <span class="breadcrumb-separator">/</span>
@@ -115,374 +10,414 @@
       </div>
 
       <div class="topbar-actions">
+        @if (isAuthenticated()) {
+          <a routerLink="/billing" class="topbar-credits">
+            <span class="credits-icon">✦</span>
+            <span class="credits-label">Credits</span>
 
-        <a routerLink="/billing" class="topbar-credits">
-          <span class="credits-icon">✦</span>
-          <span class="credits-label">Credits</span>
+            @if (creditsLoading()) {
+              <strong>...</strong>
+            } @else if (credits() !== null) {
+              <strong>{{ credits() }}</strong>
+            } @else {
+              <strong>—</strong>
+            }
 
-          @if (creditsLoading()) {
-            <strong>...</strong>
-          } @else if (credits() !== null) {
-            <strong>{{ credits() }}</strong>
-          } @else {
-            <strong>—</strong>
-          }
+            <span class="credits-add">+</span>
+          </a>
 
-          <span class="credits-add">+</span>
-        </a>
-
-        <a
-          routerLink="/settings"
-          class="avatar-button"
-          aria-label="Account settings"
-        >
-          V
-        </a>
-
+          <a routerLink="/settings" class="avatar-button" aria-label="Account settings">
+            V
+          </a>
+        } @else if (authResolved()) {
+          <a routerLink="/auth" class="guest-login-link">Log in</a>
+          <a routerLink="/auth" class="guest-register-button">
+            Create free account <span>↗</span>
+          </a>
+        }
       </div>
-
     </header>
 
-
-    <!-- DASHBOARD CONTENT -->
     <section class="dashboard-content">
 
-      <!-- WELCOME -->
-      <section class="welcome-section">
-
-        <div class="welcome-copy">
-
-          <div class="eyebrow">
-            <span class="status-dot"></span>
-            YOUR CREATIVE WORKSPACE
-          </div>
-
-          <h1>Make your vision <span>visible.</span></h1>
-
-          <p>
-            Create campaigns, generate visuals and build your brand identity
-            with AI.
-          </p>
-
+      @if (loading()) {
+        <div class="dashboard-initial-loading">
+          <span class="loading-spinner"></span>
+          <span>Loading VANTA...</span>
         </div>
+      } @else if (isAuthenticated()) {
 
-        <a routerLink="/campaign-studio" class="primary-button">
-          <span>✳</span>
-          Create a campaign
-          <span class="button-arrow">↗</span>
-        </a>
+        <!-- WELCOME -->
+        <section class="welcome-section">
+          <div class="welcome-copy">
+            <div class="eyebrow">
+              <span class="status-dot"></span>
+              YOUR CREATIVE WORKSPACE
+            </div>
 
-      </section>
+            <h1>Make your vision <span>visible.</span></h1>
 
-
-      <!-- STATS -->
-      <section class="stats-grid">
-
-        <article class="stat-card">
-
-          <div class="stat-top">
-            <span class="stat-label">Available credits</span>
-            <span class="stat-icon">✦</span>
+            <p>
+              Create campaigns, generate visuals and build your brand identity
+              with AI.
+            </p>
           </div>
 
-          @if (creditsLoading()) {
-            <div class="stat-value muted-value">...</div>
-          } @else if (credits() !== null) {
-            <div class="stat-value">{{ credits() }}</div>
-          } @else {
-            <div class="stat-value muted-value">—</div>
-          }
+          <a routerLink="/campaign-studio" class="primary-button">
+            <span>✳</span>
+            Create a campaign
+            <span class="button-arrow">↗</span>
+          </a>
+        </section>
 
-          @if (creditsError()) {
-            <button
-              type="button"
-              class="inline-retry"
-              (click)="loadCredits()"
-            >
-              Retry
-            </button>
-          } @else {
-            <a routerLink="/billing" class="stat-link">
-              Manage credits <span>→</span>
+        <!-- STATS -->
+        <section class="stats-grid">
+
+          <article class="stat-card">
+            <div class="stat-top">
+              <span class="stat-label">Available credits</span>
+              <span class="stat-icon">✦</span>
+            </div>
+
+            @if (creditsLoading()) {
+              <div class="stat-value muted-value">...</div>
+            } @else if (credits() !== null) {
+              <div class="stat-value">{{ credits() }}</div>
+            } @else {
+              <div class="stat-value muted-value">—</div>
+            }
+
+            @if (creditsError()) {
+              <button type="button" class="inline-retry" (click)="loadCredits()">
+                Retry
+              </button>
+            } @else {
+              <a routerLink="/billing" class="stat-link">
+                Manage credits <span>→</span>
+              </a>
+            }
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-top">
+              <span class="stat-label">Campaign studio</span>
+              <span class="stat-icon">✳</span>
+            </div>
+
+            <div class="stat-value stat-value-text">Campaign</div>
+
+            <a routerLink="/campaign-studio" class="stat-link">
+              Open Campaign <span>→</span>
             </a>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-top">
+              <span class="stat-label">Recent visuals</span>
+              <span class="stat-icon">▧</span>
+            </div>
+
+            <div class="stat-value">{{ visualCount() }}</div>
+
+            <a routerLink="/library" class="stat-link">
+              Open Library <span>→</span>
+            </a>
+          </article>
+
+        </section>
+
+        <!-- CAMPAIGN FEATURE -->
+        <section class="campaign-feature">
+          <div class="campaign-feature-content">
+            <div class="feature-tag">
+              <span>✦</span>
+              VANTA AI STUDIO
+            </div>
+
+            <h2>
+              Your next campaign<br />
+              starts <span>here.</span>
+            </h2>
+
+            <p>
+              Turn your ideas into scroll-stopping visuals.
+              Create content that matches your aesthetic and brand identity.
+            </p>
+
+            <a routerLink="/campaign-studio" class="feature-button">
+              Open Campaign <span>↗</span>
+            </a>
+          </div>
+
+          <div class="campaign-art" aria-hidden="true">
+            <div class="art-glow"></div>
+            <div class="art-ring art-ring-one"></div>
+            <div class="art-ring art-ring-two"></div>
+            <div class="art-center">V</div>
+            <div class="art-caption">CREATE<br />YOUR WORLD</div>
+            <div class="art-index">001 / VANTA</div>
+          </div>
+        </section>
+
+        <!-- LIBRARY PREVIEW -->
+        <section class="library-section">
+
+          <div class="section-heading">
+            <div>
+              <div class="section-eyebrow">YOUR CREATIVE ARCHIVE</div>
+              <h2>Recent visuals</h2>
+              <p>Your latest saved creations from Library.</p>
+            </div>
+
+            <a routerLink="/library" class="text-link">
+              Open Library <span>→</span>
+            </a>
+          </div>
+
+          @if (visualsLoading()) {
+            <div class="visuals-loading">
+              <span class="loading-spinner"></span>
+              <span>Loading your visuals...</span>
+            </div>
+
+          } @else if (visualsError()) {
+            <div class="visuals-empty">
+              <div class="empty-icon">↻</div>
+              <h3>Unable to load your visuals</h3>
+              <p>We couldn't load your saved creations. Please try again.</p>
+
+              <button
+                type="button"
+                class="secondary-button"
+                (click)="refreshDashboard()"
+              >
+                Try again
+              </button>
+            </div>
+
+          } @else if (visuals().length === 0) {
+            <div class="visuals-empty">
+              <div class="empty-icon">▧</div>
+              <h3>Your library starts here</h3>
+
+              <p>
+                Your generated visuals will appear here once you create
+                your first design. All saved creations remain in Library.
+              </p>
+
+              <div class="empty-actions">
+                <a routerLink="/create" class="primary-button">
+                  Create a visual <span>↗</span>
+                </a>
+
+                <a routerLink="/library" class="secondary-button">
+                  Open Library
+                </a>
+              </div>
+            </div>
+
+          } @else {
+            <div class="visuals-grid">
+
+              @for (
+                visual of visuals();
+                track trackVisual($index, visual)
+              ) {
+                <article class="visual-card">
+
+                  <a routerLink="/library" class="visual-image">
+                    <img
+                      [src]="visual.generated_image_url"
+                      [alt]="visual.title || 'VANTA generated visual'"
+                      loading="lazy"
+                    />
+
+                    <div class="visual-overlay">
+                      <span>View in Library ↗</span>
+                    </div>
+                  </a>
+
+                  <div class="visual-info">
+                    <div class="visual-title">
+                      {{ visual.title || 'Untitled creation' }}
+                    </div>
+
+                    <div class="visual-meta">
+                      <span>
+                        @if (visual.created_at) {
+                          {{ visual.created_at | date:'dd MMM yyyy' }}
+                        } @else {
+                          Recently created
+                        }
+                      </span>
+
+                      <span class="visual-status">
+                        <span class="status-dot"></span>
+                        Saved
+                      </span>
+                    </div>
+                  </div>
+
+                </article>
+              }
+
+            </div>
           }
 
-        </article>
+        </section>
 
-
-        <article class="stat-card">
-
-          <div class="stat-top">
-            <span class="stat-label">Campaign studio</span>
-            <span class="stat-icon">✳</span>
-          </div>
-
-          <div class="stat-value stat-value-text">Campaign</div>
-
-          <a routerLink="/campaign-studio" class="stat-link">
-            Open Campaign <span>→</span>
-          </a>
-
-        </article>
-
-
-        <article class="stat-card">
-
-          <div class="stat-top">
-            <span class="stat-label">Recent visuals</span>
-            <span class="stat-icon">▧</span>
-          </div>
-
-          <div class="stat-value">{{ visualCount() }}</div>
-
-          <a routerLink="/library" class="stat-link">
-            Open Library <span>→</span>
-          </a>
-
-        </article>
-
-      </section>
-
-
-      <!-- CAMPAIGN FEATURE -->
-      <section class="campaign-feature">
-
-        <div class="campaign-feature-content">
-
-          <div class="feature-tag">
-            <span>✦</span>
-            VANTA AI STUDIO
-          </div>
-
-          <h2>
-            Your next campaign<br />
-            starts <span>here.</span>
-          </h2>
-
-          <p>
-            Turn your ideas into scroll-stopping visuals.
-            Create content that matches your aesthetic and brand identity.
-          </p>
-
-          <a routerLink="/campaign-studio" class="feature-button">
-            Open Campaign <span>↗</span>
-          </a>
-
-        </div>
-
-        <div class="campaign-art" aria-hidden="true">
-          <div class="art-glow"></div>
-          <div class="art-ring art-ring-one"></div>
-          <div class="art-ring art-ring-two"></div>
-          <div class="art-center">V</div>
-          <div class="art-caption">CREATE<br />YOUR WORLD</div>
-          <div class="art-index">001 / VANTA</div>
-        </div>
-
-      </section>
-
-
-      <!-- LIBRARY PREVIEW -->
-      <section class="library-section">
-
-        <div class="section-heading">
-
-          <div>
-            <div class="section-eyebrow">YOUR CREATIVE ARCHIVE</div>
-            <h2>Recent visuals</h2>
-            <p>Your latest saved creations from Library.</p>
-          </div>
-
-          <a routerLink="/library" class="text-link">
-            Open Library <span>→</span>
-          </a>
-
-        </div>
-
-
-        @if (visualsLoading()) {
-
-          <div class="visuals-loading">
-            <span class="loading-spinner"></span>
-            <span>Loading your visuals...</span>
-          </div>
-
-        } @else if (visualsError()) {
-
-          <div class="visuals-empty">
-            <div class="empty-icon">↻</div>
-            <h3>Unable to load your visuals</h3>
-
-            <p>
-              We couldn't load your saved creations. Please try again.
-            </p>
-
-            <button
-              type="button"
-              class="secondary-button"
-              (click)="refreshDashboard()"
-            >
-              Try again
-            </button>
-          </div>
-
-        } @else if (visuals().length === 0) {
-
-          <div class="visuals-empty">
-            <div class="empty-icon">▧</div>
-            <h3>Your library starts here</h3>
-
-            <p>
-              Your generated visuals will appear here once you create
-              your first design. All saved creations remain in Library.
-            </p>
-
-            <div class="empty-actions">
-
-              <a routerLink="/create" class="primary-button">
-                Create a visual <span>↗</span>
-              </a>
-
-              <a routerLink="/library" class="secondary-button">
-                Open Library
-              </a>
-
+        <!-- QUICK ACTIONS -->
+        <section class="quick-actions-section">
+          <div class="section-heading">
+            <div>
+              <div class="section-eyebrow">KEEP CREATING</div>
+              <h2>Quick actions</h2>
             </div>
           </div>
 
-        } @else {
+          <div class="quick-actions-grid">
 
-          <div class="visuals-grid">
+            <a routerLink="/campaign-studio" class="quick-action-card">
+              <span class="quick-action-icon">✳</span>
+              <span class="quick-action-copy">
+                <strong>New campaign</strong>
+                <small>Create a campaign with AI</small>
+              </span>
+              <span class="quick-action-arrow">↗</span>
+            </a>
 
-            @for (
-              visual of visuals();
-              track trackVisual($index, visual)
-            ) {
+            <a routerLink="/create" class="quick-action-card">
+              <span class="quick-action-icon">✧</span>
+              <span class="quick-action-copy">
+                <strong>Quick Create</strong>
+                <small>Generate a visual directly</small>
+              </span>
+              <span class="quick-action-arrow">↗</span>
+            </a>
 
-              <article class="visual-card">
+            <a routerLink="/library" class="quick-action-card">
+              <span class="quick-action-icon">▧</span>
+              <span class="quick-action-copy">
+                <strong>Explore Library</strong>
+                <small>Browse your saved visuals</small>
+              </span>
+              <span class="quick-action-arrow">↗</span>
+            </a>
 
-                <a routerLink="/library" class="visual-image">
+            <a routerLink="/billing" class="quick-action-card">
+              <span class="quick-action-icon">◇</span>
+              <span class="quick-action-copy">
+                <strong>Plans & credits</strong>
+                <small>Choose your subscription plan</small>
+              </span>
+              <span class="quick-action-arrow">↗</span>
+            </a>
 
-                  <img
-                    [src]="visual.generated_image_url"
-                    [alt]="visual.title || 'VANTA generated visual'"
-                    loading="lazy"
-                  />
+          </div>
+        </section>
 
-                  <div class="visual-overlay">
-                    <span>View in Library ↗</span>
-                  </div>
+        <!-- FOOTER -->
+        <footer class="dashboard-footer">
+          <span>VANTA © {{ currentYear }}</span>
+          <span>Made for your vision.</span>
+        </footer>
 
+      } @else {
+
+        <!-- PUBLIC LANDING / FREE SIGN-UP -->
+        <section class="public-landing">
+
+          <div class="public-hero">
+            <div class="public-hero-copy">
+              <div class="public-eyebrow">
+                <span class="status-dot"></span>
+                VANTA AI CREATIVE STUDIO
+              </div>
+
+              <h1>Your vision.<br /><span>Without limits.</span></h1>
+
+              <p>
+                Trasforma le tue idee in immagini e campagne visive con l'intelligenza artificiale.
+                Entra in VANTA e porta la tua creatività a un nuovo livello.
+              </p>
+
+              <div class="public-hero-actions">
+                <a routerLink="/auth" class="primary-button">
+                  Create your free account <span class="button-arrow">↗</span>
                 </a>
 
-                <div class="visual-info">
+                <a routerLink="/auth" class="public-login-link">
+                  Already have an account? Log in
+                </a>
+              </div>
 
-                  <div class="visual-title">
-                    {{ visual.title || 'Untitled creation' }}
-                  </div>
+              <div class="public-trust-line">
+                <span>✦</span>
+                Inizia gratuitamente · Nessuna carta richiesta per creare l'account
+              </div>
+            </div>
 
-                  <div class="visual-meta">
-
-                    <span>
-                      @if (visual.created_at) {
-                        {{ visual.created_at | date:'dd MMM yyyy' }}
-                      } @else {
-                        Recently created
-                      }
-                    </span>
-
-                    <span class="visual-status">
-                      <span class="status-dot"></span>
-                      Saved
-                    </span>
-
-                  </div>
-
-                </div>
-
-              </article>
-
-            }
-
+            <div class="public-visual" aria-hidden="true">
+              <div class="public-visual-glow"></div>
+              <div class="public-visual-ring ring-a"></div>
+              <div class="public-visual-ring ring-b"></div>
+              <div class="public-visual-core">V</div>
+              <div class="public-visual-caption">IMAGINE<br />WHAT'S NEXT</div>
+              <div class="public-visual-number">VANTA / 001</div>
+            </div>
           </div>
 
-        }
-
-      </section>
-
-
-      <!-- QUICK ACTIONS -->
-      <section class="quick-actions-section">
-
-        <div class="section-heading">
-          <div>
-            <div class="section-eyebrow">KEEP CREATING</div>
-            <h2>Quick actions</h2>
+          <div class="public-section-heading">
+            <div class="section-eyebrow">ONE CREATIVE WORKSPACE</div>
+            <h2>Everything starts with an idea.</h2>
+            <p>
+              Un unico spazio per creare, sviluppare e organizzare i tuoi contenuti visivi.
+            </p>
           </div>
-        </div>
 
-        <div class="quick-actions-grid">
+          <div class="public-features">
+            <article class="public-feature-card">
+              <span class="public-feature-icon">✧</span>
+              <span class="public-feature-index">01 / CREATE</span>
+              <h3>AI Image Creation</h3>
+              <p>Genera visual originali partendo dalle tue idee e dai tuoi prompt.</p>
+            </article>
 
-          <a routerLink="/campaign-studio" class="quick-action-card">
-            <span class="quick-action-icon">✳</span>
+            <article class="public-feature-card">
+              <span class="public-feature-icon">✳</span>
+              <span class="public-feature-index">02 / CAMPAIGNS</span>
+              <h3>Campaign Studio</h3>
+              <p>Costruisci campagne coerenti e sviluppa una direzione visiva riconoscibile.</p>
+            </article>
 
-            <span class="quick-action-copy">
-              <strong>New campaign</strong>
-              <small>Create a campaign with AI</small>
-            </span>
+            <article class="public-feature-card">
+              <span class="public-feature-icon">▧</span>
+              <span class="public-feature-index">03 / LIBRARY</span>
+              <h3>Your Creative Library</h3>
+              <p>Raccogli e ritrova le tue creazioni in un archivio personale.</p>
+            </article>
+          </div>
 
-            <span class="quick-action-arrow">↗</span>
-          </a>
+          <section class="public-bottom-cta">
+            <div>
+              <div class="section-eyebrow">YOUR NEXT IDEA STARTS HERE</div>
+              <h2>Ready to create something different?</h2>
+              <p>Crea il tuo account gratuito e scopri VANTA.</p>
+            </div>
 
+            <a routerLink="/auth" class="primary-button">
+              Get started <span class="button-arrow">↗</span>
+            </a>
+          </section>
 
-          <a routerLink="/create" class="quick-action-card">
-            <span class="quick-action-icon">✧</span>
+          <footer class="dashboard-footer">
+            <span>VANTA © {{ currentYear }}</span>
+            <span>Made for your vision.</span>
+          </footer>
 
-            <span class="quick-action-copy">
-              <strong>Quick Create</strong>
-              <small>Generate a visual directly</small>
-            </span>
-
-            <span class="quick-action-arrow">↗</span>
-          </a>
-
-
-          <a routerLink="/library" class="quick-action-card">
-            <span class="quick-action-icon">▧</span>
-
-            <span class="quick-action-copy">
-              <strong>Explore Library</strong>
-              <small>Browse your saved visuals</small>
-            </span>
-
-            <span class="quick-action-arrow">↗</span>
-          </a>
-
-
-          <a routerLink="/billing" class="quick-action-card">
-            <span class="quick-action-icon">◇</span>
-
-            <span class="quick-action-copy">
-              <strong>Plans & credits</strong>
-              <small>Choose your subscription plan</small>
-            </span>
-
-            <span class="quick-action-arrow">↗</span>
-          </a>
-
-        </div>
-
-      </section>
-
-
-      <!-- FOOTER -->
-      <footer class="dashboard-footer">
-        <span>VANTA © {{ currentYear }}</span>
-        <span>Made for your vision.</span>
-      </footer>
+        </section>
+      }
 
     </section>
-
   </main>
-
 </div>

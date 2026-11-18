@@ -42,6 +42,8 @@ export class Dashboard implements OnInit {
 
   readonly loading = signal(true);
   readonly loggingOut = signal(false);
+  readonly isAuthenticated = signal(false);
+  readonly authResolved = signal(false);
 
   readonly credits = signal<number | null>(null);
   readonly creditsLoading = signal(true);
@@ -61,11 +63,33 @@ export class Dashboard implements OnInit {
     this.loading.set(true);
 
     try {
-      await Promise.all([
-        this.loadCredits(),
-        this.loadVisuals()
-      ]);
+      const session = await this.authService.getSession();
+      const authenticated = !!session?.access_token;
+
+      this.isAuthenticated.set(authenticated);
+
+      // La Dashboard è pubblica: gli endpoint personali vengono chiamati
+      // soltanto quando esiste una sessione valida.
+      if (authenticated) {
+        await Promise.all([
+          this.loadCredits(),
+          this.loadVisuals()
+        ]);
+      } else {
+        this.credits.set(null);
+        this.visuals.set([]);
+        this.creditsLoading.set(false);
+        this.visualsLoading.set(false);
+      }
+    } catch (error) {
+      console.error('Errore verifica sessione dashboard:', error);
+      this.isAuthenticated.set(false);
+      this.credits.set(null);
+      this.visuals.set([]);
+      this.creditsLoading.set(false);
+      this.visualsLoading.set(false);
     } finally {
+      this.authResolved.set(true);
       this.loading.set(false);
     }
   }
@@ -187,7 +211,8 @@ export class Dashboard implements OnInit {
 
     try {
       await this.authService.signOut();
-      await this.router.navigate(['/auth']);
+      this.isAuthenticated.set(false);
+      await this.router.navigate(['/dashboard']);
     } catch (error) {
       console.error('Errore durante il logout:', error);
     } finally {

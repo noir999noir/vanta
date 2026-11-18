@@ -1,0 +1,80 @@
+<aside class="vanta-sidebar" aria-label="Navigazione principale">
+  <a routerLink="/dashboard" class="vanta-brand">
+    <span class="brand-mark">V</span>
+    <span class="brand-name">VANTA</span>
+  </a>
+
+  @if (isAuthenticated()) {
+    <div class="nav-label">WORKSPACE</div>
+    <nav class="nav-list">
+      <a routerLink="/dashboard" routerLinkActive="active"
+         [routerLinkActiveOptions]="{ exact: true }" class="nav-item">
+        <span class="nav-icon">⌂</span><span>Dashboard</span>
+      </a>
+      <a routerLink="/campaign-studio" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">✳</span><span>Campaign</span><span class="nav-badge">AI</span>
+      </a>
+      <a routerLink="/create" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">✧</span><span>Create</span>
+      </a>
+      <a routerLink="/library" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">▧</span><span>Library</span>
+      </a>
+      <!-- <a routerLink="/feed" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">◉</span><span>Feed</span>
+      </a> -->
+    </nav>
+
+    <div class="nav-label account-label">ACCOUNT</div>
+    <nav class="nav-list">
+      <!-- <a routerLink="/profile" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">◌</span><span>Profile</span>
+      </a> -->
+      <a routerLink="/billing" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">◇</span><span>Billing & Plans</span>
+      </a>
+      <a routerLink="/settings" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">⚙</span><span>Settings</span>
+      </a>
+    </nav>
+
+    <div class="nav-spacer"></div>
+    <div class="nav-upgrade">
+      <span class="upgrade-icon">✦</span>
+      <h3>Unlock your vision.</h3>
+      <p>Get more credits and bring your ideas to life.</p>
+      <a routerLink="/billing">Explore plans <span>↗</span></a>
+    </div>
+    <button class="logout-button" type="button"
+            (click)="logout()" [disabled]="loggingOut()">
+      <span>↪</span>{{ loggingOut() ? 'Signing out...' : 'Log out' }}
+    </button>
+  } @else if (authResolved()) {
+    <div class="guest-nav">
+      <span class="guest-kicker">YOUR CREATIVE SPACE</span>
+      <p>Accedi o crea un account gratuito per iniziare a usare VANTA.</p>
+      <a routerLink="/auth" class="guest-cta">Get started <span>↗</span></a>
+    </div>
+  }
+</aside>
+
+@if (isAuthenticated()) {
+  <nav class="vanta-mobile-nav" aria-label="Navigazione principale">
+    <a routerLink="/dashboard" routerLinkActive="active"
+       [routerLinkActiveOptions]="{ exact: true }" class="mobile-item">
+      <span class="mobile-icon">⌂</span><span>Dashboard</span>
+    </a>
+    <a routerLink="/campaign-studio" routerLinkActive="active" class="mobile-item">
+      <span class="mobile-icon">✳</span><span>Campaign</span>
+    </a>
+    <a routerLink="/create" routerLinkActive="active" class="mobile-item mobile-create">
+      <span class="mobile-icon">✧</span><span>Create</span>
+    </a>
+    <a routerLink="/library" routerLinkActive="active" class="mobile-item">
+      <span class="mobile-icon">▧</span><span>Library</span>
+    </a>
+    <a routerLink="/settings" routerLinkActive="active" class="mobile-item">
+      <span class="mobile-icon">⚙</span><span>Settings</span>
+    </a>
+  </nav>
+}

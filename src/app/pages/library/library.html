@@ -1,8 +1,7 @@
 
 <div class="library-shell">
- 
-
   <main class="main">
+
     <header class="topbar">
       <div>
         <p class="eyebrow">YOUR CREATIVE WORKSPACE</p>
@@ -20,10 +19,12 @@
         <span>Saved visuals</span>
         <strong>{{ visuals().length }}</strong>
       </article>
+
       <article class="stat-card">
         <span>Campaigns</span>
         <strong>{{ campaigns().length }}</strong>
       </article>
+
       <article class="stat-card">
         <span>Campaign assets</span>
         <strong>{{ totalPosts() }}</strong>
@@ -31,27 +32,25 @@
     </section>
 
     <nav class="tabs">
-      <button
-        type="button"
+      <button type="button"
         [class.active]="activeTab() === 'all'"
         (click)="setTab('all')">
         All content
       </button>
-      <button
-        type="button"
+
+      <button type="button"
         [class.active]="activeTab() === 'campaigns'"
         (click)="setTab('campaigns')">
         Campaigns
       </button>
-      <button
-        type="button"
+
+      <button type="button"
         [class.active]="activeTab() === 'visuals'"
         (click)="setTab('visuals')">
         Saved visuals
       </button>
 
-      <button
-        type="button"
+      <button type="button"
         class="refresh-button"
         (click)="loadLibrary()"
         [disabled]="loading()">
@@ -70,6 +69,7 @@
         <button type="button" (click)="loadLibrary()">Try again</button>
       </div>
     } @else {
+
       @if (activeTab() !== 'visuals') {
         <section class="content-section">
           <div class="section-heading">
@@ -83,9 +83,16 @@
           @if (campaigns().length) {
             <div class="campaign-grid">
               @for (campaign of campaigns(); track trackCampaign($index, campaign)) {
-                <article class="campaign-card">
+                <button
+                  type="button"
+                  class="campaign-card"
+                  (click)="openCampaign(campaign)">
+
                   @if (campaignCover(campaign); as cover) {
-                    <img class="campaign-cover" [src]="cover" [alt]="campaignTitle(campaign)" />
+                    <img
+                      class="campaign-cover"
+                      [src]="cover"
+                      [alt]="campaignTitle(campaign)" />
                   } @else {
                     <div class="campaign-cover placeholder">◈</div>
                   }
@@ -95,16 +102,19 @@
                       <span>CAMPAIGN</span>
                       <span>{{ campaign.status || 'Saved' }}</span>
                     </div>
+
                     <h3>{{ campaignTitle(campaign) }}</h3>
-                    <p>{{ campaign.brief || 'No campaign description.' }}</p>
+
                     <div class="card-footer">
                       <span>{{ campaign.posts?.length ?? 0 }} assets</span>
                       <span>
                         {{ campaign.created_at ? (campaign.created_at | date:'mediumDate') : 'Saved campaign' }}
                       </span>
                     </div>
+
+                    <span class="campaign-open-label">Open project ↗</span>
                   </div>
-                </article>
+                </button>
               }
             </div>
           } @else {
@@ -137,6 +147,7 @@
                   type="button"
                   class="visual-card"
                   (click)="openVisual(visual)">
+
                   @if (visual.generated_image_url) {
                     <img
                       [src]="visual.generated_image_url"
@@ -145,6 +156,7 @@
                   } @else {
                     <div class="visual-placeholder">Image unavailable</div>
                   }
+
                   <span class="visual-overlay">
                     <strong>{{ visualTitle(visual) }}</strong>
                     <small>
@@ -159,7 +171,9 @@
               <span>✦</span>
               <h3>Your visual collection starts here</h3>
               <p>Generate an image in Create and choose Save. It will appear here.</p>
-              <a routerLink="/create" class="primary-button">Create your first visual</a>
+              <a routerLink="/create" class="primary-button">
+                Create your first visual
+              </a>
             </div>
           }
         </section>
@@ -167,19 +181,228 @@
     }
   </main>
 
+  <!-- CAMPAIGN DETAIL -->
+  @if (selectedCampaign(); as campaign) {
+    <div class="campaign-detail-backdrop">
+      <section class="campaign-detail">
+
+        <header class="campaign-detail-header">
+          <div>
+            <p class="eyebrow">VANTA PROJECT ARCHIVE</p>
+            <h2>{{ campaignTitle(campaign) }}</h2>
+            <p>{{ campaign.status || 'Saved project' }}</p>
+          </div>
+
+          <div class="campaign-header-actions">
+            <a
+              class="primary-button"
+              [routerLink]="['/campaign-studio']"
+              [queryParams]="{ resume: campaign.id }">
+              Prosegui da qui ↗
+            </a>
+            <button
+              type="button"
+              class="modal-close"
+              (click)="closeCampaign()">
+              ✕
+            </button>
+          </div>
+        </header>
+
+        @if (campaignLoading()) {
+          <div class="state-card">
+            <div class="spinner"></div>
+            Loading complete project...
+          </div>
+        } @else if (campaignError()) {
+          <div class="state-card error">
+            <p>{{ campaignError() }}</p>
+            <button type="button" (click)="openCampaign(campaign)">
+              Retry
+            </button>
+          </div>
+        } @else {
+
+          <div class="campaign-detail-body">
+
+            <section class="project-overview">
+              <div>
+                <p class="eyebrow">CAMPAIGN BRIEF</p>
+                <p>{{ campaign.brief || 'No brief available.' }}</p>
+              </div>
+
+              <div class="project-meta-grid">
+                <div>
+                  <span>ASSETS</span>
+                  <strong>{{ campaign.posts?.length ?? 0 }}</strong>
+                </div>
+                <div>
+                  <span>READY</span>
+                  <strong>{{ readyPosts() }}</strong>
+                </div>
+                <div>
+                  <span>FORMAT</span>
+                  <strong>{{ campaign.formats?.join(', ') || '—' }}</strong>
+                </div>
+                <div>
+                  <span>RATIO</span>
+                  <strong>{{ campaign.aspect_ratio || '—' }}</strong>
+                </div>
+              </div>
+            </section>
+
+            @if (campaignConcept()) {
+              <section class="project-dna">
+                <p class="eyebrow">CREATIVE DNA</p>
+                <p>{{ campaignConcept() }}</p>
+
+                @if (campaignPalette().length) {
+                  <div class="palette-row">
+                    @for (color of campaignPalette(); track color) {
+                      <span
+                        class="palette-swatch"
+                        [style.background]="color"
+                        [title]="color">
+                      </span>
+                    }
+                  </div>
+                }
+              </section>
+            }
+
+            <section class="project-assets">
+              <div class="section-heading">
+                <div>
+                  <p class="eyebrow">PROJECT CONTENT</p>
+                  <h3>All campaign assets</h3>
+                </div>
+                <span class="muted">{{ campaign.posts?.length ?? 0 }} items</span>
+              </div>
+
+              @if (campaign.posts?.length) {
+                <div class="campaign-assets-grid">
+                  @for (post of campaign.posts; track trackPost($index, post)) {
+                    <button
+                      type="button"
+                      class="campaign-asset-card"
+                      (click)="openPost(post)">
+
+                      @if (campaignPostImage(post); as image) {
+                        <img [src]="image" [alt]="post.title || 'Campaign asset'" />
+                      } @else {
+                        <div class="asset-placeholder">
+                          <span>◈</span>
+                          <small>{{ postStatus(post) }}</small>
+                        </div>
+                      }
+
+                      <div class="asset-card-info">
+                        <span class="asset-status" [attr.data-status]="postStatus(post)">
+                          {{ postStatus(post) }}
+                        </span>
+                        <strong>{{ post.title || 'Untitled asset' }}</strong>
+                        <small>{{ post.format || 'Campaign content' }}</small>
+                      </div>
+                    </button>
+                  }
+                </div>
+              } @else {
+                <div class="empty-card">
+                  <h3>No assets in this project</h3>
+                </div>
+              }
+            </section>
+          </div>
+        }
+      </section>
+    </div>
+  }
+
+  <!-- POST DETAIL -->
+  @if (selectedPost(); as post) {
+    <div class="post-detail-backdrop" (click)="closePost()">
+      <section class="post-detail" (click)="$event.stopPropagation()">
+        <button type="button" class="modal-close" (click)="closePost()">✕</button>
+
+        @if (post.generatedImage) {
+          <img class="post-detail-image" [src]="post.generatedImage" [alt]="post.title || 'Campaign image'" />
+        }
+
+        <div class="post-detail-content">
+          <p class="eyebrow">CAMPAIGN ASSET</p>
+          <h2>{{ post.title || 'Untitled asset' }}</h2>
+
+          <p class="asset-status" [attr.data-status]="postStatus(post)">
+            {{ postStatus(post) }}
+          </p>
+
+          @if (post.caption) {
+            <h3>Caption</h3>
+            <p>{{ post.caption }}</p>
+          }
+
+          @if (post.hashtags) {
+            <h3>Hashtags</h3>
+            <p>{{ post.hashtags }}</p>
+          }
+
+          @if (post.objective) {
+            <h3>Objective</h3>
+            <p>{{ post.objective }}</p>
+          }
+
+          @if (post.visualDirection) {
+            <h3>Visual direction</h3>
+            <p>{{ post.visualDirection }}</p>
+          }
+
+          @if (post.creativePrompt) {
+            <h3>Creative prompt</h3>
+            <p class="prompt-text">{{ post.creativePrompt }}</p>
+          }
+
+          @if (post.negativePrompt) {
+            <h3>Negative prompt</h3>
+            <p class="prompt-text">{{ post.negativePrompt }}</p>
+          }
+
+          @if (post.generationError) {
+            <h3>Generation details</h3>
+            <p class="error-text">{{ post.generationError }}</p>
+          }
+
+          @if (post.generatedImage) {
+            <a
+              class="primary-button"
+              [href]="post.generatedImage"
+              target="_blank"
+              rel="noopener noreferrer">
+              Open full image ↗
+            </a>
+          }
+        </div>
+      </section>
+    </div>
+  }
+
+  <!-- SAVED VISUAL DETAIL -->
   @if (selectedVisual(); as visual) {
     <div class="modal-backdrop" (click)="closeVisual()">
       <section class="visual-modal" (click)="$event.stopPropagation()">
         <button class="modal-close" type="button" (click)="closeVisual()">✕</button>
+
         @if (visual.generated_image_url) {
           <img [src]="visual.generated_image_url" [alt]="visualTitle(visual)" />
         }
+
         <div class="modal-info">
           <p class="eyebrow">SAVED VISUAL</p>
           <h2>{{ visualTitle(visual) }}</h2>
+
           @if (visual.prompt || visual.concept) {
             <p>{{ visual.prompt || visual.concept }}</p>
           }
+
           <a
             class="primary-button"
             [href]="visual.generated_image_url"
